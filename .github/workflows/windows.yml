@@ -16,6 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 90  # fetching the drawings without the cache takes ~30 min
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -38,6 +39,7 @@ jobs:
       - name: Mission smoke test (quick sample)
         run: python -m tests.smoke --quick
       - name: SRS password rotation against a real scheduled task
+        timeout-minutes: 5
         run: python -m tests.srs_windows
       - name: From source (python -m app) starts and builds a mission
         shell: pwsh
@@ -75,11 +77,16 @@ jobs:
           if ($LASTEXITCODE) { throw "ISCC failed" }
       - name: Install, run, uninstall
         shell: pwsh
+        timeout-minutes: 10
         run: |
           $setup = "dist\DCS-Mission-Maker-Setup-$env:VERSION.exe"
           Start-Process $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/TASKS=firewall" -Wait
           $exe = "$env:ProgramFiles\DCS Mission Maker\DCS Mission Maker.exe"
           if (-not (Test-Path $exe)) { throw "not installed: $exe" }
+          # Setup runs the app briefly (Start with Windows); nothing may be left running.
+          Start-Sleep 5
+          $left = Get-CimInstance Win32_Process -Filter "Name = 'DCS Mission Maker.exe'"
+          if ($left) { $left | ForEach-Object { Write-Output "still running: $($_.CommandLine)" }; throw "app left running after Setup" }
           if (-not (netsh advfirewall firewall show rule name="DCS Mission Maker" | Select-String "Allow")) { throw "no firewall rule" }
           ./windows/smoke-test.ps1 -Command $exe -Arguments "--no-tray", "--background"
           Start-Process "$env:ProgramFiles\DCS Mission Maker\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES" -Wait

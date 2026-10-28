@@ -58,8 +58,9 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#AppName}"""; Flags: runhidden
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#AppName}"" dir=in action=allow program=""{app}\{#AppExe}"" enable=yes profile=any"; Flags: runhidden; Tasks: firewall; StatusMsg: "Allowing it through Windows Firewall..."
 ; Start with Windows is per user: set it for the user who ran Setup, not the admin account.
-Filename: "{app}\{#AppExe}"; Parameters: "--set-autostart"; Flags: runasoriginaluser waituntilterminated; Tasks: autostart
-Filename: "{app}\{#AppExe}"; Parameters: "--unset-autostart"; Flags: runasoriginaluser waituntilterminated; Tasks: not autostart
+; nowait: it only writes one registry value, and Setup must never hang on it.
+Filename: "{app}\{#AppExe}"; Parameters: "--set-autostart"; Flags: runasoriginaluser nowait; Tasks: autostart
+Filename: "{app}\{#AppExe}"; Parameters: "--unset-autostart"; Flags: runasoriginaluser nowait; Tasks: not autostart
 Filename: "{app}\{#AppExe}"; Description: "Start {#AppName} now"; Flags: postinstall nowait runasoriginaluser skipifsilent
 
 [UninstallRun]

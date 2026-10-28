@@ -155,7 +155,14 @@ def main(argv=None):
     parser.add_argument("--unset-autostart", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.set_autostart or args.unset_autostart:
-        set_autostart(args.set_autostart)
+        # Run by the installer. An uncaught error would open a dialog in this windowed .exe,
+        # and a silent install would wait on it forever: log it instead.
+        try:
+            set_autostart(args.set_autostart)
+        except Exception:
+            _setup_logging()
+            log.exception("couldn't change Start with Windows")
+            return 1
         return 0
 
     paths.data_dir().mkdir(parents=True, exist_ok=True)
