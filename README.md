@@ -52,8 +52,8 @@ This is the lighter option next to a DCS server: no Docker, no virtual machine t
 2. Get this project: `git clone https://github.com/KaiserHomeLab/dcs-mission-maker.git dcs-mission-maker`, or download it as a ZIP
    and unpack it, e.g. to `C:\dcs-mission-maker`.
 3. Double-click `windows\setup.bat`. It creates a Python environment in `.venv`, installs
-   the packages, downloads the pinned mission scripts, airfield data, fonts and 3-view
-   drawings (a few minutes), and creates `.env` from `.env.example`.
+   the packages, downloads the pinned mission scripts, airfield data and fonts, and creates
+   `.env` from `.env.example`.
 4. Double-click `windows\start.bat` and open <http://localhost:8080>. Close the window to stop it.
 
 Optional:
@@ -78,7 +78,7 @@ docker compose up -d --build
 ```
 
 The first build takes a few minutes: it downloads the pinned mission scripts,
-airfield data and 3-view drawings.
+airfield data and fonts.
 
 Open <http://localhost:8080> (or `http://<host-ip>:8080` from another PC).
 Generated missions download from the page and are stored in `./missions` (with their
@@ -132,7 +132,7 @@ Generate button.
 | **Discord & server** | Post missions to Discord, copy them straight into your server's Missions folder, or upload them over SFTP (see above). |
 | **Briefing Room** | Every mission gets its own page (`/briefing/<mission>`), linked from the Generate result, recent missions, sign-up pages and Discord posts. A full-screen tactical map with map, terrain and satellite views shows each flight's route and waypoints, SAM threat rings, objectives, tanker/AWACS orbits, bullseye, front line and JTAC (click anywhere for coordinates and bullseye bearing/range). Tabs beside it cover the tasking and situation, each flight's route table, loadout and radios, a comms card, threats, weather and home field, and the kneeboard pages. Printable, and shareable with your group. A **Who's flying** roster lets each player type their name and take a seat ("Viper 1-2"); everyone sees who's on which aircraft, AI wingmen are marked, names from a sign-up page carry over, and the slot names in the `.miz` update to "Viper 1-2 (Mitsu)" (re-download or re-publish after everyone has picked). |
 | **My flight** | Once you've taken a seat, the Briefing Room's *My flight* tab shows your own route map with numbered waypoints and the threat rings near it, a leg table (true heading, distance, altitude, bullseye), your TOT, loadout, radios and wingmen, recognition cards for the threats along your route, and your kneeboard. The main map highlights your flight too. |
-| **Threat ID** | Blueprint drawing sheets for every enemy system in the mission. Most fighters (Su-27, Su-30, MiG-29, F-15, F-16, F/A-18, F-4E, F-5E, MiG-15/19/21/23, F-86F, Bf 109, Fw 190, P-47, P-51, Spitfire) the T-72 (also shown for the T-72B3 and T-90), T-80, Leopard 1, Leopard 2, PT-76, BMP-3, and the Ticonderoga and Arleigh Burke use **real drawings** from Wikimedia Commons, recoloured to blueprint style and credited on the sheet and card (author, licence and a link). Every other ground and naval unit (tanks, APCs, SPAAGs, SAM launchers, towed guns, radars, artillery, MANPADS, ships) gets a **generated 3-view line drawing** in the same style: side, plan and front views at one true scale built from published dimensions, with running gear, turrets, guns, missiles, radars and hidden lines removed, plus length/width/height dimensions. Each sheet also has an engagement-envelope or weapon-range diagram and a title block; click one to open it full screen. Each card also lists (fighters, SAM sites, short-range air defenses, radars, armor, ships): role, range, altitude, guidance, weapons, RWR symbol where well known, and how to beat it. Pop-up threats and not-yet-revealed targets show as "possible" without a location. Generated drawings are representative in detail, and figures are approximate. |
+| **Threat ID** | Blueprint drawing sheets for every enemy system in the mission. The fighters, the main tanks and IFVs, the main SAM launchers, and the Ticonderoga and Arleigh Burke use **3-view recognition drawings** made for the app (`app/data/drawings/`), recoloured to blueprint style; variants such as the T-72B3 borrow the closest one until they have their own. Every other ground and naval unit (tanks, APCs, SPAAGs, SAM launchers, towed guns, radars, artillery, MANPADS, ships) gets a **generated 3-view line drawing** in the same style: side, plan and front views at one true scale built from published dimensions, with running gear, turrets, guns, missiles, radars and hidden lines removed, plus length/width/height dimensions. Each sheet also has an engagement-envelope or weapon-range diagram and a title block; click one to open it full screen. Each card also lists (fighters, SAM sites, short-range air defenses, radars, armor, ships): role, range, altitude, guidance, weapons, RWR symbol where well known, and how to beat it. Pop-up threats and not-yet-revealed targets show as "possible" without a location. Generated drawings are representative in detail, and figures are approximate. |
 | **Waypoints** | Every flight gets a full route: Join, Push, Ingress, Target (plus extra objectives), Egress (turned off the attack axis, away from your ingress) and Return, then home. CAP flights get a two-point CAP racetrack. The same waypoints go into the mission, the data cartridges and the kneeboards. |
 | **Route editing & TOT** | Drag each flight's Push, Ingress and Egress on the map. Set a time on target: the target waypoint is locked to it, the time to leave Ingress is briefed, warnings show if a flight can't make it, and AI flights can be timed off it (SEAD goes in 3 min before you, strikers just after). |
 | **Airfield data** | Home field TACAN, tower frequencies, runway in use (into the wind) and its ILS, in the briefing and on the kneeboards. |
@@ -195,7 +195,7 @@ LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
 
 ## Notes and limits
 
-- **Blueprint drawings:** the real 3-view drawings come from Wikimedia Commons under public domain, CC0, CC BY or CC BY-SA licences; each sheet credits the author and licence and links the source file. Air-defense vehicles and launchers, radars, most armour (BMP-2, Abrams, Bradley, WWII tanks), most ships, the F-14 and the Fw 190 D-9 have no freely licensed line drawings there, so they use generated line drawings (each one also has a generated fallback in case a download fails at build). DCS's own 3D models are proprietary and aren't used.
+- **Blueprint drawings:** the recognition drawings are made with an image generator from the prompts in [art/PROMPTS.md](art/PROMPTS.md), checked against photos for the features that tell a unit apart, and cleaned by `tools/art_drawings.py`. Detail and proportions are approximate. Units without one yet use generated line drawings. DCS's own 3D models are proprietary and aren't used.
 
 - **Not flown yet:** missions are checked for structure and Lua syntax, but not
   loaded in DCS by the generator. Fly a test mission before a big night.
@@ -311,9 +311,9 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `app/static/js/common.js` | Helpers shared by the page scripts |
 | `app/static/js/builder.js`, `event.js`, `briefing.js` | Page scripts for the builder, sign-up page and Briefing Room |
 | `app/threatdb.py` | Threat recognition data and dimensions for the Threat ID cards |
-| `app/static/js/blueprint.js` | Blueprint sheets: layout, envelopes, real drawings, aircraft two-views |
+| `app/static/js/blueprint.js` | Blueprint sheets: layout, envelopes, recognition drawings, aircraft two-views |
 | `app/static/js/draw3v.js`, `draw3v_units.js`, `draw3v_specs.js` | Generated 3-view line drawings: parts (tracks, wheels, barrels, missiles, radars), vehicle/gun/ship families, and per-unit specs in metres |
-| `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked), fetched at setup |
+| `app/data/drawings/`, `tools/art_drawings.py`, `art/PROMPTS.md` | Recognition drawings made for the app: the tool cleans images dropped in `art/drawings/` into `app/data/drawings/` and rewrites the prompt list for the units still without one |
 | `tools/fetch_vendor.py` | Downloads the pinned, SHA-256-checked mission scripts, beacon data and fonts into `vendor/` |
 | `app/paths.py` | Where data lives: from the environment (Docker) or folders in the project (Windows) |
 | `app/__main__.py`, `windows/*.bat` | `python -m app` (waitress server, reads `.env`); Windows setup, start, autostart, firewall and build scripts |
@@ -345,8 +345,8 @@ Locally, `windows\build.bat` builds the same app, zip and (with Inno Setup 6 ins
 
 ## Credits and licences
 
-Built on pydcs, MOOSE, MIST, Skynet IADS, Hound ELINT, EWRS, DCS Retribution's data,
-Wikimedia Commons drawings and Leaflet. See [THIRD_PARTY.md](THIRD_PARTY.md) for each
+Built on pydcs, MOOSE, MIST, Skynet IADS, Hound ELINT, EWRS, DCS Retribution's data
+and Leaflet. See [THIRD_PARTY.md](THIRD_PARTY.md) for each
 component and its licence. DCS World is © Eagle Dynamics; this project isn't affiliated with it.
 
 DCS Mission Maker is free software under the [GNU General Public License v3.0](LICENSE) or later.

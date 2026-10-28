@@ -1,7 +1,7 @@
 # PyInstaller recipe for the Windows app. Run windows\build.bat, or after setup:
 #     pyinstaller --noconfirm windows\dcs-mission-maker.spec
 # Output: dist\DCS Mission Maker\ (the .exe plus an _internal folder with everything it needs).
-# vendor\ and drawings\ must be downloaded first (tools\fetch_vendor.py, tools\fetch_drawings.py).
+# vendor\ must be downloaded first (tools\fetch_vendor.py).
 import pathlib
 import sys
 
@@ -28,8 +28,6 @@ datas += [
     (str(ROOT / "vendor"), "vendor"),
     (str(ROOT / "THIRD_PARTY.md"), "."),
 ]
-if (ROOT / "drawings").is_dir():  # optional: sheets fall back to generated drawings
-    datas.append((str(ROOT / "drawings"), "drawings"))
 hiddenimports += ["waitress"]
 if sys.platform == "win32":
     hiddenimports += ["pystray._win32"]

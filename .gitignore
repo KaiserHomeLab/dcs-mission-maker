@@ -24,9 +24,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Downloaded by tools/fetch_vendor.py and tools/fetch_drawings.py (windows/setup.bat)
-vendor/
-drawings/
+# Downloaded by tools/fetch_vendor.py (windows/setup.bat)
+/vendor/
+# Original images for tools/art_drawings.py (the cleaned copies in app/data/drawings/ are kept)
+/art/drawings/
 build/
 dist/
 # Written by the release build (.github/workflows/release.yml)

@@ -4,7 +4,7 @@
  * (side + plan for aircraft and ships, side + front for vehicles and guns),
  * dimension lines from real (aircraft) or approximate (ground/naval) sizes,
  * numbered callouts, an engagement-envelope diagram and a title block.
- * Units with a real drawing (Wikimedia Commons) or a generated 3-view
+ * Units with a recognition drawing (app/data/drawings) or a generated 3-view
  * (draw3v*.js) use those instead; the stylized family drawings here are the
  * last resort for anything else.
  *
@@ -257,14 +257,12 @@
     return null;
   }
 
-  // A real 3-view drawing (black ink on white or transparent) recoloured to white
-  // lines on the blueprint: composite over white, then alpha = darkness.
+  // A 3-view drawing (black ink on white) recoloured to white lines on the
+  // blueprint: composite over white, then alpha = darkness.
   function realDrawing(e, id) {
     const d = e.dims;
-    // Small raster drawings get a touch of blur so enlarged pixels don't look jagged.
-    const soften = e.drawing.lowres ? `<feGaussianBlur in="c0" stdDeviation="0.45" result="c"/>` : "";
     let s = `<filter id="${id}ink" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
-        <feFlood flood-color="#fff" result="w"/><feComposite in="SourceGraphic" in2="w" operator="over" result="${soften ? "c0" : "c"}"/>${soften}
+        <feFlood flood-color="#fff" result="w"/><feComposite in="SourceGraphic" in2="w" operator="over" result="c"/>
         <feColorMatrix in="c" type="matrix" values="0 0 0 0 0.94  0 0 0 0 0.97  0 0 0 0 1  -0.30 -1.0 -0.10 0 1.35"/></filter>`;
     s += `<image href="${esc(e.drawing.url)}" x="18" y="34" width="406" height="292" preserveAspectRatio="xMidYMid meet" filter="url(#${id}ink)"/>`;
     if (d) {
@@ -339,12 +337,11 @@
   function drawingSheet(e, id) {
     const dr = e.drawing;
     let s = frame(e, id) + realDrawing(e, id);
-    // credits (the drawing's licence requires attribution)
     s += T(446, 196, "DRAWING", 8, "start", "th");
-    const credit = [`${dr.artist || "Unknown author"}`, `${dr.license}`, "via Wikimedia Commons", "Link: credit under the card"];
-    credit.forEach((c, i) => { s += T(448, 210 + i * 12, c.slice(0, 36), 7, "start", "dt"); });
+    const notes = ["Recognition drawing made", "for the Briefing Room.", "Detail and proportions", "are approximate."];
+    notes.forEach((c, i) => { s += T(448, 210 + i * 12, c, 7, "start", "dt"); });
     s += T(448, 262, dr.shows ? `Drawing shows a ${dr.shows}.` : "Recoloured to blueprint style.", 6.5, "start", "tk");
-    s += titleBlock(e, "WIKIMEDIA COMMONS");
+    s += titleBlock(e, "DMM BRIEFING ROOM");
     return s + "</svg>";
   }
 

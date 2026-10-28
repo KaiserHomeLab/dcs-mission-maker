@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 FROZEN = getattr(sys, "frozen", False)
-# The app's own files: app/templates, app/static, app/data, vendor/, drawings/, dcs-hook/.
+# The app's own files: app/templates, app/static, app/data, vendor/, dcs-hook/.
 ROOT = Path(getattr(sys, "_MEIPASS", "")) if FROZEN else Path(__file__).resolve().parent.parent
 
 
@@ -46,7 +46,3 @@ def logs_dir():
 
 def vendor_dir():
     return folder("VENDOR_DIR", ROOT / "vendor")
-
-
-def drawings_dir():
-    return folder("DRAWINGS_DIR", ROOT / "drawings")

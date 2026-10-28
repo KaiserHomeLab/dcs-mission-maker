@@ -176,7 +176,7 @@ class BriefingMixin:
             flights.append({
                 "name": c["name"], "aircraft": c["aircraft"], "type": c["type"].id, "squadron": c["squadron"],
                 "seats": c["seats"], "ai": c["ai"], "base": c["base"], "start": c["start"],
-                "loadout": c["loadout"], "presets": c["presets"], "pilots": c["pilots"],
+                "loadout": c["loadout"], "radios": c["radios"], "pilots": c["pilots"],
                 "timing": c["timing"], "kneeboard": i + 1,
                 "kneeboards": [{"page": f"{i + 1}", "label": "Flight"}, {"page": f"{i + 1}_route", "label": "Route"}],
                 "route": [{"name": w["name"], "kind": w["kind"], "pos": latlng_pair(w["pos"]),

@@ -157,6 +157,19 @@ function openFlight(i) {
 
 const list = (items) => items.length ? `<ul class="plain">${items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">None.</p>`;
 
+// One row per channel, one column per radio: "3 | AWACS 251.000 | TOWER 132.000".
+function radioTable(f) {
+  const radios = f.radios || [];
+  if (!radios.length) return `<span class="muted">No preset radios</span>`;
+  const channels = [...new Set(radios.flatMap(r => r.channels.map(c => c.ch)))].sort((a, b) => a - b);
+  const cell = (r, ch) => {
+    const c = r.channels.find(x => x.ch === ch);
+    return c ? `<td><span class="chname">${esc(c.name)}</span><span class="mono">${c.mhz.toFixed(3)}</span></td>` : "<td></td>";
+  };
+  return `<table class="radios"><tr><th>Ch</th>${radios.map(r => `<th>Radio ${r.radio}${r.band ? ` · ${esc(r.band)}` : ""}</th>`).join("")}</tr>
+    ${channels.map(ch => `<tr><td class="mono">${ch}</td>${radios.map(r => cell(r, ch)).join("")}</tr>`).join("")}</table>`;
+}
+
 function renderPanels() {
   const m = B.meta;
   $("p_overview").innerHTML = `
@@ -191,7 +204,7 @@ function renderPanels() {
           <td class="mono">${esc(w.bulls)}</td><td class="mono">${fmtPos(w.pos)}</td></tr>`).join("")}
       </table>
       <h2>Loadout</h2><p style="margin:0">${esc(f.loadout)}</p>
-      ${f.presets.length ? `<h2>Radio presets</h2>${f.presets.map(p => `<div class="mono">${esc(p)}</div>`).join("")}` : ""}
+      ${f.radios.length ? `<h2>Radio presets</h2>${radioTable(f)}` : ""}
       <p style="margin:10px 0 0"><a href="#" onclick="selected=${i};mapbar();drawRoutes();map.fitBounds(L.latLngBounds(B.flights[${i}].route.map(w=>w.pos)).pad(.2));return false">Show on map</a></p>
     </div>`).join("");
 
@@ -206,15 +219,14 @@ function renderPanels() {
     <p><a class="btn" href="/missions/${encodeURIComponent(STEM)}/comms.txt" target="_blank">Comm card (text)</a>
       <span class="muted">every frequency on one page, for a second screen or your phone.</span></p>
     <h2>Support &amp; agencies</h2>${B.support.length ? B.support.map(s => `<div class="card">${esc(s)}</div>`).join("") : `<p class="muted">No support aircraft in this era.</p>`}
-    <h2>Flight frequencies</h2><div class="card"><table><tr><th>Flight</th><th>Presets</th></tr>
-      ${B.flights.map(f => `<tr><td>${esc(f.name)}</td><td class="mono">${f.presets.map(esc).join("<br>") || "<span class='muted'>No preset radios</span>"}</td></tr>`).join("")}
-    </table></div>
+    <h2>Flight frequencies</h2>${B.flights.map(f => `<div class="card"><h3>${esc(f.name)} <small>${esc(f.aircraft)}</small></h3>
+      ${radioTable(f)}</div>`).join("")}
     <p class="muted">Guard is 243.000 UHF / 121.500 VHF.</p>`;
 
   const oob = B.oob || [];
   $("p_threats").innerHTML = `<p class="muted" style="margin-top:0">Recognition cards for the enemy systems in this
-    mission. Drawings are real 3-view drawings where one exists, otherwise true-scale line drawings
-    generated from published dimensions; figures are approximate.</p>
+    mission. Drawings are 3-view recognition drawings where one exists, otherwise true-scale line
+    drawings generated from published dimensions; figures are approximate.</p>
     ${oob.length ? `<div class="tcards">${oob.map(threatCard).join("")}</div>` : `<p class="muted">No enemy forces.</p>`}`
     + (B.threats.length ? `
     <h2>Known threat positions</h2><div class="card"><table><tr><th>Threat</th><th>Ring</th><th>Bulls</th><th>Position</th></tr>
@@ -271,7 +283,6 @@ function threatCard(e) {
       <p class="muted" style="margin:0 0 6px">${esc(e.nato && e.nato !== e.title ? e.nato + " · " : "")}${esc(e.role)}</p>
       ${stats.length ? `<dl class="stats">${stats.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
       <p class="beat"><b>How to beat it:</b> ${esc(e.notes)}</p>
-      ${e.drawing ? `<p class="credit">Drawing: <a href="${esc(e.drawing.page)}" target="_blank" rel="noopener">${esc(e.drawing.artist || "Wikimedia Commons")}</a>, ${esc(e.drawing.license)}${e.drawing.shows ? ` (shows a ${esc(e.drawing.shows)})` : ""}</p>` : ""}
     </div></div>`;
 }
 const CARD_REG = [];
@@ -325,7 +336,7 @@ function renderMine() {
     <div id="mymap"></div>
     <h2>Your legs</h2><div class="card">${legTable(f)}</div>
     <h2>Loadout</h2><div class="card">${esc(f.loadout)}</div>
-    ${f.presets.length ? `<h2>Your radios</h2><div class="card mono">${f.presets.map(esc).join("<br>")}</div>` : ""}
+    ${f.radios.length ? `<h2>Your radios</h2><div class="card">${radioTable(f)}</div>` : ""}
     <h2>Threats on your route</h2>
     ${cards.length ? `<div class="tcards">${cards.map(threatCard).join("")}</div>` : `<p class="muted">Nothing known near your route.</p>`}
     <h2>Your kneeboard</h2><div class="kb" style="grid-template-columns:minmax(0,360px)"><a href="/missions/${encodeURIComponent(STEM)}/kneeboard/${f.kneeboard}.png" target="_blank">

@@ -123,7 +123,7 @@
     </section>
 
     <section>
-      <h2><span class="n">6</span> Scripts, mods &amp; name</h2>
+      <h2><span class="n">6</span> Scripts &amp; mods</h2>
       <p class="sub">Popular community scripts, embedded in the mission. Libraries they need are added for you.
         Put your own <code>.lua</code> files in the <code>scripts</code> folder and they show up here too.</p>
       <div class="cards" id="scripts"></div>
@@ -131,8 +131,6 @@
       <p class="sub">Only tick mods everyone has installed. Mod aircraft show up in the aircraft list, and the
         mission tells DCS which mods are required.</p>
       <div class="cards" id="mods"></div>
-      <div style="margin-top:14px"><label for="title">Mission name (optional)</label>
-        <input type="text" id="title" maxlength="60" placeholder="Operation ..."></div>
     </section>
   </form>
 
@@ -153,6 +151,8 @@
         air defenses and support all follow the era.</p>
       <div id="live_warnings"></div>
       <div class="row" id="publish_opts" style="margin-top:12px"></div>
+      <div style="margin-top:12px"><label for="title">Mission name (optional)</label>
+        <input type="text" id="title" maxlength="60" placeholder="Operation ..."></div>
       <div style="margin-top:12px"><button class="primary" id="generate">Generate mission</button></div>
       <div style="margin-top:8px"><button type="button" id="make_event" style="width:100%">Create sign-up page for this mission…</button></div>
       <p class="note err" id="error"></p>

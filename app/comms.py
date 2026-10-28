@@ -5,6 +5,8 @@ DCS numbers a western callsign by its position in the country's generic list
 ...), counting from 1. Under Combined Joint Task Forces every country's
 aircraft-specific names are allowed.
 """
+import re
+
 from dcs import countries
 
 GENERIC = list(countries.CombinedJointTaskForcesBlue.callsign["Air"])
@@ -130,3 +132,47 @@ class CommPlan:
             parts.append(f"R{radio_id}: " + ", ".join(
                 f"Ch{n} {label} {freq:.3f}" for n, freq, label in chans))
         return "; ".join(parts)
+
+
+# ------------------------------------------------------------------ channel tables
+def band_label(freqs):
+    """"UHF", "VHF" or "FM" for a radio, from its preset frequencies in MHz ("" if mixed)."""
+    if freqs and all(f >= 225 for f in freqs):
+        return "UHF"
+    if freqs and all(108 <= f < 175 for f in freqs):
+        return "VHF"
+    if freqs and all(f < 88 for f in freqs):
+        return "FM"
+    return ""
+
+
+def radio_table(applied):
+    """{radio id: [(channel, MHz, name)]} -> [{"radio", "band", "channels": [{"ch", "name", "mhz"}]}],
+    what the Briefing Room, comm card and kneeboard show."""
+    return [{"radio": rid, "band": band_label([f for _, f, _ in chans]),
+             "channels": [{"ch": n, "name": name, "mhz": round(f, 3)} for n, f, name in chans]}
+            for rid, chans in applied.items() if chans]
+
+
+def radios_from_presets(lines):
+    """Radio tables from the preset lines missions made before v1.2 stored instead:
+    "R1: 1=FLIGHT 310.000  2=PKG 255.000"."""
+    applied = {}
+    for line in lines or []:
+        m = re.match(r"R(\d+):\s*(.*)", line)
+        if m:
+            applied[int(m.group(1))] = [(int(n), float(f), name) for n, name, f in
+                                        re.findall(r"(\d+)=(\S+)\s+(\d+(?:\.\d+)?)", m.group(2))]
+    return radio_table(applied)
+
+
+def channel_rows(radios):
+    """Fixed-width channel table for text (comm card, kneeboard): (header, rows), one column per
+    radio, names padded so the frequencies line up: "FLIGHT  310.000"."""
+    header = ["CH"] + [f"RADIO {r['radio']}" + (f" ({r['band']})" if r["band"] else "") for r in radios]
+    columns = []
+    for r in radios:
+        width = max((len(c["name"]) for c in r["channels"]), default=0)
+        columns.append({c["ch"]: f"{c['name'].ljust(width)} {c['mhz']:7.3f}" for c in r["channels"]})
+    channels = sorted({ch for col in columns for ch in col})
+    return header, [[str(ch)] + [col.get(ch, "") for col in columns] for ch in channels]

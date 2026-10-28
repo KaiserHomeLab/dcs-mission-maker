@@ -23,6 +23,7 @@ from flask import Flask, abort, jsonify, render_template, request, send_from_dir
 from . import (
     __version__,
     ai,
+    comms,
     dcs_install,
     debrief,
     eras,
@@ -631,12 +632,22 @@ def briefing_room(stem):
     return render_template("briefing.html", stem=stem)
 
 
-@app.get("/api/missions/<stem>/brief")
-def mission_brief(stem):
+def _read_brief(stem):
+    """A mission's brief.json (404 if there's none), with radio tables added for missions made
+    before them."""
     path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
     if not path.exists():
         abort(404)
     brief = json.loads(path.read_text(encoding="utf-8"))
+    for f in brief.get("flights", []):
+        if "radios" not in f:
+            f["radios"] = comms.radios_from_presets(f.get("presets"))
+    return brief
+
+
+@app.get("/api/missions/<stem>/brief")
+def mission_brief(stem):
+    brief = _read_brief(stem)
     brief["report"] = _reports().get(f"{stem}.miz")
     brief["download"] = f"/missions/{stem}.miz"
     if "srs" not in brief:              # missions generated before SRS was per mission
@@ -648,10 +659,7 @@ def mission_brief(stem):
 @app.get("/missions/<stem>/comms.txt")
 def comm_card(stem):
     """Every frequency for the mission on one plain-text card (second screen, SRS users)."""
-    path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
-    if not path.exists():
-        abort(404)
-    brief = json.loads(path.read_text(encoding="utf-8"))
+    brief = _read_brief(stem)
     srs = brief["srs"] if "srs" in brief else integrations.srs()
     lines = [f"COMM CARD - {brief.get('title') or stem.replace('_', ' ')}", ""]
     if srs:
@@ -659,8 +667,15 @@ def comm_card(stem):
     lines += ["SUPPORT", *[f"  {s}" for s in brief.get("support") or ["None."]], ""]
     lines += ["FLIGHTS"]
     for f in brief.get("flights", []):
-        lines.append(f"  {f['name']} ({f['aircraft']})")
-        lines += [f"    {p}" for p in f.get("presets") or ["No preset radios"]]
+        lines += ["", f"  {f['name']} ({f['aircraft']})"]
+        if not f["radios"]:
+            lines.append("    No preset radios")
+            continue
+        header, rows = comms.channel_rows(f["radios"])
+        widths = [max(len(r[i]) for r in [header, *rows]) for i in range(len(header))]
+        lines += ["    " + "   ".join(c.rjust(w) if i == 0 else c.ljust(w)
+                                      for i, (c, w) in enumerate(zip(row, widths, strict=True))).rstrip()
+                  for row in [header, *rows]]
     lines += ["", "HOME FIELD", f"  {brief['home']['card']}", "", "Guard: 243.000 UHF / 121.500 VHF"]
     return "\n".join(lines) + "\n", 200, {
         "Content-Type": "text/plain; charset=utf-8",
@@ -773,19 +788,13 @@ def _apply_names_to_miz(stem, claims, seats):
 
 @app.get("/api/missions/<stem>/roster")
 def get_roster(stem):
-    path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
-    if not path.exists():
-        abort(404)
-    brief = json.loads(path.read_text(encoding="utf-8"))
+    brief = _read_brief(stem)
     return jsonify(_roster_view(stem, brief, _load_roster(stem, brief)))
 
 
 @app.post("/api/missions/<stem>/roster")
 def claim_roster_seat(stem):
-    path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
-    if not path.exists():
-        abort(404)
-    brief = json.loads(path.read_text(encoding="utf-8"))
+    brief = _read_brief(stem)
     body = request.get_json(force=True) or {}
     seat = body.get("seat", "")
     name = re.sub(r"[^\w \-.']", "", body.get("name", ""))[:24].strip()
@@ -847,13 +856,6 @@ def kneeboard_image(stem, page_id):
 
 
 # --------------------------------------------------------------- kneeboard editing
-def _kneeboard_context(stem):
-    path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
-    if not path.exists():
-        abort(404)
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
 def _kneeboard_pilot(stem, brief, type_id, name):
     """The pilot's name as on the roster, if they have a seat in that aircraft type; else None."""
     name = (name or "").strip().lower()
@@ -878,14 +880,14 @@ def _kneeboard_guard(stem, brief, type_id, name):
 
 @app.get("/api/missions/<stem>/kneeboards")
 def mission_kneeboards(stem):
-    return jsonify(kneeboard_store.view(stem, _kneeboard_context(stem)))
+    return jsonify(kneeboard_store.view(stem, _read_brief(stem)))
 
 
 @app.post("/api/missions/<stem>/kneeboards/<type_id>")
 def edit_kneeboard(stem, type_id):
     """{"name", "action": "arrange" (order) | "notes" (title, text) | "delete" (id) | "reset"
     | "unlibrary" (id)}. Only pilots with a seat in that aircraft type."""
-    brief = _kneeboard_context(stem)
+    brief = _read_brief(stem)
     body = request.get_json(silent=True) or {}
     pilot, error = _kneeboard_guard(stem, brief, type_id, body.get("name"))
     if error:
@@ -916,7 +918,7 @@ def edit_kneeboard(stem, type_id):
 @app.post("/api/missions/<stem>/kneeboards/<type_id>/upload")
 def upload_kneeboard(stem, type_id):
     """Multipart: name, library ("1" to also save to the squadron library), files (PNG, JPG, PDF)."""
-    brief = _kneeboard_context(stem)
+    brief = _read_brief(stem)
     pilot, error = _kneeboard_guard(stem, brief, type_id, request.form.get("name"))
     if error:
         return error
@@ -960,16 +962,12 @@ def print_pack(stem):
                                  "Content-Disposition": f'inline; filename="{stem}.pdf"'}
 
 
-@app.get("/drawings/<path:name>")
+@app.get("/drawings/<name>")
 def drawing(name):
     from .threatdb import DRAWINGS_DIR
-    if not re.fullmatch(r"[\w\-.]+\.(svg|png|jpg|jpeg|gif)", name):
+    if not re.fullmatch(r"[\w\-]+\.png", name):
         abort(404)
-    resp = send_from_directory(DRAWINGS_DIR, name, max_age=86400)
-    # Third-party SVGs: never let them run script if opened directly.
-    resp.headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; img-src data:"
-    resp.headers["X-Content-Type-Options"] = "nosniff"
-    return resp
+    return send_from_directory(DRAWINGS_DIR, name, max_age=86400)
 
 
 @app.get("/e/<eid>")

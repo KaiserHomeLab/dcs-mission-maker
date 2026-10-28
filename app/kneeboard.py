@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from PIL import Image, ImageDraw, ImageFont
 
-from . import paths
+from . import comms, paths
 
 W, H = 768, 1024
 MARGIN = 28
@@ -161,10 +161,10 @@ def flight_page(card, mission, path):
             [(i, s["name"][:13], s["latlon"], s["alt_ft"], s["bulls"])
              for i, s in enumerate(card["steerpoints"], start=1)],
             [36, 150, 290, 110, 110])
-    if card["presets"]:
+    if card.get("radios"):
         p.heading("Radio presets")
-        for line in card["presets"]:
-            p.line(line, mono=True, size=14)
+        header, rows = comms.channel_rows(card["radios"])
+        p.table(header, rows, [40] + [210] * (len(header) - 1))
     p.heading("Support")
     for line in mission["support"] or ["None."]:
         p.line(line)

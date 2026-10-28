@@ -99,7 +99,6 @@ dialog#sheet header { display: flex; justify-content: space-between; align-items
 .tbody h3 small { color: var(--muted); font-weight: 400; font-size: 12px; white-space: nowrap; }
 dl.stats { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0 0 8px; font-size: 12.5px; }
 dl.stats dt { color: var(--muted); } dl.stats dd { margin: 0; }
-p.credit { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
 p.beat { margin: 0; font-size: 12.5px; border-left: 3px solid var(--accent); padding-left: 8px; }
 #mymap { height: 380px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 12px; }
 .you { background: var(--panel); border: 1px solid var(--accent); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
@@ -116,3 +115,5 @@ p.beat { margin: 0; font-size: 12.5px; border-left: 3px solid var(--accent); pad
   .panel[data-tab=kneeboards] { page-break-before: always; }
   body { background: #fff; color: #000; }
 }
+table.radios th:first-child, table.radios td:first-child { width: 2.5em; color: var(--muted); }
+table.radios .chname { display: inline-block; min-width: 5.2em; font-weight: 600; }

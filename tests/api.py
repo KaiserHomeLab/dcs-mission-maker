@@ -163,6 +163,24 @@ ok(len(set(twins)) == 3 and all((OUTPUT_DIR_PATH / f).exists() for f in twins),
    f"same-second missions kept apart {twins}")
 ok(c.get(f"/api/missions/{twins[-1][:-4]}/brief").json["file"] == twins[-1], "brief names its own file")
 
+# Radio presets as channel tables (Briefing Room, comm card); older missions converted.
+radio_stem = c.post("/api/generate", json=cfg).json["filename"][:-4]
+flight = c.get(f"/api/missions/{radio_stem}/brief").json["flights"][0]
+ok(flight["radios"][0]["band"] == "UHF" and flight["radios"][0]["channels"][0]["name"] == "FLIGHT",
+   f"radio table in the brief {flight['radios']}")
+card = c.get(f"/missions/{radio_stem}/comms.txt").get_data(as_text=True)
+ok("CH   RADIO 1 (UHF)    RADIO 2 (VHF)" in card and "     1   FLIGHT " in card, f"comm card table {card}")
+brief_file = OUTPUT_DIR_PATH / f"{radio_stem}.brief.json"
+old_brief = json.loads(brief_file.read_text(encoding="utf-8"))
+old_brief["flights"][0].pop("radios")
+old_brief["flights"][0]["presets"] = ["R1: 1=FLIGHT 310.000  2=PKG 255.000", "R2: 1=FLIGHT 140.000"]
+brief_file.write_text(json.dumps(old_brief), encoding="utf-8")
+ok(c.get(f"/api/missions/{radio_stem}/brief").json["flights"][0]["radios"] == [
+    {"radio": 1, "band": "UHF", "channels": [{"ch": 1, "name": "FLIGHT", "mhz": 310.0},
+                                             {"ch": 2, "name": "PKG", "mhz": 255.0}]},
+    {"radio": 2, "band": "VHF", "channels": [{"ch": 1, "name": "FLIGHT", "mhz": 140.0}]}],
+   "older missions: radio tables made from the preset lines")
+
 # Temporary vs kept missions
 from app import mission_store  # noqa: E402
 
@@ -519,6 +537,20 @@ for k in ("SRS_EAM_ROTATE", "SRS_CONFIG_PATH", "SRS_TASK_NAME"):
     os.environ.pop(k, None)
 srs_eam.ON_WINDOWS = False
 ok(c.put("/api/settings", json={"SRS_TASK_NAME": "x; Stop-Computer"}).status_code == 400, "task name checked")
+
+# --- Threat ID drawings (app/data/drawings/)
+from app import threatdb  # noqa: E402
+
+d = threatdb.card("MiG-29A")["drawing"]
+ok(d["url"].startswith("/drawings/MiG_29A.png?v="), f"own drawing used: {d}")
+r = c.get(d["url"])
+ok(r.status_code == 200 and r.data[:4] == b"\x89PNG", "own drawing served")
+d = threatdb.card("MiG-29S")["drawing"]
+ok(d["url"].startswith("/drawings/MiG_29A.png") and d.get("shows") == "MiG-29", f"variant borrows it: {d}")
+ok("drawing" not in threatdb.card("ZSU-23-4 Shilka"), "no drawing: generated line drawing")
+ok(c.get("/drawings/..%2Fthreatdb.py").status_code == 404, "drawing path checked")
+ok(set(os.listdir(threatdb.DRAWINGS_DIR)) <= {threatdb.drawing_name(k) for k in threatdb.ENTRIES},
+   "every drawing file belongs to a unit")
 
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

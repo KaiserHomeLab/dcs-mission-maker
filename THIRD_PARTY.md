@@ -41,9 +41,8 @@ Missions that include these scripts carry them under their own licences.
   LGPL-3.0, downloaded at setup.
 - **Squadron liveries** (`app/data/liveries.json`, included in this repository) are derived from DCS
   Retribution's squadron files, LGPL-3.0. `tools/build_liveries.py` rebuilds it from the pinned commit.
-- **3-view drawings** for the Threat ID sheets come from Wikimedia Commons under public domain, CC0,
-  CC BY or CC BY-SA licences (`drawings.json` lists each file, author and licence). They're downloaded
-  at setup and credited on every sheet that shows one.
+- **3-view drawings** for the Threat ID sheets (`app/data/drawings/`) were made for this project
+  with an image generator from the prompts in `art/PROMPTS.md`; no third-party drawings are included.
 
 ## In the browser
 

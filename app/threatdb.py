@@ -5,10 +5,10 @@ what DCS models; they are not authoritative. `art` picks the blueprint
 silhouette class drawn by the page. `rwr` is only given where the symbol is
 well established.
 """
-import json
 import os
+import re
 
-from . import eras, mods, paths
+from . import eras, mods
 
 # ---------------------------------------------------------------- fighters
 _F = "fighter"
@@ -423,36 +423,49 @@ def _base_card(key):
     return out
 
 
-# ------------------------------------------------------------ real drawings
-# Wikimedia Commons 3-view drawings fetched at image build (tools/fetch_drawings.py).
-DRAWINGS_DIR = str(paths.drawings_dir())
-# Variants that borrow another drawing; "shows" is printed on the sheet when the
-# drawing isn't of the exact variant.
-DRAWING_ALIAS = {"P-51D-30-NA": "P-51D", "MiG-29S": "MiG-29A", "F-14A-135-GR": "F-14B",
-                 "T-72B3": "T-72B", "T-90": "T-72B", "T-80UD": "T-80B", "Leopard-2A5": "leopard-2A4"}
+# ------------------------------------------------------------ drawings
+# 3-view recognition drawings, one <drawing_name(key)> per unit in app/data/drawings/
+# (tools/art_drawings.py makes them). Units without one get the generated line drawing.
+DRAWINGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "drawings")
+# Units that borrow another one's drawing; "shows" is printed on the sheet when the
+# drawing isn't of the exact variant. DRAWING_SAME look alike and never get their own;
+# the variants in DRAWING_BORROW do once someone draws them.
+DRAWING_SAME = {"P-51D-30-NA": "P-51D", "MiG-29S": "MiG-29A", "F-14A-135-GR": "F-14B",
+                "SA-20B Gargoyle": "SA-20 Gargoyle", "SA-18 Igla-S manpad": "SA-18 Igla manpad",
+                "88mm Flak battery": "flak36", "Heavy Flak battery": "flak36",
+                "3.7-inch AA battery": "QF_37_AA", "Heavy AA battery": "QF_37_AA", "Radar-directed AAA": "KS-19",
+                "leander-gun-andromeda": "leander-gun-achilles", "leander-gun-ariadne": "leander-gun-achilles"}
+DRAWING_BORROW = {"T-72B3": "T-72B", "T-90": "T-72B", "T-80UD": "T-80B", "Leopard-2A5": "leopard-2A4"}
+DRAWING_ALIAS = {**DRAWING_SAME, **DRAWING_BORROW}
 DRAWING_SHOWS = {"T-72B": "T-72", "T-80B": "T-80", "leopard-2A4": "Leopard 2A4", "MiG-29A": "MiG-29",
-                 "P-51D": "P-51D"}
+                 "P-51D": "P-51D", "SA-20 Gargoyle": "SA-20 launcher", "SA-18 Igla manpad": "Igla launcher",
+                 "flak36": "Flak 36 88 mm gun", "QF_37_AA": "3.7-inch gun", "KS-19": "KS-19 gun"}
 
 
-def _drawings():
+def drawing_name(key):
+    """File name of a unit's drawing in app/data/drawings/ (and art/drawings/)."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", key).strip("_") + ".png"
+
+
+def load_drawings():
+    """{key: "file name?v=version"} for the units that have a drawing in DRAWINGS_DIR."""
     try:
-        with open(os.path.join(DRAWINGS_DIR, "index.json"), encoding="utf-8") as fh:
-            return json.load(fh)
-    except (OSError, ValueError):
+        files = {f: int(os.path.getmtime(os.path.join(DRAWINGS_DIR, f))) for f in os.listdir(DRAWINGS_DIR)}
+    except OSError:
         return {}
+    return {k: f"{drawing_name(k)}?v={files[drawing_name(k)]}" for k in ENTRIES if drawing_name(k) in files}
 
 
-DRAWINGS = _drawings()
+DRAWINGS = load_drawings()
 
 
 def card(key):
-    """Threat-ID card for a key: data, dimensions, drawing style and real drawing if any."""
+    """Threat-ID card for a key: data, dimensions, drawing style and its drawing if any."""
     out = _base_card(key)
     if out:
-        src = key if key in DRAWINGS else DRAWING_ALIAS.get(key, "")
-        d = DRAWINGS.get(src)
-        if d:
-            out["drawing"] = {**d, "url": f"/drawings/{d['file']}"}
+        src = key if key in DRAWINGS else DRAWING_ALIAS.get(key)
+        if src in DRAWINGS:
+            out["drawing"] = {"url": f"/drawings/{DRAWINGS[src]}"}
             if src != key and src in DRAWING_SHOWS:
                 out["drawing"]["shows"] = DRAWING_SHOWS[src]
     return out

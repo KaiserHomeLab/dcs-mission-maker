@@ -1,6 +1,6 @@
 @echo off
 rem One-time setup; run it again after updating. Creates .venv, installs the Python
-rem packages and downloads the pinned mission scripts, airfield data, fonts and drawings.
+rem packages and downloads the pinned mission scripts, airfield data and fonts.
 setlocal
 cd /d "%~dp0.."
 
@@ -20,10 +20,6 @@ echo Installing Python packages ...
 .venv\Scripts\python -m pip install --disable-pip-version-check -r requirements.txt || goto :failed
 echo Downloading mission scripts, airfield data and fonts ...
 .venv\Scripts\python tools\fetch_vendor.py || goto :failed
-if not exist drawings\index.json (
-  echo Downloading the 3-view drawings. Wikimedia rate-limits, so this takes a few minutes ...
-  .venv\Scripts\python tools\fetch_drawings.py drawings.json drawings
-)
 if not exist .env (
   copy .env.example .env >nul
   echo Created .env from .env.example: open it in Notepad to set your options.

@@ -7,7 +7,7 @@ from dcs.unit import Skill
 
 from .. import dtc, liveries, routes
 from ..aircraft import AIRCRAFT
-from ..comms import CommPlan, apply_callsign, reset_stn
+from ..comms import CommPlan, apply_callsign, radio_table, reset_stn
 from ..loadouts import apply_loadout
 from .common import SKILLS, pick_task
 from .request import TIMES, MissionError
@@ -104,9 +104,7 @@ class PlayersMixin:
                 "timing": getattr(f, "timing", None),
                 "start": f.start, "loadout": f"{loadout}: " + (", ".join(weapons) or "none"),
                 "route": route, "origin": origin, "carrier": f.base == "carrier",
-                "presets": [f"R{rid}: " + "  ".join(
-                    f"{n}={label} {freq:.3f}" for n, freq, label in chans)
-                    for rid, chans in applied.items()]})
+                "radios": radio_table(applied)})
 
             if not heli and nm > 300 and not (self.has_boom or self.has_drogue):
                 self.warnings.append(
