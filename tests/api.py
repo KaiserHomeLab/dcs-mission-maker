@@ -164,7 +164,7 @@ ok(mission_store.status(stem)["kept"], "published mission kept")
 ok(c.post(f"/api/missions/{tstem}/keep", json={"keep": True}).json["kept"], "keep")
 ok(not c.post(f"/api/missions/{tstem}/keep", json={"keep": False}).json["kept"], "un-keep")
 meta = OUTPUT_DIR_PATH / f"{tstem}.meta.json"
-meta.write_text(json.dumps({"created": 0, "expires": 1}))
+meta.write_text(json.dumps({"created": 0, "expires": 1}), encoding="utf-8")
 c.post(f"/api/missions/{tstem}/roster", json={"seat": "Viper 1-1", "name": "Mitsu"})
 ok(tstem in mission_store.cleanup(force=True), "expired mission cleaned up")
 ok(not list(OUTPUT_DIR_PATH.glob(f"{tstem}.*")), f"all its files gone {list(OUTPUT_DIR_PATH.glob(f'{tstem}.*'))}")
@@ -175,6 +175,25 @@ legacy = c.post("/api/generate", json=cfg).json["filename"][:-4]
 ok(mission_store.status(legacy)["kept"], "missions from before count as kept")
 ok(c.delete(f"/api/missions/{legacy}").status_code == 200 and not list(OUTPUT_DIR_PATH.glob(f"{legacy}.*")),
    "delete removes everything")
+# Windows can't delete a file that's being downloaded: keep the meta file so cleanup tries again.
+busy = c.post("/api/generate", json=cfg).json["filename"][:-4]
+(OUTPUT_DIR_PATH / f"{busy}.meta.json").write_text(json.dumps({"created": 0, "expires": 1}), encoding="utf-8")
+real_unlink = pathlib.Path.unlink
+
+
+def in_use(self, missing_ok=False):
+    if self.suffix == ".miz":
+        raise PermissionError("in use")
+    real_unlink(self, missing_ok=missing_ok)
+
+
+pathlib.Path.unlink = in_use
+ok(busy not in mission_store.cleanup(force=True) and (OUTPUT_DIR_PATH / f"{busy}.meta.json").exists(),
+   "file in use: mission stays queued for cleanup")
+ok(c.delete(f"/api/missions/{busy}").status_code == 409, "file in use: delete says so")
+pathlib.Path.unlink = real_unlink
+ok(busy in mission_store.cleanup(force=True) and not list(OUTPUT_DIR_PATH.glob(f"{busy}.*")),
+   "file free again: cleaned up")
 
 # Weekly events: once the date has passed, the next occurrence exists, on the same weekday and time.
 r = c.post("/api/events", json={"title": "Weekly", "config": cfg, "repeat": "weekly"})
@@ -211,6 +230,19 @@ for url in [f"/briefing/{stem}", f"/api/missions/{stem}/brief", f"/e/{eid}", f"/
 ok(c.post("/api/debrief", json={"mission": f"{stem}.miz", "events": []}).status_code == 200, "hook stays open")
 del os.environ["APP_PASSWORD"]
 ok(c.get("/").headers.get("X-Content-Type-Options") == "nosniff", "security headers")
+
+# .env for python -m app (Windows): Notepad's BOM, comments, quotes, Windows paths; the environment wins.
+from app.__main__ import load_env  # noqa: E402
+
+env_file = pathlib.Path(tmp) / ".env"
+env_file.write_text('\ufeffDMM_T1=C:\\Users\\dcs\\Saved Games\\DCS.server\\Missions\n# DMM_T2=no\n'
+                    'DMM_T3="quoted value"\nDMM_T4=from file\n\n', encoding="utf-8")
+os.environ["DMM_T4"] = "from env"
+load_env(env_file)
+ok(os.environ.get("DMM_T1") == "C:\\Users\\dcs\\Saved Games\\DCS.server\\Missions", ".env: Windows path")
+ok("DMM_T2" not in os.environ and os.environ.get("DMM_T3") == "quoted value", ".env: comments, quotes")
+ok(os.environ["DMM_T4"] == "from env", ".env: environment wins")
+load_env(pathlib.Path(tmp) / "missing.env")
 
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

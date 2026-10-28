@@ -35,3 +35,32 @@ jobs:
         run: docker run --rm -v "$PWD:/srv/src:ro" -w /srv/src dcs-mission-maker python -m tests.smoke --quick
       - name: Hook Lua syntax
         run: sudo apt-get install -y -qq lua5.1 && luac5.1 -p dcs-hook/dmm_reporter.lua
+
+  # The same app straight on Windows (python -m app, as windows/setup.bat installs it).
+  # PYTHONUTF8 stays off so text files that don't name their encoding would fail here.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python tools/fetch_vendor.py
+      - name: API tests
+        run: python -m tests.api
+      - name: Mission smoke test (quick sample)
+        run: python -m tests.smoke --quick
+      - name: Server starts and builds a mission
+        shell: pwsh
+        run: |
+          $env:OUTPUT_DIR = "$env:RUNNER_TEMP\missions"
+          $server = Start-Process python -ArgumentList "-m", "app" -PassThru -NoNewWindow
+          foreach ($i in 1..30) {
+            try { Invoke-RestMethod http://127.0.0.1:8080/healthz | Out-Null; break } catch { Start-Sleep 2 }
+          }
+          $body = '{"theater": "caucasus", "mission_type": "cas", "flights": [{"aircraft": "F-16C_50", "slots": 2}]}'
+          $r = Invoke-RestMethod http://127.0.0.1:8080/api/generate -Method Post -Body $body -ContentType application/json
+          Write-Output "$($r.filename) $($r.size) bytes"
+          Invoke-WebRequest "http://127.0.0.1:8080/missions/$($r.filename.Replace('.miz', ''))/pack.pdf" | Out-Null
+          Stop-Process $server.Id

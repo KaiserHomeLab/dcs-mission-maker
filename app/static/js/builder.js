@@ -584,7 +584,8 @@ async function loadRecent() {
   });
   document.querySelectorAll("#recent .del").forEach(b => b.onclick = async () => {
     if (!confirm(`Delete ${b.dataset.stem}? Its download, Briefing Room and debrief go too.`)) return;
-    await fetch(`/api/missions/${encodeURIComponent(b.dataset.stem)}`, { method: "DELETE" });
+    const r = await fetch(`/api/missions/${encodeURIComponent(b.dataset.stem)}`, { method: "DELETE" });
+    if (!r.ok) { alert((await r.json().catch(() => ({}))).error || "Couldn't delete it."); return; }
     if (lastResult && lastResult.stem === b.dataset.stem) $("result").classList.add("hidden");
     loadRecent();
   });

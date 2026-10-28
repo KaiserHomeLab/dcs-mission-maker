@@ -70,7 +70,7 @@ def main(resources, out_path):
             for t, v in sorted(liveries.items())}
     pathlib.Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(out_path).write_text(json.dumps({"source": f"DCS Retribution {COMMIT} (LGPL-3.0)",
-                                                  "liveries": data}, indent=1) + "\n")
+                                                  "liveries": data}, indent=1) + "\n", encoding="utf-8")
     print(f"{sum(len(v) for v in data.values())} liveries for {len(data)} aircraft -> {out_path}")
 
 

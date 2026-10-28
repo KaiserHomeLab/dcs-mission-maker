@@ -1,20 +1,21 @@
 # Third-party components
 
 DCS Mission Maker builds on the work below. Nothing in this list is copied into
-this repository except where noted; the Docker build downloads each item from a
-pinned commit or release and checks its hash.
+this repository except where noted; setup (`tools/fetch_vendor.py`, used by both the Docker
+build and `windows\setup.bat`) downloads each item from a pinned commit or release and checks its hash.
 
-## Python packages (installed at image build, `requirements.txt`)
+## Python packages (installed at setup, `requirements.txt`)
 
 | Package | Licence | Use |
 |---|---|---|
 | [pydcs](https://github.com/pydcs/dcs) | LGPL-3.0 | Reading and writing `.miz` missions |
 | [Flask](https://flask.palletsprojects.com/) | BSD-3-Clause | Web app |
-| [Gunicorn](https://gunicorn.org/) | MIT | Web server |
+| [Gunicorn](https://gunicorn.org/) | MIT | Web server (Docker) |
+| [Waitress](https://github.com/Pylons/waitress) | ZPL-2.1 | Web server (Windows, `python -m app`) |
 | [Pillow](https://python-pillow.org/) | MIT-CMU | Kneeboard pages, print pack PDF |
 | [Paramiko](https://www.paramiko.org/) | LGPL-2.1 | SFTP publishing |
 
-## Mission scripts (downloaded at image build, embedded in missions you tick them for)
+## Mission scripts (downloaded at setup, embedded in missions you tick them for)
 
 | Script | Licence |
 |---|---|
@@ -29,12 +30,12 @@ Missions that include these scripts carry them under their own licences.
 ## Data
 
 - **Airfield beacons** (TACAN/ILS) from [DCS Retribution](https://github.com/dcs-retribution/dcs-retribution),
-  LGPL-3.0, downloaded at image build.
+  LGPL-3.0, downloaded at setup.
 - **Squadron liveries** (`app/data/liveries.json`, included in this repository) are derived from DCS
   Retribution's squadron files, LGPL-3.0. `tools/build_liveries.py` rebuilds it from the pinned commit.
 - **3-view drawings** for the Threat ID sheets come from Wikimedia Commons under public domain, CC0,
   CC BY or CC BY-SA licences (`drawings.json` lists each file, author and licence). They're downloaded
-  at image build and credited on every sheet that shows one.
+  at setup and credited on every sheet that shows one.
 
 ## In the browser
 
@@ -43,7 +44,8 @@ Missions that include these scripts carry them under their own licences.
 
 ## Fonts
 
-- DejaVu fonts (Bitstream Vera / DejaVu licence), installed from Debian, for the kneeboards.
+- [DejaVu fonts](https://dejavu-fonts.github.io/) 2.37 (Bitstream Vera / DejaVu licence), downloaded at setup
+  with their licence file (`vendor/fonts/LICENSE`), for the kneeboards.
 
 DCS World, its modules and their 3D models are © Eagle Dynamics and their developers. This project
 isn't affiliated with Eagle Dynamics.

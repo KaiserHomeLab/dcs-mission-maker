@@ -1,13 +1,14 @@
 """Kneeboard pages (PNG) for each player flight."""
 import functools
 from dataclasses import dataclass
-from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from . import paths
+
 W, H = 768, 1024
 MARGIN = 28
-FONT_DIR = Path("/usr/share/fonts/truetype/dejavu")
+FONT_DIR = paths.vendor_dir() / "fonts"
 
 
 @dataclass(frozen=True)

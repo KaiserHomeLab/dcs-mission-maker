@@ -8,18 +8,19 @@ Two sources, merged:
 Livery folder names are case-insensitive in DCS, so matching is on the lower-cased id.
 """
 import json
-import os
 import re
 from pathlib import Path
 
+from . import paths
+
 BUNDLED = Path(__file__).resolve().parent / "data" / "liveries.json"
-INSTALLED = Path(os.environ.get("OUTPUT_DIR", "/output")) / "installed_liveries.json"
+INSTALLED = paths.output_dir() / "installed_liveries.json"
 VALID_ID = re.compile(r"[^\x00-\x1f\"\\\\]{1,80}")
 
 
 def _load(path, key):
     try:
-        return json.loads(path.read_text()).get(key, {})
+        return json.loads(path.read_text(encoding="utf-8")).get(key, {})
     except (OSError, ValueError):
         return {}
 
@@ -27,7 +28,7 @@ def _load(path, key):
 def installed_info():
     """When the server last reported, and how many types/liveries; None if never."""
     try:
-        data = json.loads(INSTALLED.read_text())
+        data = json.loads(INSTALLED.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
     types = data.get("types", {})
@@ -78,5 +79,5 @@ def save_installed(body, now):
                 clean.append({"id": lid, "name": str(e.get("name") or "")[:80]})
         if clean:
             types[str(type_id)] = clean
-    INSTALLED.write_text(json.dumps({"at": now, "types": types}))
+    INSTALLED.write_text(json.dumps({"at": now, "types": types}), encoding="utf-8")
     return {"types": len(types), "liveries": sum(len(v) for v in types.values())}

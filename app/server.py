@@ -1,6 +1,6 @@
+import collections
 import contextlib
 import datetime
-import fcntl
 import functools
 import hashlib
 import io
@@ -8,13 +8,19 @@ import json
 import os
 import re
 import secrets
+import threading
 import time
 import zipfile
 from pathlib import Path
 
+try:
+    import fcntl
+except ImportError:  # Windows: one process (waitress), so the thread locks below are enough
+    fcntl = None
+
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 
-from . import ai, debrief, eras, integrations, liveries, mission_store, mods, scripts
+from . import ai, debrief, eras, integrations, liveries, mission_store, mods, paths, scripts
 from .aircraft import AIRCRAFT, catalog
 from .generator import (
     DIFFICULTIES,
@@ -31,7 +37,7 @@ from .generator import (
 from .loadouts import presets
 from .theaters import THEATERS
 
-OUTPUT_DIR = Path(os.environ.get("OUTPUT_DIR", "/output"))
+OUTPUT_DIR = paths.output_dir()
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 SETUPS_DIR = OUTPUT_DIR / "setups"
 SETUPS_DIR.mkdir(exist_ok=True)
@@ -39,6 +45,9 @@ EVENTS_DIR = OUTPUT_DIR / "events"
 EVENTS_DIR.mkdir(exist_ok=True)
 
 app = Flask(__name__)
+# Mission building keeps module-level state. Gunicorn runs one request per process, but
+# waitress (python -m app, used on Windows) runs threads, so builds take turns.
+_build_lock = threading.Lock()
 # Largest request body: the DCS hook's livery scan is the biggest legitimate one.
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
 
@@ -150,13 +159,13 @@ def get_setup(name):
     path, _ = _setup_path(name)
     if not path.exists():
         abort(404)
-    return jsonify(json.loads(path.read_text()))
+    return jsonify(json.loads(path.read_text(encoding="utf-8")))
 
 
 @app.put("/api/setups/<name>")
 def save_setup(name):
     path, safe = _setup_path(name)
-    path.write_text(json.dumps(request.get_json(force=True) or {}, indent=2))
+    path.write_text(json.dumps(request.get_json(force=True) or {}, indent=2), encoding="utf-8")
     return jsonify({"saved": safe})
 
 
@@ -201,7 +210,8 @@ def callsign():
 
 @app.post("/api/preview")
 def api_preview():
-    return jsonify(preview(request.get_json(force=True) or {}))
+    with _build_lock:
+        return jsonify(preview(request.get_json(force=True) or {}))
 
 
 @app.post("/api/generate")
@@ -219,13 +229,14 @@ def api_generate():
 def build_and_store(body):
     mission_store.cleanup()
     req = MissionRequest.from_json(body)
-    out = generate_full(req)
+    with _build_lock:
+        out = generate_full(req)
     data, filename, briefing, warnings = out["data"], out["filename"], out["briefing"], out["warnings"]
     (OUTPUT_DIR / filename).write_bytes(data)
-    (OUTPUT_DIR / (filename[:-4] + ".brief.json")).write_text(json.dumps(out["brief"]))
+    (OUTPUT_DIR / (filename[:-4] + ".brief.json")).write_text(json.dumps(out["brief"]), encoding="utf-8")
     # Keep the settings so the mission can be regenerated or tweaked later.
-    (OUTPUT_DIR / (filename[:-4] + ".json")).write_text(json.dumps(body, indent=2))
-    (OUTPUT_DIR / (filename[:-4] + ".txt")).write_text(briefing)
+    (OUTPUT_DIR / (filename[:-4] + ".json")).write_text(json.dumps(body, indent=2), encoding="utf-8")
+    (OUTPUT_DIR / (filename[:-4] + ".txt")).write_text(briefing, encoding="utf-8")
     return {"filename": filename, "url": f"/missions/{filename}", "size": len(data),
             "briefing": briefing, "warnings": warnings,
             "briefing_url": f"/briefing/{filename[:-4]}", **mission_store.mark_temporary(filename[:-4])}
@@ -251,13 +262,13 @@ def discord_mission(filename, extra_text=""):
     settings = OUTPUT_DIR / (filename[:-4] + ".json")
     data = path.read_bytes()
     brief_path = OUTPUT_DIR / (filename[:-4] + ".txt")
-    brief = brief_path.read_text() if brief_path.exists() else ""
+    brief = brief_path.read_text(encoding="utf-8") if brief_path.exists() else ""
     with zipfile.ZipFile(io.BytesIO(data)) as z:
         pages = [n for n in z.namelist() if n.startswith("KNEEBOARD/") and n.endswith(".png")]
         page = z.read(min(pages)) if pages else None   # first flight's main page
-    cfg = json.loads(settings.read_text()) if settings.exists() else {}
+    cfg = json.loads(settings.read_text(encoding="utf-8")) if settings.exists() else {}
     room = OUTPUT_DIR / (filename[:-4] + ".brief.json")
-    saved = json.loads(room.read_text()) if room.exists() else {}
+    saved = json.loads(room.read_text(encoding="utf-8")) if room.exists() else {}
     srs = saved["srs"] if "srs" in saved else integrations.srs()
     flights = ", ".join(f"{f.get('callsign')} {f.get('number')} ({f.get('aircraft')})"
                         for f in cfg.get("flights", []))
@@ -306,11 +317,11 @@ def _load_event(eid):
     path = _event_path(eid)
     if not path.exists():
         abort(404)
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _save_event(ev):
-    _event_path(ev["id"]).write_text(json.dumps(ev, indent=2))
+    _event_path(ev["id"]).write_text(json.dumps(ev, indent=2), encoding="utf-8")
 
 
 def _seats(cfg):
@@ -333,7 +344,7 @@ def _event_view(ev):
 def list_events():
     evs = []
     for p in sorted(EVENTS_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-        ev = _roll_over(json.loads(p.read_text()))
+        ev = _roll_over(json.loads(p.read_text(encoding="utf-8")))
         evs.append({"id": ev["id"], "title": ev["title"], "when": ev.get("when", ""),
                     "when_iso": ev.get("when_iso", ""), "repeat": ev.get("repeat", ""),
                     "claimed": len(ev["claims"]), "seats": len(_seats(ev["config"]))})
@@ -493,7 +504,7 @@ HOOK = Path(__file__).resolve().parent.parent / "dcs-hook" / "dmm_reporter.lua"
 
 def _reports():
     try:
-        return json.loads(REPORTS.read_text())
+        return json.loads(REPORTS.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
 
@@ -507,14 +518,14 @@ def add_report():
     errors = [str(e)[:400] for e in (body.get("errors") or [])][:25]
     reports = _reports()
     reports[mission] = {"errors": errors, "at": time.time()}
-    REPORTS.write_text(json.dumps(dict(list(reports.items())[-200:]), indent=1))
+    REPORTS.write_text(json.dumps(dict(list(reports.items())[-200:]), indent=1), encoding="utf-8")
     return jsonify({"ok": True})
 
 
 @app.get("/dcs-hook.lua")
 def dcs_hook():
     url = integrations.status()["public_url"] or request.host_url.rstrip("/")
-    text = HOOK.read_text().replace("__APP_URL__", url)
+    text = HOOK.read_text(encoding="utf-8").replace("__APP_URL__", url)
     return text, 200, {"Content-Type": "text/plain; charset=utf-8",
                        "Content-Disposition": "attachment; filename=dmm_reporter.lua"}
 
@@ -539,7 +550,7 @@ def mission_brief(stem):
     path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
     if not path.exists():
         abort(404)
-    brief = json.loads(path.read_text())
+    brief = json.loads(path.read_text(encoding="utf-8"))
     brief["report"] = _reports().get(f"{stem}.miz")
     brief["download"] = f"/missions/{stem}.miz"
     if "srs" not in brief:              # missions generated before SRS was per mission
@@ -553,7 +564,7 @@ def comm_card(stem):
     path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
     if not path.exists():
         abort(404)
-    brief = json.loads(path.read_text())
+    brief = json.loads(path.read_text(encoding="utf-8"))
     srs = brief["srs"] if "srs" in brief else integrations.srs()
     lines = [f"COMM CARD - {brief.get('title') or stem.replace('_', ' ')}", ""]
     if srs:
@@ -584,9 +595,9 @@ def add_debrief():
         return jsonify({"error": "unknown mission"}), 404
     with _locked(stem):
         path = _debrief_path(stem)
-        record = json.loads(path.read_text()) if path.exists() else {}
+        record = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
         record = debrief.merge(record, body)
-        path.write_text(json.dumps(record, indent=1))
+        path.write_text(json.dumps(record, indent=1), encoding="utf-8")
     return jsonify({"ok": True, "events": len(record["events"])})
 
 
@@ -596,19 +607,28 @@ def mission_debrief(stem):
     brief_path = OUTPUT_DIR / f"{stem}.brief.json"
     if not path.exists() or not brief_path.exists():
         return jsonify({"debrief": None})
-    return jsonify({"debrief": debrief.summary(json.loads(brief_path.read_text()), json.loads(path.read_text()))})
+    brief, record = (json.loads(p.read_text(encoding="utf-8")) for p in (brief_path, path))
+    return jsonify({"debrief": debrief.summary(brief, record)})
 
 
 # -------------------------------------------------------------------- roster
+_stem_locks = collections.defaultdict(threading.Lock)
+
+
 @contextlib.contextmanager
 def _locked(stem):
-    """Serialises roster and debrief edits (gunicorn runs several workers)."""
-    with open(OUTPUT_DIR / f".{stem}.lock", "w") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
-        try:
+    """Serialises roster and debrief edits: across threads, and across gunicorn's worker
+    processes with a lock file (not needed on Windows, where waitress runs one process)."""
+    with _stem_locks[stem]:
+        if fcntl is None:
             yield
-        finally:
-            fcntl.flock(fh, fcntl.LOCK_UN)
+            return
+        with open(OUTPUT_DIR / f".{stem}.lock", "w") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _roster_seats(brief):
@@ -623,7 +643,7 @@ def _roster_seats(brief):
 def _load_roster(stem, brief):
     path = OUTPUT_DIR / f"{stem}.roster.json"
     if path.exists():
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     claims = {}  # seed from pilot names baked in at generation (sign-up pages)
     for f in brief["flights"]:
         for entry in f.get("pilots", []):
@@ -669,7 +689,7 @@ def get_roster(stem):
     path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
     if not path.exists():
         abort(404)
-    brief = json.loads(path.read_text())
+    brief = json.loads(path.read_text(encoding="utf-8"))
     return jsonify(_roster_view(stem, brief, _load_roster(stem, brief)))
 
 
@@ -678,7 +698,7 @@ def claim_roster_seat(stem):
     path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
     if not path.exists():
         abort(404)
-    brief = json.loads(path.read_text())
+    brief = json.loads(path.read_text(encoding="utf-8"))
     body = request.get_json(force=True) or {}
     seat = body.get("seat", "")
     name = re.sub(r"[^\w \-.']", "", body.get("name", ""))[:24].strip()
@@ -698,7 +718,7 @@ def claim_roster_seat(stem):
                 return jsonify({"error": f"{holder} already took {seat}"}), 409
             claims = {k: v for k, v in claims.items() if v.lower() != name.lower()}
             claims[seat] = name
-        (OUTPUT_DIR / f"{stem}.roster.json").write_text(json.dumps(claims, indent=1))
+        (OUTPUT_DIR / f"{stem}.roster.json").write_text(json.dumps(claims, indent=1), encoding="utf-8")
         _apply_names_to_miz(stem, claims, seats)
     return jsonify(_roster_view(stem, brief, claims))
 
@@ -725,8 +745,8 @@ def print_pack(stem):
     from . import kneeboard
     _stem(stem)
     brief_path, text_path = OUTPUT_DIR / f"{stem}.brief.json", OUTPUT_DIR / f"{stem}.txt"
-    title = json.loads(brief_path.read_text()).get("title", stem) if brief_path.exists() else stem
-    text = text_path.read_text() if text_path.exists() else ""
+    title = json.loads(brief_path.read_text(encoding="utf-8")).get("title", stem) if brief_path.exists() else stem
+    text = text_path.read_text(encoding="utf-8") if text_path.exists() else ""
     pages = kneeboard.text_pages(title, "Mission briefing", text) if text else []
     with zipfile.ZipFile(OUTPUT_DIR / f"{stem}.miz") as z:
         names = sorted(n for n in z.namelist() if n.startswith("KNEEBOARD/") and n.endswith(".png"))
@@ -781,7 +801,8 @@ def keep_mission(stem):
 
 @app.delete("/api/missions/<stem>")
 def delete_mission(stem):
-    mission_store.delete(_stem(stem))
+    if not mission_store.delete(_stem(stem)):
+        return jsonify({"error": "A file is still in use (being downloaded?). Try again in a moment."}), 409
     return jsonify({"deleted": True})
 
 
@@ -792,7 +813,7 @@ def mission_settings(stem):
     path = OUTPUT_DIR / f"{stem}.json"
     if not path.exists():
         abort(404)
-    return jsonify(json.loads(path.read_text()))
+    return jsonify(json.loads(path.read_text(encoding="utf-8")))
 
 
 @app.get("/missions/<name>")

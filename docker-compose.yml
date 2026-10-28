@@ -7,6 +7,9 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      # Publishing to the server folder is on only when SERVER_MISSIONS_HOST_DIR is set.
+      SERVER_MISSIONS_DIR: ${SERVER_MISSIONS_HOST_DIR:+/server-missions}
     volumes:
       # Generated .miz files, saved setups and sign-up events.
       - ./missions:/output

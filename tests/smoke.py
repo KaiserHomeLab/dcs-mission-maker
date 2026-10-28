@@ -61,7 +61,7 @@ def run(job):
             assert any(s in n for n in names), (s, names)
         if lua_dir:
             safe = label.replace(" ", "_").replace("/", "_")
-            with open(os.path.join(lua_dir, f"{safe}.mission.lua"), "w") as fh:
+            with open(os.path.join(lua_dir, f"{safe}.mission.lua"), "w", encoding="utf-8") as fh:
                 fh.write(mission)
             for n in names:
                 if n.startswith("l10n/DEFAULT/dmm_"):
@@ -172,11 +172,12 @@ check("route override", {"theater": "caucasus", "mission_type": "strike", "fligh
     {"aircraft": "F-16C_50", "slots": 2, "route": {"ip": [42.8, 41.6], "transit": [42.4, 41.9]}}]},
     expect_dtc=1)
 
-fails = 0
-with ProcessPoolExecutor(max_workers=JOBS) as pool:
-    for label, err in pool.map(run, queue, chunksize=4):
-        if err:
-            fails += 1
-            print("FAIL", label, err)
-print(f"done: {len(queue)} missions, {fails} failures")
-sys.exit(1 if fails else 0)
+if __name__ == "__main__":  # worker processes re-import this file on Windows
+    fails = 0
+    with ProcessPoolExecutor(max_workers=JOBS) as pool:
+        for label, err in pool.map(run, queue, chunksize=4):
+            if err:
+                fails += 1
+                print("FAIL", label, err)
+    print(f"done: {len(queue)} missions, {fails} failures")
+    sys.exit(1 if fails else 0)

@@ -8,7 +8,7 @@ well established.
 import json
 import os
 
-from . import eras, mods
+from . import eras, mods, paths
 
 # ---------------------------------------------------------------- fighters
 _F = "fighter"
@@ -425,7 +425,7 @@ def _base_card(key):
 
 # ------------------------------------------------------------ real drawings
 # Wikimedia Commons 3-view drawings fetched at image build (tools/fetch_drawings.py).
-DRAWINGS_DIR = os.environ.get("DRAWINGS_DIR", "/srv/drawings")
+DRAWINGS_DIR = str(paths.folder("DRAWINGS_DIR", "drawings"))
 # Variants that borrow another drawing; "shows" is printed on the sheet when the
 # drawing isn't of the exact variant.
 DRAWING_ALIAS = {"P-51D-30-NA": "P-51D", "MiG-29S": "MiG-29A", "F-14A-135-GR": "F-14B",
@@ -436,7 +436,7 @@ DRAWING_SHOWS = {"T-72B": "T-72", "T-80B": "T-80", "leopard-2A4": "Leopard 2A4",
 
 def _drawings():
     try:
-        with open(os.path.join(DRAWINGS_DIR, "index.json")) as fh:
+        with open(os.path.join(DRAWINGS_DIR, "index.json"), encoding="utf-8") as fh:
             return json.load(fh)
     except (OSError, ValueError):
         return {}

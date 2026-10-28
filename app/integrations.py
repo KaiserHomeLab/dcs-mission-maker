@@ -3,7 +3,7 @@
 Configured with environment variables (see .env.example):
   DISCORD_WEBHOOK_URL      post briefings + the .miz to a Discord channel
   PUBLIC_URL               how friends reach this app (for sign-up links)
-  SERVER_MISSIONS_DIR      a folder mounted into the container (local/SMB/NFS server)
+  SERVER_MISSIONS_DIR      the DCS server's Missions folder (Docker: set from SERVER_MISSIONS_HOST_DIR)
   SFTP_HOST, SFTP_PORT, SFTP_USER, SFTP_PASSWORD or SFTP_KEY_FILE, SFTP_PATH,
   SFTP_KNOWN_HOSTS (optional: verify the server's host key)
 """
@@ -26,8 +26,7 @@ def env(name):
 def status():
     return {
         "discord": bool(env("DISCORD_WEBHOOK_URL")),
-        "folder": bool(env("SERVER_MISSIONS_HOST_DIR") and env("SERVER_MISSIONS_DIR"))
-                  and Path(env("SERVER_MISSIONS_DIR")).is_dir(),
+        "folder": bool(env("SERVER_MISSIONS_DIR")) and Path(env("SERVER_MISSIONS_DIR")).is_dir(),
         "sftp": bool(env("SFTP_HOST") and env("SFTP_USER")),
         "public_url": env("PUBLIC_URL").rstrip("/"),
         "srs": srs(),

@@ -4,11 +4,10 @@ Bundled scripts are downloaded at image build time (see Dockerfile) into
 VENDOR_DIR. Anything you drop into CUSTOM_DIR (the ./scripts volume) shows up
 in the UI as a custom script.
 """
-import os
-from pathlib import Path
+from . import paths
 
-VENDOR_DIR = Path(os.environ.get("VENDOR_DIR", "/srv/vendor"))
-CUSTOM_DIR = Path(os.environ.get("CUSTOM_SCRIPTS_DIR", "/scripts"))
+VENDOR_DIR = paths.vendor_dir()
+CUSTOM_DIR = paths.folder("CUSTOM_SCRIPTS_DIR", "scripts")
 
 # id -> metadata. "file" is relative to VENDOR_DIR; "needs" are loaded first.
 CATALOG = {

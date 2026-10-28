@@ -23,3 +23,7 @@ node_modules/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Downloaded by tools/fetch_vendor.py and tools/fetch_drawings.py (windows/setup.bat)
+vendor/
+drawings/

@@ -4,3 +4,5 @@
 *.jpg binary
 *.pdf binary
 *.miz binary
+# ...except Windows batch files, which need CRLF.
+*.bat text eol=crlf

@@ -5,10 +5,10 @@ database (LGPL-3.0, extracted from DCS), downloaded at image build time.
 """
 import functools
 import json
-import os
-from pathlib import Path
 
-BEACON_DIR = Path(os.environ.get("VENDOR_DIR", "/srv/vendor")) / "beacons"
+from . import paths
+
+BEACON_DIR = paths.vendor_dir() / "beacons"
 TACAN_TYPES = {4, 5}           # TACAN, VORTAC
 ILS_LOCALIZER = 16640
 
@@ -17,7 +17,7 @@ ILS_LOCALIZER = 16640
 def _beacons(file_key):
     path = BEACON_DIR / f"{file_key}.json"
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
 

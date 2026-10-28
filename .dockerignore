@@ -12,3 +12,7 @@ node_modules
 *.tar.gz
 README.md
 eslint.config.mjs
+.venv
+vendor
+drawings
+windows

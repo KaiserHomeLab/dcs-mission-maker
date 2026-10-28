@@ -16,7 +16,7 @@ import urllib.error
 import urllib.request
 
 MANIFEST = sys.argv[1] if len(sys.argv) > 1 else "drawings.json"
-OUT_DIR = sys.argv[2] if len(sys.argv) > 2 else "/srv/drawings"
+OUT_DIR = sys.argv[2] if len(sys.argv) > 2 else "drawings"
 UA = {"User-Agent": "DCSMissionMaker/1.0 (self-hosted DCS mission generator; image build)"}
 MAX_W = 2000
 
@@ -36,7 +36,7 @@ def fetch(url):
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
-    with open(MANIFEST) as fh:
+    with open(MANIFEST, encoding="utf-8") as fh:
         manifest = json.load(fh)
     index, failed = {}, []
     for key, d in manifest.items():
@@ -65,7 +65,7 @@ def main():
             failed.append(key)
             print(f"skip {key}: {e}", flush=True)
         time.sleep(4)
-    with open(os.path.join(OUT_DIR, "index.json"), "w") as fh:
+    with open(os.path.join(OUT_DIR, "index.json"), "w", encoding="utf-8") as fh:
         json.dump(index, fh, indent=1)
     print(f"{len(index)} drawings, {len(failed)} skipped", flush=True)
 

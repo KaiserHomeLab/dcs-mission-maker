@@ -1,14 +1,40 @@
 # DCS Mission Maker
 
-A small web app in a Docker container that generates `.miz` mission files for
-DCS World. Pick the map, the mission and the aircraft you and your friends
-want to fly, and it writes a ready-to-fly multiplayer mission. Enemies,
-support aircraft and loadouts all adapt to what you picked.
+A small web app that generates `.miz` mission files for DCS World. It runs
+straight on Windows (e.g. on the PC that hosts your DCS server) or in Docker.
+Pick the map, the mission and the aircraft you and your friends want to fly,
+and it writes a ready-to-fly multiplayer mission. Enemies, support aircraft
+and loadouts all adapt to what you picked.
 
 It's built on [pydcs](https://github.com/pydcs/dcs), the same library used by
 DCS Liberation and Retribution.
 
 ## Run it
+
+### On Windows, without Docker (e.g. on your DCS server PC)
+
+This is the lighter option next to a DCS server: no Docker, no virtual machine taking RAM.
+
+1. Install [Python 3.12](https://www.python.org/downloads/) (keep *py launcher* ticked).
+2. Get this project: `git clone <this repository> dcs-mission-maker`, or download it as a ZIP
+   and unpack it, e.g. to `C:\dcs-mission-maker`.
+3. Double-click `windows\setup.bat`. It creates a Python environment in `.venv`, installs
+   the packages, downloads the pinned mission scripts, airfield data, fonts and 3-view
+   drawings (a few minutes), and creates `.env` from `.env.example`.
+4. Double-click `windows\start.bat` and open <http://localhost:8080>. Close the window to stop it.
+
+Optional:
+
+- `windows\open-firewall.bat` (right-click, *Run as administrator*) lets other PCs reach port 8080.
+- `windows\autostart-on.bat` starts the app whenever you log on (`autostart-off.bat` undoes it).
+- In `.env`, set `SERVER_MISSIONS_DIR` to the server's Missions folder, e.g.
+  `C:\Users\dcs\Saved Games\DCS.server\Missions`, to publish missions straight to it, and
+  `PUBLIC_URL` to the address your friends use.
+
+Missions are stored in the `missions` folder. To update, `git pull` (or unpack the new ZIP
+over the old folder) and run `setup.bat` again. `python -m app` runs the same server on Linux too.
+
+### With Docker
 
 You need Docker with the Compose plugin (Docker Desktop on Windows/macOS, or Docker Engine on Linux).
 
@@ -32,14 +58,14 @@ Kept missions have a **Delete** button.
 
 ### Optional: Discord and publishing to your server
 
-Copy `.env.example` to `.env`, fill in what you use, and run
-`docker compose up -d` again:
+Copy `.env.example` to `.env` (Windows setup does this for you), fill in what you use, and
+restart the app (`windows\start.bat`, or `docker compose up -d`):
 
 - `DISCORD_WEBHOOK_URL`: posts each mission (briefing, kneeboard preview and
   the `.miz`) and sign-up links to a channel.
 - `PUBLIC_URL`: how your friends reach this app, used in sign-up links.
-- `SERVER_MISSIONS_HOST_DIR`: your DCS server's `Missions` folder on this
-  machine (or a mounted share). Missions get copied straight in.
+- `SERVER_MISSIONS_DIR` (Windows) or `SERVER_MISSIONS_HOST_DIR` (Docker): your DCS
+  server's `Missions` folder on this machine (or a share). Missions get copied straight in.
 - `SFTP_*`: upload to a remote server (e.g. a rented Windows box running
   OpenSSH) instead. Set `SFTP_KNOWN_HOSTS` to verify the server's key.
 - `APP_PASSWORD`: protects the builder and everything that generates, publishes or
@@ -47,7 +73,8 @@ Copy `.env.example` to `.env`, fill in what you use, and run
 - `SRS_ADDRESS` / `SRS_NOTE`: your usual SRS voice server, the default for the
   per-mission SRS field.
 - `MISSION_TTL_HOURS`: how long unkept missions stay (default 24).
-- `WEB_CONCURRENCY`: worker processes (default 3; each builds one mission at a time).
+- `WEB_CONCURRENCY` (Docker): worker processes (default 3; each builds one mission at a time).
+- `PORT` (Windows): the port to serve on (default 8080).
 
 Then tick *Copy to server*, *Upload (SFTP)* or *Post to Discord* next to the
 Generate button.
@@ -113,7 +140,7 @@ order: MIST, MOOSE, Skynet, Hound, EWRS, CTLD, CSAR, then your custom scripts.
   `MASH Home` at your airfield.
 
 Bundled scripts are downloaded at build time from their upstream repos, pinned
-to exact commits and checked with SHA-256 (see `Dockerfile`):
+to exact commits and checked with SHA-256 (see `tools/fetch_vendor.py`):
 MOOSE (GPL-3.0), MIST 4.5.126 (GPL-3.0), Skynet IADS 3.3.0 (Apache-2.0),
 Hound ELINT 0.5.2 (GPL-3.0), EWRS (MIT).
 
@@ -128,7 +155,7 @@ landings and reads the objective flags (9000 = all done, 9001+ = each objective)
 and sends them every minute and at mission end for the Debrief tab. Once per DCS
 session it also lists the liveries installed on the server (DCS install and
 `Saved Games\Liveries`) for the builder's livery dropdowns.
-The app needs to be reachable from the DCS machine (`PUBLIC_URL`). It uses the
+The app needs to be reachable from the DCS machine (`PUBLIC_URL`; on the same PC, `http://localhost:8080` works). It uses the
 LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
 
 ## Notes and limits
@@ -150,8 +177,9 @@ LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
   one ends up in water. Normandy and the Channel have no TACAN/ILS data (1944).
 - **Mod aircraft** spawn clean (no loadout data for them); rearm on the ground.
 - **Afghanistan and Iraq** aren't in pydcs yet, so they're not offered.
-- The app runs as an unprivileged user (uid 1000) inside the container; on start it
-  makes `./missions` and the server-missions folder writable for that user.
+- In Docker the app runs as an unprivileged user (uid 1000); on start it makes
+  `./missions` and the server-missions folder writable for that user. On Windows it runs as
+  whoever starts it, so use a normal (not administrator) account.
 
 ## Security
 
@@ -229,14 +257,17 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `app/threatdb.py` | Threat recognition data and dimensions for the Threat ID cards |
 | `app/static/js/blueprint.js` | Blueprint sheets: layout, envelopes, real drawings, aircraft two-views |
 | `app/static/js/draw3v.js`, `draw3v_units.js`, `draw3v_specs.js` | Generated 3-view line drawings: parts (tracks, wheels, barrels, missiles, radars), vehicle/gun/ship families, and per-unit specs in metres |
-| `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked) fetched at image build |
+| `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked), fetched at setup |
+| `tools/fetch_vendor.py` | Downloads the pinned, SHA-256-checked mission scripts, beacon data and fonts into `vendor/` |
+| `app/paths.py` | Where data lives: from the environment (Docker) or folders in the project (Windows) |
+| `app/__main__.py`, `windows/` | `python -m app` (waitress server, reads `.env`); Windows setup, start, autostart and firewall scripts |
 | `dcs-hook/dmm_reporter.lua` | DCS server hook: script-error check and debrief events |
 | `app/debrief.py` | Turns the hook's events and flags into the Debrief tab |
 | `app/mission_store.py` | Temporary vs kept missions, expiry and deletion |
 | `app/liveries.py`, `app/data/liveries.json`, `tools/build_liveries.py` | Livery choices: squadron liveries from DCS Retribution (LGPL-3.0, pinned commit; the tool documents how to rebuild the JSON) merged with what the server hook reports |
 | `pyproject.toml`, `eslint.config.mjs` | Lint settings (Ruff for Python, ESLint for the browser scripts) |
-| `Dockerfile`, `docker-entrypoint.sh`, `gunicorn.conf.py`, `docker-compose.yml` | Two-stage image (pinned, checksummed downloads in the build stage), volume ownership and privilege drop, web server settings |
-| `.github/workflows/ci.yml` | CI: lint, image build, tests |
+| `Dockerfile`, `docker-entrypoint.sh`, `gunicorn.conf.py`, `docker-compose.yml` | Two-stage image (downloads in the build stage), volume ownership and privilege drop, web server settings |
+| `.github/workflows/ci.yml` | CI: lint, image build and tests, and the tests on Windows without Docker |
 | `THIRD_PARTY.md` | Third-party components and their licences |
 
 ## Credits and licences
