@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DCS Mission Maker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<link rel="stylesheet" href="{{ static_url('css/base.css') }}">
+<link rel="stylesheet" href="{{ static_url('css/builder.css') }}">
+</head>
+<body>
+<header>
+  <h1>DCS <span>Mission Maker</span></h1>
+  <p>Six quick steps. Drop the finished <code>.miz</code> into <code>Saved Games\DCS\Missions</code>.</p>
+  <div class="toolbar">
+    <select id="setups" aria-label="Saved setups"><option value="">Saved setups…</option></select>
+    <button type="button" id="setup_load">Load</button>
+    <button type="button" id="setup_save">Save current as…</button>
+    <button type="button" id="setup_delete" class="link">Delete</button>
+    <button type="button" id="surprise" title="Random map, mission, time and weather. Keeps your flights.">🎲 Surprise me</button>
+  </div>
+</header>
+<main>
+  <form id="form" onsubmit="return false">
+    <section>
+      <h2><span class="n">1</span> Where are you flying?</h2>
+      <p class="sub">Pick the map, the airfield you fly from, and the enemy area you're heading for.</p>
+      <div class="grid">
+        <div><label for="theater">Map</label><select id="theater"></select></div>
+        <div><label for="blue_base">Your airfield</label><select id="blue_base"></select></div>
+        <div><label for="red_base">Enemy area</label><select id="red_base"></select></div>
+      </div>
+      <p class="note" id="theater_note"></p>
+    </section>
+
+    <section>
+      <h2><span class="n">2</span> What's the mission?</h2>
+      <p class="sub">Loadouts adjust automatically to the mission you pick.</p>
+      <div class="cards" id="mission_types"></div>
+      <div class="grid" style="margin-top:14px">
+        <div><label>Difficulty</label><div class="seg" id="difficulty"></div></div>
+        <div id="enemy_air_box"><label>Enemy fighters</label><div class="seg" id="enemy_air"></div></div>
+      </div>
+      <div class="grid" style="margin-top:14px">
+        <div id="secondaries_box"><label for="secondaries">Extra objectives</label><select id="secondaries">
+          <option value="0">None</option><option value="1">1 more target</option><option value="2">2 more targets</option></select></div>
+        <div><label for="tot">Time on target (optional)</label><input type="text" id="tot" placeholder="e.g. 09:15" maxlength="5"></div>
+      </div>
+      <div class="opt-grid">
+        <label class="switch" id="chain_box" title="The next target is radioed in when the previous one is destroyed">
+          <input type="checkbox" id="chain"> Unlock targets one at a time</label>
+        <label class="switch" title="Hidden air defenses switch on when you get close; more on higher difficulty">
+          <input type="checkbox" id="popups" checked> Pop-up threats</label>
+        <label class="switch" title="Enemy fighters scramble when you approach instead of on a timer">
+          <input type="checkbox" id="dynamic_air" checked> Enemy fighters launch when you arrive</label>
+        <label class="switch" id="front_line_box" title="Friendly armor holds a line and the enemy column pushes toward it">
+          <input type="checkbox" id="front_line" checked> Front line with friendly troops</label>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="n">3</span> Who's flying?</h2>
+      <p class="sub">One card per flight. Each player seat is one person; AI wingmen fill the rest of the
+        flight. Callsigns are real DCS callsigns, so AWACS and ATC call you by name.</p>
+      <div id="flights"></div>
+      <button type="button" id="add_flight">+ Add another flight</button>
+    </section>
+
+    <section>
+      <h2><span class="n">4</span> Friendly AI &amp; support</h2>
+      <p class="sub">AI flights fly alongside you: fighters on CAP, escorts that stick to your flight,
+        SEAD that goes in ahead of you, and strike or CAS packages. Delay a launch to time it with your push.</p>
+      <div id="ai_flights"></div>
+      <button type="button" id="add_ai">+ Add AI flight</button>
+      <h3 style="margin-top:16px">Support</h3>
+      <div class="row" style="margin-top:0">
+        <label class="switch"><input type="checkbox" id="awacs" checked> AWACS</label>
+        <label class="switch"><input type="checkbox" id="tankers" checked> Tankers</label>
+        <label class="switch" title="Lases targets on request (code 1688) for CAS, strike and SEAD missions">
+          <input type="checkbox" id="jtac" checked> JTAC</label>
+      </div>
+      <p class="note" id="support_note"></p>
+    </section>
+
+    <section>
+      <h2><span class="n">5</span> Conditions &amp; options</h2>
+      <p class="sub">The year is set from your aircraft's era.</p>
+      <div class="grid">
+        <div><label for="time_of_day">Time of day</label><select id="time_of_day"></select></div>
+        <div><label>Season</label><div class="seg" id="season"></div></div>
+        <div><label for="weather">Weather</label><select id="weather"></select></div>
+        <div><label>Wind</label><div class="seg" id="wind"></div></div>
+      </div>
+      <div class="opt-grid">
+        <div><label for="opt_labels">Unit labels</label><select id="opt_labels">
+          <option value="none">Off</option><option value="dots">Dots only</option>
+          <option value="abbreviated">Abbreviated</option><option value="full">Full</option></select></div>
+        <div><label for="opt_f10">F10 map shows</label><select id="opt_f10">
+          <option value="all">Everything</option><option value="allies">Allies</option>
+          <option value="own">My aircraft only</option><option value="map">Map only</option></select></div>
+      </div>
+      <div class="opt-grid">
+        <label class="switch"><input type="checkbox" id="opt_external_views" checked> External views</label>
+        <label class="switch"><input type="checkbox" id="opt_unlimited_fuel"> Unlimited fuel</label>
+        <label class="switch"><input type="checkbox" id="opt_unlimited_weapons"> Unlimited weapons</label>
+        <label class="switch"><input type="checkbox" id="opt_easy_comms"> Easy comms</label>
+        <label class="switch"><input type="checkbox" id="opt_civil_traffic"> Civilian road traffic</label>
+        <label class="switch"><input type="checkbox" id="opt_birds"> Bird strikes</label>
+        <label class="switch"><input type="checkbox" id="singleplayer"> Single-player (first seat is Player)</label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div style="flex:1;min-width:200px"><label for="srs">SRS voice server (optional)</label>
+          <input type="text" id="srs" maxlength="100" autocomplete="off"></div>
+        <div style="flex:1;min-width:200px"><label for="srs_note">SRS note (optional)</label>
+          <input type="text" id="srs_note" maxlength="80" autocomplete="off"></div>
+      </div>
+      <p class="note">Goes on the comm card, kneeboards and Discord post for this mission. Leave it empty to use the
+        default from the server settings. Don't put the SRS password here; say where to find it instead.</p>
+    </section>
+
+    <section>
+      <h2><span class="n">6</span> Scripts, mods &amp; name</h2>
+      <p class="sub">Popular community scripts, embedded in the mission. Libraries they need are added for you.
+        Put your own <code>.lua</code> files in the <code>scripts</code> folder and they show up here too.</p>
+      <div class="cards" id="scripts"></div>
+      <h3 style="margin-top:16px">Mods your group has</h3>
+      <p class="sub">Only tick mods everyone has installed. Mod aircraft show up in the aircraft list, and the
+        mission tells DCS which mods are required.</p>
+      <div class="cards" id="mods"></div>
+      <div style="margin-top:14px"><label for="title">Mission name (optional)</label>
+        <input type="text" id="title" maxlength="60" placeholder="Operation ..."></div>
+    </section>
+  </form>
+
+  <aside>
+    <section class="summary">
+      <h3>Mission summary</h3>
+      <div id="map" class="hidden"></div>
+      <div class="row hidden" id="route_tools" style="margin:-4px 0 10px">
+        <label for="route_flight" style="margin:0">Drag the route for</label>
+        <select id="route_flight" style="width:auto"></select>
+        <button type="button" class="link" id="route_reset">Reset</button>
+      </div>
+      <p class="note" id="route_list" style="margin:-4px 0 10px"></p>
+      <dl id="summary"></dl>
+      <label for="era">Era</label>
+      <select id="era"></select>
+      <p class="note">Auto picks the era most of your seats belong to. Enemy aircraft, ground units,
+        air defenses and support all follow the era.</p>
+      <div id="live_warnings"></div>
+      <div class="row" id="publish_opts" style="margin-top:12px"></div>
+      <div style="margin-top:12px"><button class="primary" id="generate">Generate mission</button></div>
+      <div style="margin-top:8px"><button type="button" id="make_event" style="width:100%">Create sign-up page for this mission…</button></div>
+      <p class="note err" id="error"></p>
+    </section>
+    <section id="result" class="hidden">
+      <h3>Ready</h3>
+      <a class="dl" id="room" href="#" target="_blank" style="border-color:var(--accent);color:var(--accent)">Open the briefing room →</a>
+      <a class="dl" id="download" href="#">Download .miz</a>
+      <p class="warn" id="warnings"></p>
+      <p class="note" id="published"></p>
+      <details><summary>Briefing</summary><pre id="briefing"></pre></details>
+    </section>
+    <section id="events_box" class="hidden">
+      <h3>Sign-ups</h3>
+      <ul class="recent" id="events"></ul>
+    </section>
+    <section>
+      <h3>Recent missions</h3>
+      <ul class="recent" id="recent"><li>None yet.</li></ul>
+      <p class="note">Install the <a href="/dcs-hook.lua">DCS server hook</a> to see whether each mission loaded
+        without script errors on your server (experimental).</p>
+    </section>
+  </aside>
+</main>
+<dialog id="event_panel">
+      <h3>Sign-up page</h3>
+      <p class="note" style="margin-top:0">Makes a page your friends open to claim seats in this mission. When
+        you generate from it, their names go on the slots, briefing and kneeboards.</p>
+      <div style="margin-top:10px"><label for="ev_title">Event name</label>
+        <input type="text" id="ev_title" maxlength="80" placeholder="Friday night SEAD"></div>
+      <div style="margin-top:10px"><label for="ev_when">Date and time</label>
+        <input type="datetime-local" id="ev_when">
+        <p class="note" style="margin-top:4px">Pick it in your own time; everyone sees it converted to theirs.</p></div>
+      <label class="switch" style="margin-top:10px"><input type="checkbox" id="ev_repeat"> Repeat weekly
+        <span class="muted">(next week's sign-up opens after this one is flown)</span></label>
+      <label class="switch hidden" id="ev_discord_box" style="margin-top:10px"><input type="checkbox" id="ev_discord" checked> Post the link to Discord</label>
+      <div class="row"><button type="button" class="primary" id="ev_create" style="width:auto">Create sign-up page</button>
+        <button type="button" class="link" id="ev_cancel">Close</button></div>
+      <p class="note err" id="ev_error"></p>
+      <div id="ev_result" class="hidden">
+        <p class="note" style="color:var(--ok)">Sign-up page created. Send this link to your group:</p>
+        <div class="row" style="margin-top:4px"><input type="text" id="ev_link" readonly style="flex:1">
+          <button type="button" id="ev_copy">Copy</button>
+          <a id="ev_open" href="#" target="_blank">Open</a></div>
+        <p class="note" id="ev_discord_result"></p>
+      </div>
+</dialog>
+
+<script src="{{ static_url('js/common.js') }}"></script>
+<script src="{{ static_url('js/builder.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Sign-up</title>
+<link rel="stylesheet" href="{{ static_url('css/base.css') }}">
+<link rel="stylesheet" href="{{ static_url('css/event.css') }}">
+</head>
+<body data-eid="{{ eid }}">
+<main>
+  <h1 id="title">Loading…</h1>
+  <p class="when" id="when"></p>
+  <p class="meta" id="meta"></p>
+  <p class="meta hidden" id="series"></p>
+
+  <section>
+    <h2>Your name</h2>
+    <label for="me">Callsign or nickname, as you want it on your slot</label>
+    <input type="text" id="me" maxlength="24" placeholder="e.g. Mitsu">
+  </section>
+
+  <section>
+    <h2>Seats</h2>
+    <div id="seats"></div>
+    <p class="err" id="error"></p>
+  </section>
+
+  <section>
+    <h2>Mission file</h2>
+    <p id="mission_status" class="meta" style="margin-top:0">Not generated yet.</p>
+    <p class="meta">When everyone's signed up, the organizer generates the mission. Pilot names go on the
+      slots ("Viper 1-2 (Mitsu)"), the briefing and the kneeboards.</p>
+    <div class="row" id="publish_opts"></div>
+    <div class="row"><button class="primary" id="generate">Generate mission with these pilots</button>
+      <a href="/">Open the mission builder</a></div>
+    <p id="gen_result"></p>
+  </section>
+</main>
+<script src="{{ static_url('js/common.js') }}"></script>
+<script src="{{ static_url('js/event.js') }}"></script>
+</body>
+</html>

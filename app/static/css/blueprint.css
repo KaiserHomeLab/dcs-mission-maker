@@ -1,0 +1,36 @@
+/* Blueprint drawing sheets (js/blueprint.js) */
+svg.bp { display: block; width: 100%; height: auto; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+.bp .o  { fill: rgba(235,244,255,.07); stroke: #eef5ff; stroke-width: 1.5; stroke-linejoin: round; }
+.bp .o2 { fill: rgba(235,244,255,.05); stroke: #e3eefc; stroke-width: 1.1; stroke-linejoin: round; }
+.bp .g  { fill: rgba(150,200,255,.18); stroke: #eef5ff; stroke-width: 1.1; }
+.bp .d  { fill: none; stroke: rgba(225,238,255,.7); stroke-width: .6; }
+.bp .h  { fill: none; stroke: rgba(225,238,255,.55); stroke-width: .8; stroke-dasharray: 5 3; }
+.bp .c  { fill: none; stroke: rgba(225,238,255,.4); stroke-width: .5; stroke-dasharray: 16 3 2 3; }
+.bp .x  { fill: none; stroke: rgba(225,238,255,.6); stroke-width: .6; }
+.bp .ar { fill: rgba(225,238,255,.8); stroke: none; }
+.bp .tb { fill: #0f3a63; stroke: none; }
+.bp .gd { stroke: rgba(225,238,255,.5); stroke-width: .8; stroke-dasharray: 2 2; }
+.bp .gm { fill: none; stroke: rgba(255,255,255,.045); stroke-width: .5; }
+.bp .gM { fill: none; stroke: rgba(255,255,255,.1); stroke-width: .7; }
+.bp .fr  { fill: none; stroke: rgba(225,238,255,.75); stroke-width: 1; }
+.bp .fr2 { fill: none; stroke: rgba(225,238,255,.4); stroke-width: .6; }
+.bp .en { fill: rgba(255,120,110,.18); stroke: #ffb4ad; stroke-width: 1.1; }
+.bp .ldr { fill: none; stroke: #ffd27a; stroke-width: .7; }
+.bp .dot { fill: #ffd27a; stroke: none; }
+.bp .bal { fill: #0f3a63; stroke: #ffd27a; stroke-width: 1; }
+.bp .bn { fill: #ffd27a; font-weight: 700; }
+.bp .stamp { fill: none; stroke: rgba(255,170,160,.75); stroke-width: 1.4; }
+.bp .st { fill: rgba(255,170,160,.85); font-weight: 700; letter-spacing: .08em; }
+.bp text { fill: rgba(232,242,255,.9); }
+.bp .th { fill: #f2f8ff; font-weight: 700; letter-spacing: .06em; }
+.bp .tk { fill: rgba(225,238,255,.55); letter-spacing: .08em; }
+.bp .dt { fill: rgba(232,242,255,.88); }
+/* Generated 3-view line drawings (js/draw3v*.js): drawn in metres, so strokes don't scale */
+.bp .v3 * { vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.bp .v3 .k1 { fill: none; stroke: #f4f8ff; stroke-width: 1.15; }
+.bp .v3 .k2 { fill: none; stroke: rgba(240,247,255,.9); stroke-width: .8; }
+.bp .v3 .k3 { fill: none; stroke: rgba(235,244,255,.7); stroke-width: .5; }
+.bp .v3 .kh { fill: none; stroke: rgba(235,244,255,.55); stroke-width: .5; stroke-dasharray: 3 2; }
+.bp .v3 .kc { fill: none; stroke: rgba(235,244,255,.45); stroke-width: .45; stroke-dasharray: 10 2 2 2; }
+.bp .v3 .occ { fill: #12416f; }
+.bp .v3 .pj { stroke: rgba(225,238,255,.22); stroke-width: .5; stroke-dasharray: 2 3; }

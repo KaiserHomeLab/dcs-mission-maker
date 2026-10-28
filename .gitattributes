@@ -1,0 +1,6 @@
+# Keep LF line endings everywhere: the entrypoint script breaks with CRLF inside Linux containers.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.miz binary

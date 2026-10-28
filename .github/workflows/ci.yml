@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.*
+      - run: ruff check app tools tests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npx --yes eslint@9 app/static
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t dcs-mission-maker .
+      - name: API tests
+        run: docker run --rm -v "$PWD:/srv/src:ro" -w /srv/src dcs-mission-maker python -m tests.api
+      - name: Mission smoke test (quick sample)
+        run: docker run --rm -v "$PWD:/srv/src:ro" -w /srv/src dcs-mission-maker python -m tests.smoke --quick
+      - name: Hook Lua syntax
+        run: sudo apt-get install -y -qq lua5.1 && luac5.1 -p dcs-hook/dmm_reporter.lua

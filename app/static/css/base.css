@@ -1,0 +1,15 @@
+/* Shared theme for all pages: colour tokens (dark default, light on request) and base text. */
+:root {
+  --bg: #0f1418; --panel: #172027; --panel-2: #1e2a33; --line: #2b3a45;
+  --text: #e3eaef; --muted: #8fa3b1; --accent: #e0a526; --accent-ink: #1a1405;
+  --ok: #4fbf7f; --warn: #e5a23c; --err: #e5675c; --blue: #4a90e2; --red: #e5675c; --radius: 10px;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: #eef1f3; --panel: #fff; --panel-2: #f5f7f9; --line: #d6dde2;
+          --text: #172027; --muted: #5b6e7b; --accent: #b77f00; --accent-ink: #fff;
+          --ok: #23824d; --warn: #9a6100; --err: #c0392b; --blue: #2f6fc0; --red: #c0392b; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+       font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.hidden { display: none !important; }

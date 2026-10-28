@@ -1,0 +1,25 @@
+# Local settings and secrets
+.env
+
+# Runtime data (generated missions, setups, events, sign-ups, reports)
+missions/*
+!missions/.gitkeep
+server-missions/*
+!server-missions/.gitkeep
+# Your own mission scripts
+scripts/*
+!scripts/README.md
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+.venv/
+node_modules/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,239 @@
+# DCS Mission Maker
+
+A small web app in a Docker container that generates `.miz` mission files for
+DCS World. Pick the map, the mission and the aircraft you and your friends
+want to fly, and it writes a ready-to-fly multiplayer mission. Enemies,
+support aircraft and loadouts all adapt to what you picked.
+
+It's built on [pydcs](https://github.com/pydcs/dcs), the same library used by
+DCS Liberation and Retribution.
+
+## Run it
+
+You need Docker with the Compose plugin (Docker Desktop on Windows/macOS, or Docker Engine on Linux).
+
+```bash
+git clone <this repository> dcs-mission-maker
+cd dcs-mission-maker
+docker compose up -d --build
+```
+
+The first build takes a few minutes: it downloads the pinned mission scripts,
+airfield data and 3-view drawings.
+
+Open <http://localhost:8080> (or `http://<host-ip>:8080` from another PC).
+Generated missions download from the page and are also saved to `./missions`
+(with their settings as `.json`; saved setups go to `./missions/setups`).
+
+### Optional: Discord and publishing to your server
+
+Copy `.env.example` to `.env`, fill in what you use, and run
+`docker compose up -d` again:
+
+- `DISCORD_WEBHOOK_URL`: posts each mission (briefing, kneeboard preview and
+  the `.miz`) and sign-up links to a channel.
+- `PUBLIC_URL`: how your friends reach this app, used in sign-up links.
+- `SERVER_MISSIONS_HOST_DIR`: your DCS server's `Missions` folder on this
+  machine (or a mounted share). Missions get copied straight in.
+- `SFTP_*`: upload to a remote server (e.g. a rented Windows box running
+  OpenSSH) instead. Set `SFTP_KNOWN_HOSTS` to verify the server's key.
+- `APP_PASSWORD`: protects the builder and everything that generates, publishes or
+  deletes (see [Security](#security)).
+- `SRS_ADDRESS` / `SRS_NOTE`: your usual SRS voice server, the default for the
+  per-mission SRS field.
+- `WEB_CONCURRENCY`: worker processes (default 3; each builds one mission at a time).
+
+Then tick *Copy to server*, *Upload (SFTP)* or *Post to Discord* next to the
+Generate button.
+
+## Using the missions
+
+1. Copy the `.miz` into `Saved Games\DCS\Missions\`.
+2. **Multiplayer:** host it from the Multiplayer menu. Every seat is a *Client*
+   slot named after its flight, for example `VFA-103 - Hornet 1` / `Hornet 1-2`.
+3. **Single-player:** tick *Single-player* so the first seat becomes *Player*.
+
+## Features
+
+| | |
+|---|---|
+| **Maps** | Caucasus, Persian Gulf, Syria, Nevada, Marianas, Sinai, Kola, South Atlantic (Falklands, 1982), Germany (Cold War), Normandy (1944), The Channel |
+| **Missions** | CAP, CAS, SEAD/DEAD, Precision Strike, Anti-Ship, Combat Search & Rescue, Free Flight |
+| **Extra objectives** | Up to two more targets (air defense site, artillery battery, supply convoy, early-warning radar), either all briefed up front or unlocked one at a time with a radio call and coordinates when the previous one dies. |
+| **Living battlefield** | CAS columns push toward friendly armor holding a front line drawn on the F10 map. Hidden pop-up air defenses switch on when you get close (more on higher difficulty). Enemy fighters scramble when you approach instead of on a timer. |
+| **CSAR** | A downed pilot past the enemy airfield and a search party closing in. Helicopters find the survivor through MOOSE CSAR (beacon, smoke, flares) and bring them to the MASH; everyone else escorts and kills the search party. |
+| **Sign-up page** | Turn a mission into a shareable page where friends claim seats ("Viper 1-2"). Tick *Repeat weekly* for a regular night: once an occurrence is generated (or 3 hours after it starts), next week's sign-up opens with the same setup and empty seats, is posted to Discord if the first one was, and is linked from the old page. Generating from it puts their names on the slots ("Viper 1-2 (Mitsu)"), the briefing and the kneeboards. Optionally posts the link to Discord. |
+| **Discord & server** | Post missions to Discord, copy them straight into your server's Missions folder, or upload them over SFTP (see above). |
+| **Briefing Room** | Every mission gets its own page (`/briefing/<mission>`), linked from the Generate result, recent missions, sign-up pages and Discord posts. A full-screen tactical map with map, terrain and satellite views shows each flight's route and waypoints, SAM threat rings, objectives, tanker/AWACS orbits, bullseye, front line and JTAC (click anywhere for coordinates and bullseye bearing/range). Tabs beside it cover the tasking and situation, each flight's route table, loadout and radios, a comms card, threats, weather and home field, and the kneeboard pages. Printable, and shareable with your group. A **Who's flying** roster lets each player type their name and take a seat ("Viper 1-2"); everyone sees who's on which aircraft, AI wingmen are marked, names from a sign-up page carry over, and the slot names in the `.miz` update to "Viper 1-2 (Mitsu)" (re-download or re-publish after everyone has picked). |
+| **My flight** | Once you've taken a seat, the Briefing Room's *My flight* tab shows your own route map with numbered waypoints and the threat rings near it, a leg table (true heading, distance, altitude, bullseye), your TOT, loadout, radios and wingmen, recognition cards for the threats along your route, and your kneeboard. The main map highlights your flight too. |
+| **Threat ID** | Blueprint drawing sheets for every enemy system in the mission. Most fighters (Su-27, Su-30, MiG-29, F-15, F-16, F/A-18, F-4E, F-5E, MiG-15/19/21/23, F-86F, Bf 109, Fw 190, P-47, P-51, Spitfire) the T-72 (also shown for the T-72B3 and T-90), T-80, Leopard 1, Leopard 2, PT-76, BMP-3, and the Ticonderoga and Arleigh Burke use **real drawings** from Wikimedia Commons, recoloured to blueprint style and credited on the sheet and card (author, licence and a link). Every other ground and naval unit (tanks, APCs, SPAAGs, SAM launchers, towed guns, radars, artillery, MANPADS, ships) gets a **generated 3-view line drawing** in the same style: side, plan and front views at one true scale built from published dimensions, with running gear, turrets, guns, missiles, radars and hidden lines removed, plus length/width/height dimensions. Each sheet also has an engagement-envelope or weapon-range diagram and a title block; click one to open it full screen. Each card also lists (fighters, SAM sites, short-range air defenses, radars, armor, ships): role, range, altitude, guidance, weapons, RWR symbol where well known, and how to beat it. Pop-up threats and not-yet-revealed targets show as "possible" without a location. Generated drawings are representative in detail, and figures are approximate. |
+| **Waypoints** | Every flight gets a full route: Join, Push, Ingress, Target (plus extra objectives), Egress (turned off the attack axis, away from your ingress) and Return, then home. CAP flights get a two-point CAP racetrack. The same waypoints go into the mission, the data cartridges and the kneeboards. |
+| **Route editing & TOT** | Drag each flight's Push, Ingress and Egress on the map. Set a time on target: the target waypoint is locked to it, the time to leave Ingress is briefed, warnings show if a flight can't make it, and AI flights can be timed off it (SEAD goes in 3 min before you, strikers just after). |
+| **Airfield data** | Home field TACAN, tower frequencies, runway in use (into the wind) and its ILS, in the briefing and on the kneeboards. |
+| **Mods** | Tick the mods your group has: Community A-4E-C and UH-60L Black Hawk as flyable aircraft, High Digit SAMs (SA-20/SA-20B for modern Soviet-side enemies). The mission lists them as required modules. |
+| **Server load check** | An optional DCS server hook reports whether each mission loaded without script errors; the result shows next to the mission in the app. |
+| **Debrief** | With the same hook installed, the Briefing Room's *Debrief* tab fills in while the mission is flown and after it ends: which objectives were destroyed, a row per pilot (kills and what they destroyed, losses, landings, friendly fire) and a timeline. The hook reports every minute and once more at mission end. |
+| **Print pack** | One PDF with the briefing and every kneeboard page (Briefing Room > *Print pack*), for printing or a tablet. |
+| **Liveries** | Each flight has a livery dropdown. Built in: the stock DCS liveries that DCS Retribution's squadrons use (e.g. "VFA-37 Ragin' Bulls (USA)"), for about 30 of the flyable aircraft; picking one fills in the squadron name if it's empty. With the DCS server hook installed, the server also reports every livery it has (stock and custom, by in-game name) and those are listed first. Everyone flying needs the livery installed; DCS shows its default otherwise. |
+| **SRS** | Set the SRS voice server per mission in the builder (step 5, plus an optional note such as where the password is), or a default with `SRS_ADDRESS` / `SRS_NOTE` in `.env`. It appears on the Comms tab, the kneeboards and Discord posts. The Comms tab also has a plain-text **comm card** with every frequency for a second screen or phone. The password is never stored. |
+| **Era-matched enemies** | Your aircraft decide the era (WWII, Korea, Vietnam, Late Cold War, Modern) and your side. The enemy is the opposite side of the same era: P-51s meet Fw 190s and 88 mm Flak, F-86s meet MiG-15s, F-4Es meet MiG-21s and SA-2s, MiG-29s meet F-15s and Patriots. You can override the era. |
+| **Friendly AI** | AI wingmen inside your own flights (players take the first seats, AI fills the rest), plus separate AI flights: CAP, escort (sticks to a player flight you pick), SEAD, CAS, strike and anti-ship, with an optional launch delay (T+5 to T+60 min). AI types suitable for the job and era are listed first. |
+| **JTAC** | For CAS, strike and SEAD (Vietnam era onward): JTAC "Axeman" on 266.0 AM, laser code 1688. In the modern era it's an MQ-9 orbiting the target, otherwise a ground team. Invisible and immortal so it stays on station. |
+| **Kneeboards** | Two pages per flight, dark pages for night (and winter dawn/dusk) missions so they don't blind you. **Flight:** tasking, steerpoints with lat/long and bullseye bearing/range, radio presets, support frequencies, threats and weather. **Route:** a north-up sketch of the route (numbered waypoints, threat rings, bullseye, scale), a nav log (true course, leg and total distance, altitude, speed and ETA, worked back from the TOT when one is set), and what to do at each waypoint for your mission type and aircraft. Both are in the Briefing Room's Kneeboards tab too. DCS shows kneeboard pages per aircraft type, so flights flying the same type see each other's pages. |
+| **Bullseye** | Set halfway between your airfield and the target; shown in the briefing, kneeboards and cartridges. |
+| **Mission options** | Unit labels, F10 map visibility, external views, unlimited fuel/weapons, easy comms, civilian traffic, bird strikes. |
+| **Saved setups** | Save your group's usual setup by name and load it next time. Every generated mission also keeps its settings, so you can "Reuse settings" from the recent list and tweak them. |
+| **Map preview & Surprise me** | A live map of home, target, bullseye and carrier. Surprise me randomizes map, mission, time and weather but keeps your flights. The map tiles come from OpenStreetMap, so they need internet access; everything else works offline. |
+| **Squads** | Each flight gets a real DCS callsign, including aircraft-specific ones (Viper, Hornet, Hawg, Apache...), a flight number and an optional squadron name. Units are named `Viper 1-1`, `Viper 1-2`, and the callsign, datalink voice callsign and Link 16 STN all match. |
+| **Comm plan** | Radio presets on every seat: flight, package, AWACS, tankers, tower. Listed in the briefing. |
+| **Loadouts** | Matched to the mission: HARMs for SEAD, Harpoons/C-802s for anti-ship, Mavericks and GBUs for CAS, and so on. Each flight can pick another preset, and the UI shows exactly what's on the jet. |
+| **Data cartridge (DTC)** | F/A-18C and F-16C flights get a native DCS Data Transfer Cartridge that loads at spawn: steerpoints, threat rings, tanker/AWACS orbits, home field, and on the Hornet named COMM channels plus carrier TACAN/ICLS/ACLS. |
+| **Scripts** | MOOSE, MIST, Skynet IADS, Hound ELINT, EWRS, plus CTLD and CSAR (via MOOSE) for helicopter flights. Dependencies are added automatically. |
+| **Your own scripts** | Drop any `.lua` into `./scripts` (e.g. Splash Damage 3.x from the DCS user files) and it appears in the UI. It's loaded after the built-in ones. |
+| **Support** | AWACS and boom/drogue tankers appropriate to the era and side (none in WWII/Korea). Carrier ops from CVN-74 Stennis, or CV-9 Essex for WWII. |
+
+## How the scripts are wired
+
+All scripts load from a *Mission Start* trigger (`DO SCRIPT FILE`) in this
+order: MIST, MOOSE, Skynet, Hound, EWRS, CTLD, CSAR, then your custom scripts.
+
+- **Skynet IADS:** enemy SAM sites are named `SAM ...` and early-warning radars
+  `EW ...`. The config calls `addSAMSitesByPrefix('SAM')` and
+  `addEarlyWarningRadarsByPrefix('EW')`.
+- **Hound ELINT:** uses the AWACS as its sensor platform, so it needs AWACS on.
+- **CTLD:** pickup zone `CTLD Pickup` at your airfield, with an infantry squad
+  and a Humvee crate. Uses your helicopter flights' group names.
+- **CSAR:** downed pilots use the `CSAR Pilot` template; the MASH is zone
+  `MASH Home` at your airfield.
+
+Bundled scripts are downloaded at build time from their upstream repos, pinned
+to exact commits and checked with SHA-256 (see `Dockerfile`):
+MOOSE (GPL-3.0), MIST 4.5.126 (GPL-3.0), Skynet IADS 3.3.0 (Apache-2.0),
+Hound ELINT 0.5.2 (GPL-3.0), EWRS (MIT).
+
+## DCS server hook (experimental)
+
+Download `http://<this app>/dcs-hook.lua` and save it as
+`Saved Games\DCS.server\Scripts\Hooks\dmm_reporter.lua` (or `Saved Games\DCS\...`
+if you host from your own PC). When a mission starts, it waits a minute, scans
+`dcs.log` for script errors logged since the mission loaded, and reports back. While
+the mission runs it also records kills, losses, ejections, crashes, take-offs and
+landings and reads the objective flags (9000 = all done, 9001+ = each objective),
+and sends them every minute and at mission end for the Debrief tab. Once per DCS
+session it also lists the liveries installed on the server (DCS install and
+`Saved Games\Liveries`) for the builder's livery dropdowns.
+The app needs to be reachable from the DCS machine (`PUBLIC_URL`). It uses the
+LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
+
+## Notes and limits
+
+- **Blueprint drawings:** the real 3-view drawings come from Wikimedia Commons under public domain, CC0, CC BY or CC BY-SA licences; each sheet credits the author and licence and links the source file. Air-defense vehicles and launchers, radars, most armour (BMP-2, Abrams, Bradley, WWII tanks), most ships, the F-14 and the Fw 190 D-9 have no freely licensed line drawings there, so they use generated line drawings (each one also has a generated fallback in case a download fails at build). DCS's own 3D models are proprietary and aren't used.
+
+- **Not flown yet:** missions are checked for structure and Lua syntax, but not
+  loaded in DCS by the generator. Fly a test mission before a big night.
+- **DTC** follows the format used by DCS Retribution's DTC work, which was
+  checked against the Mission Editor's own DTC manager. The F-14B(U) also
+  supports cartridges in DCS, but its format isn't documented, so it doesn't
+  get one yet.
+- **Loadouts:** the F-16C, F/A-18C, A-10C/A-10C II, F-15E, AH-64D, Ka-50,
+  AV-8B, F-14 family, M-2000C and JF-17 have hand-written loadouts per role.
+  Other aircraft get an automatic loadout from the weapons each pylon allows.
+- **Placement:** target areas and sea positions are hand-picked per map in
+  `app/theaters.py`, because pydcs has no land/sea data.
+- **Kola** is full of small lakes; check ground targets in the Mission Editor if
+  one ends up in water. Normandy and the Channel have no TACAN/ILS data (1944).
+- **Mod aircraft** spawn clean (no loadout data for them); rearm on the ground.
+- **Afghanistan and Iraq** aren't in pydcs yet, so they're not offered.
+- The app runs as an unprivileged user (uid 1000) inside the container; on start it
+  makes `./missions` and the server-missions folder writable for that user.
+
+## Security
+
+- With **`APP_PASSWORD`** set, your browser asks for a password (any user name) on the
+  mission builder and on everything that generates, publishes, deletes or posts to
+  Discord. Sign-up pages, the Briefing Room (including the seat roster), mission
+  downloads and the DCS server hook stay open, so pilots and the server need no password.
+- Without it the app is open to anyone who can reach it. That's fine on a home LAN or
+  VPN; if it's reachable from the internet, set `APP_PASSWORD` and put it behind a
+  reverse proxy with HTTPS (Caddy or nginx), since Basic auth sends the password with
+  every request.
+- Sign-up and Briefing Room links are hard to guess but not secret: anyone with a link
+  can claim a seat.
+- Secrets (Discord webhook, SFTP password, `APP_PASSWORD`) live only in `.env`, which is
+  ignored by git. Never put the SRS password in the SRS note.
+
+## Development
+
+Templates hold markup only; scripts and styles live in `app/static`, and server values reach the
+page scripts through `data-` attributes on `<body>` (e.g. `data-stem` in the Briefing Room).
+Static files are linked with a content hash (`static_url()` in the templates), so browsers cache
+them for a year and pick up changes immediately. GitHub Actions (`.github/workflows/ci.yml`) runs
+the linters, builds the image and runs the API tests, the quick smoke test and a Lua syntax check
+on every push and pull request.
+
+```bash
+ruff check app tools tests        # Python lint (settings in pyproject.toml)
+npx eslint app/static             # browser-script lint (settings in eslint.config.mjs)
+docker compose build
+# Quick sample (~35 s): every map, mission type, era and aircraft at least once:
+docker run --rm -v $PWD:/src:ro -w /src dcsmission-dcs-mission-maker python -m tests.smoke --quick
+# Full run (~900 missions across maps, mission types, eras, every aircraft, scripts and mods),
+# built in parallel on every CPU (--jobs N to limit):
+docker run --rm -v $PWD:/src:ro -w /src dcsmission-dcs-mission-maker python -m tests.smoke
+# API: sign-ups, publishing, Discord (against a fake webhook), server reports:
+docker run --rm -v $PWD:/src:ro -w /src dcsmission-dcs-mission-maker python -m tests.api
+# Also dump the mission tables and script configs for a Lua syntax check:
+mkdir -p /tmp/lua && docker run --rm -v $PWD:/src:ro -v /tmp/lua:/lua -w /src \
+  dcsmission-dcs-mission-maker python -m tests.smoke --lua-dir /lua
+docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
+  'apt-get update -qq && apt-get install -y -qq lua5.1 >/dev/null && for f in /lua/*; do luac5.1 -p "$f"; done'
+```
+
+| File | Purpose |
+|---|---|
+| `app/generator/` | Mission building. `__init__.py` is the public API (`generate_full`, `preview`) |
+| `app/generator/request.py` | Mission and flight requests, their choices, and validation |
+| `app/generator/builder.py` | `Builder`: shared state, build order, time and weather; combines the mixins below |
+| `app/generator/enemy.py` | Enemy ground groups and SAM sites, the objective for each mission type, EWRs, enemy fighters |
+| `app/generator/friendly.py` | Carrier group, AWACS and tankers, JTAC, friendly AI flights |
+| `app/generator/players.py` | Player flights: spawning, callsigns, loadouts, routes, TOT, data cartridges |
+| `app/generator/scripting.py` | Third-party scripts and glue, forced options, completion trigger |
+| `app/generator/briefing.py` | Briefing text, kneeboards, Briefing Room export and order of battle |
+| `app/generator/common.py`, `preview.py` | Shared constants and position helpers; map preview for the builder |
+| `app/ai.py` | Friendly AI flight catalog and job definitions |
+| `app/kneeboard.py` | Kneeboard page rendering |
+| `app/eras.py` | Era/side detection and the enemy and support forces for each |
+| `app/comms.py` | DCS callsigns, datalink callsigns and radio presets |
+| `app/loadouts.py` | Curated and automatic loadouts, presets per mission |
+| `app/dtc.py` | Data Transfer Cartridges for the F/A-18C and F-16C |
+| `app/scripts.py` | Script catalog, dependency ordering and config glue |
+| `app/theaters.py` | Per-map bases, target areas, sea and carrier positions |
+| `app/aircraft.py` | Flyable aircraft catalog and display names |
+| `app/objectives.py` | Extra/chained objectives, front line, pop-up threats, zone triggers |
+| `app/navdata.py` | Airfield TACAN/ILS/tower data and runway in use |
+| `app/mods.py` | Community mod aircraft and units |
+| `app/integrations.py` | Discord webhook, server folder and SFTP publishing |
+| `app/server.py` | Flask API, sign-ups, downloads |
+| `app/templates/index.html` | The mission builder (page markup) |
+| `app/templates/event.html` | The sign-up page (page markup) |
+| `app/templates/briefing.html` | The Briefing Room (page markup) |
+| `app/static/css/` | `base.css` (shared theme), one stylesheet per page, `blueprint.css` (drawing sheets) |
+| `app/static/js/common.js` | Helpers shared by the page scripts |
+| `app/static/js/builder.js`, `event.js`, `briefing.js` | Page scripts for the builder, sign-up page and Briefing Room |
+| `app/threatdb.py` | Threat recognition data and dimensions for the Threat ID cards |
+| `app/static/js/blueprint.js` | Blueprint sheets: layout, envelopes, real drawings, aircraft two-views |
+| `app/static/js/draw3v.js`, `draw3v_units.js`, `draw3v_specs.js` | Generated 3-view line drawings: parts (tracks, wheels, barrels, missiles, radars), vehicle/gun/ship families, and per-unit specs in metres |
+| `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked) fetched at image build |
+| `dcs-hook/dmm_reporter.lua` | DCS server hook: script-error check and debrief events |
+| `app/debrief.py` | Turns the hook's events and flags into the Debrief tab |
+| `app/liveries.py`, `app/data/liveries.json`, `tools/build_liveries.py` | Livery choices: squadron liveries from DCS Retribution (LGPL-3.0, pinned commit; the tool documents how to rebuild the JSON) merged with what the server hook reports |
+| `pyproject.toml`, `eslint.config.mjs` | Lint settings (Ruff for Python, ESLint for the browser scripts) |
+| `Dockerfile`, `docker-entrypoint.sh`, `gunicorn.conf.py`, `docker-compose.yml` | Two-stage image (pinned, checksummed downloads in the build stage), volume ownership and privilege drop, web server settings |
+| `.github/workflows/ci.yml` | CI: lint, image build, tests |
+| `THIRD_PARTY.md` | Third-party components and their licences |
+
+## Credits and licences
+
+Built on pydcs, MOOSE, MIST, Skynet IADS, Hound ELINT, EWRS, DCS Retribution's data,
+Wikimedia Commons drawings and Leaflet. See [THIRD_PARTY.md](THIRD_PARTY.md) for each
+component and its licence. DCS World is © Eagle Dynamics; this project isn't affiliated with it.

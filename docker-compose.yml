@@ -1,0 +1,17 @@
+services:
+  dcs-mission-maker:
+    build: .
+    container_name: dcs-mission-maker
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # Generated .miz files, saved setups and sign-up events.
+      - ./missions:/output
+      # Drop your own .lua scripts here (e.g. Splash Damage) to pick them in the UI.
+      - ./scripts:/scripts:ro
+      # Your DCS server's Missions folder (set SERVER_MISSIONS_HOST_DIR in .env).
+      - ${SERVER_MISSIONS_HOST_DIR:-./server-missions}:/server-missions
+    restart: unless-stopped

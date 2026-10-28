@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Briefing Room</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{{ static_url('js/draw3v.js') }}"></script>
+<script src="{{ static_url('js/draw3v_units.js') }}"></script>
+<script src="{{ static_url('js/draw3v_specs.js') }}"></script>
+<script src="{{ static_url('js/blueprint.js') }}"></script>
+<link rel="stylesheet" href="{{ static_url('css/base.css') }}">
+<link rel="stylesheet" href="{{ static_url('css/blueprint.css') }}">
+<link rel="stylesheet" href="{{ static_url('css/briefing.css') }}">
+</head>
+<body data-stem="{{ stem }}">
+<header>
+  <h1><small>Briefing room</small><span id="title">Loading…</span></h1>
+  <div class="actions">
+    <a class="btn primary" id="download" href="#">Download .miz</a>
+    <button type="button" id="copy">Copy link</button>
+    <button type="button" onclick="window.print()">Print</button>
+    <a class="btn" id="pack" href="#" target="_blank" title="Briefing and every kneeboard page in one PDF">Print pack (PDF)</a>
+    <a class="btn" href="/">Mission builder</a>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+<main>
+  <div id="mapwrap">
+    <div id="map"></div>
+    <div class="mapbar" id="mapbar"></div>
+    <div class="legend" id="legend">
+      <span><i style="background:#4a90e2"></i>Friendly</span>
+      <span><i style="background:#e5675c"></i>Enemy / threat</span>
+      <span><i style="background:#e0a526"></i>Objective</span>
+      <span><i style="background:#8e44ad"></i>Bullseye</span>
+      <span class="muted">Click the map for coordinates and bullseye</span>
+    </div>
+  </div>
+  <aside>
+    <nav class="tabs" id="tabs"></nav>
+    <section class="panel" data-tab="overview" id="p_overview"></section>
+    <section class="panel" data-tab="mine" id="p_mine"></section>
+    <section class="panel" data-tab="flights" id="p_flights"></section>
+    <section class="panel" data-tab="comms" id="p_comms"></section>
+    <section class="panel" data-tab="threats" id="p_threats"></section>
+    <section class="panel" data-tab="weather" id="p_weather"></section>
+    <section class="panel" data-tab="kneeboards" id="p_kneeboards"></section>
+    <section class="panel" data-tab="debrief" id="p_debrief"></section>
+  </aside>
+</main>
+<dialog id="sheet"><header><b id="sheet_title"></b>
+  <span><button type="button" onclick="window.print()">Print</button> <button type="button" onclick="$('sheet').close()">Close</button></span></header>
+  <div id="sheet_body"></div></dialog>
+<script src="{{ static_url('js/common.js') }}"></script>
+<script src="{{ static_url('js/briefing.js') }}"></script>
+</body>
+</html>

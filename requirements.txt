@@ -1,0 +1,5 @@
+flask==3.1.*
+gunicorn==23.*
+pydcs @ git+https://github.com/pydcs/dcs.git@55dc18adbd6907ea17d87de559445c4f9bc39146
+pillow==11.*
+paramiko==3.*

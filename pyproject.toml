@@ -1,0 +1,18 @@
+[project]
+name = "dcs-mission-maker"
+version = "1.0.0"
+description = "Web app that builds DCS World .miz missions, briefings and sign-ups"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["missions", "server-missions", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "C4", "PIE", "RET", "I"]
+# dict(key=...) is the house style for the data tables (eras, threatdb, loadouts)
+ignore = ["C408"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

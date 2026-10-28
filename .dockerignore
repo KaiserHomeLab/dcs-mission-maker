@@ -1,0 +1,14 @@
+# Only what the image needs goes into the build context.
+.git
+.github
+.env
+missions
+server-missions
+scripts
+tests
+__pycache__
+*.pyc
+node_modules
+*.tar.gz
+README.md
+eslint.config.mjs

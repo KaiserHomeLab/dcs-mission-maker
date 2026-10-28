@@ -1,0 +1,2987 @@
+{
+ "source": "DCS Retribution 49e8067f691301eb796bcc9d70c26c92ea190a97 (LGPL-3.0)",
+ "liveries": {
+  "A-10A": [
+   {
+    "id": "104th FS Maryland ANG, Baltimore (MD)",
+    "squadrons": [
+     "104th FS Eagles"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "118th FS Bradley ANGB, Connecticut (CT)",
+    "squadrons": [
+     "118th FS Flying Yankees"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "172nd FS Battle Creek ANGB, Michigan (BC)",
+    "squadrons": [
+     "172nd FS"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "184th FS Arkansas ANG, Fort Smith (FS)",
+    "squadrons": [
+     "184th FS Flying Razorbacks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "190th FS Boise ANGB, Idaho (ID)",
+    "squadrons": [
+     "190th FS Skull Bangers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "25th FS Osab AB, Korea (OS)",
+    "squadrons": [
+     "25th FS Assam Draggins"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "354th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "354th FS Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "355th FS Eielson AFB, Alaska (AK)",
+    "squadrons": [
+     "355th FS Fightin' Falcons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "357th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "357th FS Dragons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "358th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "358th FS Lobos"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "47th FS Barksdale AFB, Louisiana (BD)",
+    "squadrons": [
+     "47th FS Termites"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "23rd TFW England AFB (EL)",
+    "squadrons": [
+     "74th TFS Flying Tigers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "81st FS Spangdahlem AB, Germany (SP) 2",
+    "squadrons": [
+     "81st FS Termites"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "A-10C": [
+   {
+    "id": "104th FS Maryland ANG, Baltimore (MD)",
+    "squadrons": [
+     "104th FS Eagles"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "118th FS Bradley ANGB, Connecticut (CT)",
+    "squadrons": [
+     "118th FS Flying Yankees"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "172nd FS Battle Creek ANGB, Michigan (BC)",
+    "squadrons": [
+     "172nd FS"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "184th FS Arkansas ANG, Fort Smith (FS)",
+    "squadrons": [
+     "184th FS Flying Razorbacks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "190th FS Boise ANGB, Idaho (ID)",
+    "squadrons": [
+     "190th FS Skull Bangers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "25th FS Osan AB, Korea (OS)",
+    "squadrons": [
+     "25th FS Assam Draggins"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "354th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "354th FS Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "355th FS Eielson AFB, Alaska (AK)",
+    "squadrons": [
+     "355th FS Fightin' Falcons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "357th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "357th FS Dragons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "358th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "358th FS Lobos"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "47th FS Barksdale AFB, Louisiana (BD)",
+    "squadrons": [
+     "47th FS Termites"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "23rd TFW England AFB (EL)",
+    "squadrons": [
+     "74th TFS Flying Tigers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "81st FS Spangdahlem AB, Germany (SP) 2",
+    "squadrons": [
+     "81st FS Termites"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "A-10C_2": [
+   {
+    "id": "25th FS Osan AB, Korea (OS)",
+    "squadrons": [
+     "25th FS Assam Draggins"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "354th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "354th FS Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "355th FS Eielson AFB, Alaska (AK)",
+    "squadrons": [
+     "355th FS Fightin' Falcons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "357th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "357th FS Dragons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "358th FS Davis Monthan AFB, Arizona (DM)",
+    "squadrons": [
+     "358th FS Lobos"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "81st FS Spangdahlem AB, Germany (SP) 2",
+    "squadrons": [
+     "81st FS Termites"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "A-20G": [
+   {
+    "id": "107 Sqn",
+    "squadrons": [
+     "RAF, No. 107 Squadron Lowestoft's 'own' Squadron"
+    ],
+    "countries": [
+     "UK"
+    ]
+   }
+  ],
+  "A-4E-C": [
+   {
+    "id": "International Israel",
+    "squadrons": [
+     "110th Squadron Knights of the North"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "USN VA-144 Roadrunners",
+    "squadrons": [
+     "VA-144 Roadrunners",
+     "VMA-144 Roadrunners Roadrunners"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-153 Blue Tail Flies",
+    "squadrons": [
+     "VA-153 Blue Tail Flies"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-163 Saints",
+    "squadrons": [
+     "VA-163 Saints"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-164 Ghostriders",
+    "squadrons": [
+     "VA-164 Ghostriders"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-195 Dambusters",
+    "squadrons": [
+     "VA-195 Dambusters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-212 Rampant Raiders",
+    "squadrons": [
+     "VA-212 Rampant Riders",
+     "VA-212 Rampant Raiders"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-45 Blackbirds",
+    "squadrons": [
+     "VA-45 Blackbirds"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-46 Clansmen",
+    "squadrons": [
+     "VA-46 Clansmen Clansmen"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-55 Warhorses",
+    "squadrons": [
+     "VA-55 Warhorses"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-55 -Warhorses- (USS HANCOCK 1973)",
+    "squadrons": [
+     "VA-55 Warhorses Warhorses"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USN VA-64 Black Lancers",
+    "squadrons": [
+     "VA-64 Black Lancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-121 Green Knights",
+    "squadrons": [
+     "VMA-121 Green Knights"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-124 Memphis Marines",
+    "squadrons": [
+     "VMA-124 Memphis Marines"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-131 Diamondbacks",
+    "squadrons": [
+     "VMA-131 Diamondbacks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-142 Flying Gators",
+    "squadrons": [
+     "VMA-142 Flying Gators"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-211 Avengers",
+    "squadrons": [
+     "VMA-211 Avengers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-311 Tomcats",
+    "squadrons": [
+     "VMA-311 Tomcats Tomcats",
+     "VMA-311 Tomcats"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMA-322 Fighting Gamecocks",
+    "squadrons": [
+     "VMA-322 Fighting Gamecocks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "AH-1W": [
+   {
+    "id": "ah-64_d_isr",
+    "squadrons": [
+     "160th Squadron Northern Cobra Squadron"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "USA Marines",
+    "squadrons": [
+     "HMLA-169 (AH-1W) Vipers",
+     "HMLA-269 (AH-1W) Gunrunners"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "AH-64D_BLK_II": [
+   {
+    "id": "standard",
+    "squadrons": [
+     "113th Squadron The Hornet Squadron",
+     "229th Aviation Battalion Serpents"
+    ],
+    "countries": [
+     "Israel",
+     "USA"
+    ]
+   },
+   {
+    "id": "The Air Pirates 1-211th ARB",
+    "squadrons": [
+     "A Company, 1-211th ARB Air Pirates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "Avengers 1-227th ARB",
+    "squadrons": [
+     "A Company, 1-227th ARB Avengers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "Gunslingers 2-159th ARB",
+    "squadrons": [
+     "C Company, 2-159th ARB Gunslingers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "301 Squadron Redskins Netherlands",
+    "squadrons": [
+     "RNLAF Redskins 301 Sqn Redskins"
+    ],
+    "countries": [
+     "The Netherlands"
+    ]
+   },
+   {
+    "id": "Wolfpack 1-82 ARB",
+    "squadrons": [
+     "Wolfpack, 1-82 ARB Wolfpack"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "AJS37": [
+   {
+    "id": "F10",
+    "squadrons": [
+     "101. Stridsflygdivisionen Johan R\u00f6d"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   },
+   {
+    "id": "F15",
+    "squadrons": [
+     "151. Attackflygdivisionen Olle R\u00f6d",
+     "152. Attackflygdivisionen Olle Bl\u00e5"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   },
+   {
+    "id": "37",
+    "squadrons": [
+     "211. Spaningsflygdivisionen Urban R\u00f6d"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   },
+   {
+    "id": "F6",
+    "squadrons": [
+     "61. Attackflygdivisionen Filip R\u00f6d",
+     "62. Attackflygdivisionen Filip Bl\u00e5"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   },
+   {
+    "id": "F7 Skaraborg",
+    "squadrons": [
+     "71. Attackflygdivisionen Gustav R\u00f6d",
+     "72. Attackflygdivisionen Gustav Bl\u00e5"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   }
+  ],
+  "AV8BNA": [
+   {
+    "id": "VMA-214D",
+    "squadrons": [
+     "VMA-214 Black Sheep"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMA-223D",
+    "squadrons": [
+     "VMA-223 Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "B-52H": [
+   {
+    "id": "USAF - 70s - South East Asia",
+    "squadrons": [
+     "307th Strategic Wing Big Stick",
+     "43d Strategic Wing Willing, Able, Ready"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "Bf-109K-4": [
+   {
+    "id": "Bf-109 K4 Jagdgeschwader 53",
+    "squadrons": [
+     "Jagdgeschwader 53 Pik As"
+    ],
+    "countries": [
+     "Third Reich"
+    ]
+   }
+  ],
+  "Bronco-OV-10A": [
+   {
+    "id": "19TH TACTICAL AIR SUPPORT SQUADRON",
+    "squadrons": [
+     "19th TASS 19th TACTICAL AIR SUPPORT SQUADRON"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "20TH TACTICAL AIR SUPPORT SQUADRON",
+    "squadrons": [
+     "20th TASS 20th TACTICAL AIR SUPPORT SQUADRON"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "TASS 20th USAF 64-14654",
+    "squadrons": [
+     "20th TASS FAC First on Target"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VAL-4 104",
+    "squadrons": [
+     "VAL 4 Black Ponies Black Ponies",
+     "VAL-4 Black Ponies"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMO-2",
+    "squadrons": [
+     "VMO-2 The Angry Two"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMO-5 UV",
+    "squadrons": [
+     "VMO-5 Black Aces"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VS-41 Shamrocks",
+    "squadrons": [
+     "VS-41 Shamrocks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "E-2C": [
+   {
+    "id": "US Navy - 90s - VAW-122 AE 600",
+    "squadrons": [
+     "VAW-122 Steeljaws"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "US Navy - 70s - VAW-123",
+    "squadrons": [
+     "VAW-123 Screwtops"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VAW-125 Tigertails",
+    "squadrons": [
+     "VAW-125 Tigertails"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "E-3A": [
+   {
+    "id": "usaf standard",
+    "squadrons": [
+     "960th AAC Squadron Vikings"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "EA-18G": [
+   {
+    "id": "*VFA-31 NH206",
+    "squadrons": [
+     "VAQ-130 (E/A-18G) Zappers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "*VAQ-139 NA501",
+    "squadrons": [
+     "VAQ-139 (E/A-18G) Cougars"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-14A-135-GR": [
+   {
+    "id": "VF-11 Red Rippers 106",
+    "squadrons": [
+     "VF-11 Red Rippers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-111 Sundowners 200",
+    "squadrons": [
+     "VF-111 Sundowners"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-21 Freelancers 200",
+    "squadrons": [
+     "VF-21 Freelancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-211 Fighting Checkmates 105",
+    "squadrons": [
+     "VF-211 Fighting Checkmates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-33 Starfighters AB201(Dale Snodgrass)",
+    "squadrons": [
+     "VF-33 Starfighters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-14B": [
+   {
+    "id": "VF-102 Diamondbacks 102",
+    "squadrons": [
+     "VF-102 Diamond Backs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-142 Ghostriders",
+    "squadrons": [
+     "VF-142 Ghostriders"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-211 Fighting Checkmates",
+    "squadrons": [
+     "VF-211 Fighting Checkmates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-14BU": [
+   {
+    "id": "VF-101 2004 AD101 BuNo 162920",
+    "squadrons": [
+     "VF-101 Grim Reapers - High Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-101 2004 AD107 BuNo 162910",
+    "squadrons": [
+     "VF-101 Grim Reapers - Low Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-103 2004 AA100 BuNo 162918",
+    "squadrons": [
+     "VF-103 Jolly Rogers - High Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-103 2004 AA101 BuNo 162705",
+    "squadrons": [
+     "VF-103 Jolly Rogers - Low Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-11 2004 AG201 BuNo 162912",
+    "squadrons": [
+     "VF-11 Red Rippers - High Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-11 2004 AG210 BuNo 162911",
+    "squadrons": [
+     "VF-11 Red Rippers - Low Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-143 2004 AG100 BuNo 163220",
+    "squadrons": [
+     "VF-143 Pukin Dogs - High Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-143 2004 AG106 BuNo 161434",
+    "squadrons": [
+     "VF-143 Pukin Dogs - Low Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-32 2004 AC100 BuNo 162916",
+    "squadrons": [
+     "VF-32 Swordsmen - High Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-32 2004 AC111 BuNo 161428",
+    "squadrons": [
+     "VF-32 Swordsmen - Low Vis"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-15C": [
+   {
+    "id": "106th SQN (8th Airbase)",
+    "squadrons": [
+     "106th Squadron Spearhead"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "12th Fighter SQN (AK)",
+    "squadrons": [
+     "12th FS Dirty Dozen"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "390th Fighter SQN",
+    "squadrons": [
+     "390th FS Wild Boars"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "493rd Fighter SQN (LN)",
+    "squadrons": [
+     "493rd FS Grim Reapers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "58th Fighter SQN (EG)",
+    "squadrons": [
+     "58th FS Gorillas"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-15E": [
+   {
+    "id": "335th Fighter SQN (SJ)",
+    "squadrons": [
+     "335th FS Chiefs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "492d Fighter SQN (LN)",
+    "squadrons": [
+     "492nd FS Bolars"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "IDF No 69 Hammers Squadron",
+    "squadrons": [
+     "69th Squadron Hammers"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   }
+  ],
+  "F-15ESE": [
+   {
+    "id": "USAF 17th WS AF90 Low Vis Clean",
+    "squadrons": [
+     "17th Weapons Squadron Hooters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 333rd Rocketeers FS AF87-199 333 FGS",
+    "squadrons": [
+     "333rd Fighter Squadron Lancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 334th Eagles FS AF89 Aim High",
+    "squadrons": [
+     "334th Fighter Squadron Eagles"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 335th Chiefs FS AF89 Low Vis Combat",
+    "squadrons": [
+     "335th Fighter Squadron Chiefs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 336th Rocketeers FS AF88 Low Vis Combat",
+    "squadrons": [
+     "336th Fighter Squadron Rocketeers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 389th Thunderbolts FS AF90 Low Vis Combat",
+    "squadrons": [
+     "389th Fighter Squadron Thunderbolts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 391st Bold Tigers FS AF90-241 High Vis Combat",
+    "squadrons": [
+     "391st Fighter Squadron Bold Tigers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 492nd Madhatters FS AF91-315 Vader",
+    "squadrons": [
+     "492th Fighter Squadron Madhatters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 494th Panthers FS 91-603 75th D-Day Anniversary",
+    "squadrons": [
+     "494th Fighter Squadron Panthers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "IDF RA'AM, 69 Hammer Sqn",
+    "squadrons": [
+     "69th Squadron Hammers"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   }
+  ],
+  "F-16C_50": [
+   {
+    "id": "IAF_101st_squadron",
+    "squadrons": [
+     "101st Squadron First Fighter"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "IAF_110th_Squadron",
+    "squadrons": [
+     "110th Squadron Knights of the North"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "IAF_117th_Squadron",
+    "squadrons": [
+     "117th Squadron First Jet"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "132nd_Wing _Iowa_ANG",
+    "squadrons": [
+     "132nd FW Hawkeyes"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "13th_Fighter_Squadron",
+    "squadrons": [
+     "13th FS Panthers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "14th_Fighter_Squadron",
+    "squadrons": [
+     "14th FS Samurais"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "152nd_Fighter_Squadron",
+    "squadrons": [
+     "152nd FS Las Vaqueros"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "174th_Fighter_Squadron",
+    "squadrons": [
+     "174th FS Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "179th_Fighter_Squadron",
+    "squadrons": [
+     "179th FS Bulldogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "THK_191_Filo",
+    "squadrons": [
+     "191. Filo Kobra"
+    ],
+    "countries": [
+     "Turkey"
+    ]
+   },
+   {
+    "id": "22nd_Fighter_Squadron",
+    "squadrons": [
+     "22nd FS Stingers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "23rd_Fighter_Squadron",
+    "squadrons": [
+     "23rd FS Fighting Hawks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "HAF_ 330_Thunder",
+    "squadrons": [
+     "330 Squadron Thunder"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_335_Tiger",
+    "squadrons": [
+     "335 Squadron Tiger"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_336_Olympus",
+    "squadrons": [
+     "336 Squadron Olympus"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_337_Ghost",
+    "squadrons": [
+     "337 Squadron Ghost"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_340_Fox",
+    "squadrons": [
+     "340 Squadron Fox"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_341_Arrow",
+    "squadrons": [
+     "341 Squadron Arrow"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_343_Star",
+    "squadrons": [
+     "343 Squadron Star"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_346_Jason",
+    "squadrons": [
+     "346 Squadron Jason"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "HAF_347_Perseus",
+    "squadrons": [
+     "347 Squadron Perseus"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "36th_Fighter_Squadron",
+    "squadrons": [
+     "36th FS Flying Fiends"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "480th_Fighter_Squadron",
+    "squadrons": [
+     "480th FS Warhawks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "522nd_Fighter_Squadron",
+    "squadrons": [
+     "522nd FS Fireballs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "55th_Fighter_Squadron",
+    "squadrons": [
+     "55th FS Fifty Fifth"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "77th_Fighter_Squadron",
+    "squadrons": [
+     "77th FS Gamblers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "79th_Fighter_Squadron",
+    "squadrons": [
+     "79th FS Tigers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "80th_Fighter_Squadron",
+    "squadrons": [
+     "80th FS Headhunters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-4E": [
+   {
+    "id": "af standard",
+    "squadrons": [
+     "201th Squadron The One"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "IRIAF Asia Minor",
+    "squadrons": [
+     "IRIAF 31 TFS 31 TFS",
+     "IRIAF 32nd TFW 32nd TFW",
+     "IRIAF 61 TFS 61 TFS",
+     "IRIAF 91 TFS 91 TFS"
+    ],
+    "countries": [
+     "Iran"
+    ]
+   },
+   {
+    "id": "USAF JH 68-804 (SEA)",
+    "squadrons": [
+     "USAF 338 TFW Abusers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF FJ-693",
+    "squadrons": [
+     "USAF 45th TFS Mig Killers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF JV 69-123 (SEA)",
+    "squadrons": [
+     "USAF 469th TFS A Wild Weasels"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF JV 69-290 (SEA)",
+    "squadrons": [
+     "USAF 469th TFS B Super Spook"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF JV 69-292 (SEA)",
+    "squadrons": [
+     "USAF 469th TFS C Goblin"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF JV 69-310 (SEA)",
+    "squadrons": [
+     "USAF 469th TFS D Archers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF JV 69-313 (SEA)",
+    "squadrons": [
+     "USAF 469th TFS E Pirates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USMC VMFA 235",
+    "squadrons": [
+     "USMC VMFA 235 Death Angels"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-4E-45MC": [
+   {
+    "id": "EAF-60366_Ghost",
+    "squadrons": [
+     "EAF 222nd TFB Pharaoh's Ghosts"
+    ],
+    "countries": [
+     "Egypt"
+    ]
+   },
+   {
+    "id": "EAF-70373_SEAW",
+    "squadrons": [
+     "EAF 222nd TFB SEA Pharaoh's Ghosts"
+    ],
+    "countries": [
+     "Egypt"
+    ]
+   },
+   {
+    "id": "37+24_N81B_JG72",
+    "squadrons": [
+     "GAF JG 72 Westphalen"
+    ],
+    "countries": [
+     "Germany"
+    ]
+   },
+   {
+    "id": "37+36_N72_JG74",
+    "squadrons": [
+     "GAF JG 74 Moelders"
+    ],
+    "countries": [
+     "Germany"
+    ]
+   },
+   {
+    "id": "HAF-01507_AG",
+    "squadrons": [
+     "HAF 338rd FS Ares"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "IAF-Kurnass-114-119SQN",
+    "squadrons": [
+     "IAF 119 FS Bat Squadron"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "IAF-Kurnass-175-69SQN",
+    "squadrons": [
+     "IAF 69 FS Hammers"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "IRIAF-3-6643",
+    "squadrons": [
+     "IRIAF 61st TFS Panthers"
+    ],
+    "countries": [
+     "Iran"
+    ]
+   },
+   {
+    "id": "JASDF-87-8312-3WG",
+    "squadrons": [
+     "JASDF 8th TFS Black Panthers"
+    ],
+    "countries": [
+     "Japan"
+    ]
+   },
+   {
+    "id": "RAAF-97203_SEA",
+    "squadrons": [
+     "RAAF No. 1 SQN Fighting First"
+    ],
+    "countries": [
+     "Australia"
+    ]
+   },
+   {
+    "id": "RAF-43-Sqn-FG.1",
+    "squadrons": [
+     "RAF No. 43 SQN Fighting Cocks"
+    ],
+    "countries": [
+     "UK"
+    ]
+   },
+   {
+    "id": "ROKAF-80470-CG-153FS",
+    "squadrons": [
+     "ROKAF 153rd FS 153rd Fighter Squadron"
+    ],
+    "countries": [
+     "South Korea"
+    ]
+   },
+   {
+    "id": "TUAF-67-0268-H2",
+    "squadrons": [
+     "TuAF 111 Filo Panter"
+    ],
+    "countries": [
+     "Turkey"
+    ]
+   },
+   {
+    "id": "SL68-303_H1_110ANG",
+    "squadrons": [
+     "USAF 110th ANG BS Lindbergh's Own"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "NJ68-357_H1_141TFS",
+    "squadrons": [
+     "USAF 141st TFS Tigers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "CA68-426_H2_163tfg",
+    "squadrons": [
+     "USAF 163rd TFG Grizzlys"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "default",
+    "squadrons": [
+     "USAF 20th FS Silver Lobos"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "OS68-349_SEAW_36TFS",
+    "squadrons": [
+     "USAF 36th TFS The Flying Fiends"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "TH68-450_H1_457FS",
+    "squadrons": [
+     "USAF 457th ANG FS Spads"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "JV67-288_SEAW_469TFS",
+    "squadrons": [
+     "USAF 469th FTS Fighting Bulls"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "RS68-480_SEA_512TFS",
+    "squadrons": [
+     "USAF 512th TFS Dragons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "RS68-381_E1_526TFS",
+    "squadrons": [
+     "USAF 526th TFS Black Knights"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "ADC AF66-300",
+    "squadrons": [
+     "USAF 57th FIS Black Knights"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "MY68-328_E1_68FS",
+    "squadrons": [
+     "USAF 68th FS Lightning Lancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "F-5E-3": [
+   {
+    "id": "USAF - 70s - USAF 425th TFTS (SEA)",
+    "squadrons": [
+     "425th TFTS Black Widows"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "South Vietnam 522nd Figher Sqn 10525",
+    "squadrons": [
+     "522nd Figher Sqn Black Widows"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "Spain - Ala 23 -01 23-23",
+    "squadrons": [
+     "Ala 23 - 232 Escuadron Patas Negras"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   },
+   {
+    "id": "MRAF",
+    "squadrons": [
+     "Borak Sqd. F-5E/F TIII)) Tigre Wing",
+     "Chanine Sqd. F-5E/F TIII)) Tigre Wing",
+     "EIRGE Sqd. F-5E/F TIII)) Tigre Wing"
+    ],
+    "countries": [
+     "Morocco"
+    ]
+   },
+   {
+    "id": "SP Spanish Air Force 21-51",
+    "squadrons": [
+     "Escuadr\u00f3n de Vigilancia A\u00e9rea n\u00ba21 (Macan) Siroco"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   }
+  ],
+  "FA-18C_hornet": [
+   {
+    "id": "VFA-106 high visibility",
+    "squadrons": [
+     "VFA-106 Gladiators"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-113",
+    "squadrons": [
+     "VFA-113 Stingers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-192",
+    "squadrons": [
+     "VFA-192 Golden Dragons"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-37",
+    "squadrons": [
+     "VFA-37 Bulls"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-87",
+    "squadrons": [
+     "VFA-87 Golden Warriors"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-122 high visibility",
+    "squadrons": [
+     "VMFA-122 Werewolves"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-251 high visibility",
+    "squadrons": [
+     "VMFA-251 Thunderbolts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "FA-18E": [
+   {
+    "id": "*VFA-146 NH304",
+    "squadrons": [
+     "VFA-146 (F/A-18E) Blue Diamonds"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "*VFA-31 NH206",
+    "squadrons": [
+     "VFA-211 (F/A-18E) Fighting Checkmates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "*VFA-83 AC203 (2022)",
+    "squadrons": [
+     "VFA-83 (F/A-18E) Rampagers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "*VFA-87 NH404",
+    "squadrons": [
+     "VFA-87 (F/A-18E) Golden Warriors"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "FA-18ET": [
+   {
+    "id": "Stock Tanker E",
+    "squadrons": [
+     "VFA-105 (Tanker) Gunslingers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "FA-18F": [
+   {
+    "id": "*VFA-103 AG212 (2019)",
+    "squadrons": [
+     "VFA-103 (F/A-18F) Jolly Rogers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-211 AB202 (2017)",
+    "squadrons": [
+     "VFA-211 (F/A-18F) Fighting Checkmates"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-41 NG101 (2015)",
+    "squadrons": [
+     "VFA-41 (F/A-18F) Black Aces"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VFA-94 NA204 (2020)",
+    "squadrons": [
+     "VFA-94 (F/A-18F) Mighty Shrikes"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "FA-18FT": [
+   {
+    "id": "Stock Tanker F",
+    "squadrons": [
+     "VFA-41 (Tanker) Black Aces"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "FW-190A8": [
+   {
+    "id": "FW-190A8 JG26 Priller",
+    "squadrons": [
+     "Jagdgeschwader 26 Schlageter"
+    ],
+    "countries": [
+     "Third Reich"
+    ]
+   }
+  ],
+  "FW-190D9": [
+   {
+    "id": "FW-190D9_JG54",
+    "squadrons": [
+     "Jagdgeschwader 54 Gr\u00fcnherz"
+    ],
+    "countries": [
+     "Third Reich"
+    ]
+   }
+  ],
+  "KC-135": [
+   {
+    "id": "TurAF Standard",
+    "squadrons": [
+     "101st Tanker Squadron Asena"
+    ],
+    "countries": [
+     "Turkey"
+    ]
+   },
+   {
+    "id": "Standard USAF",
+    "squadrons": [
+     "18th Air Refueling Squadron Kanza"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "M-2000C": [
+   {
+    "id": "Cambresis",
+    "squadrons": [
+     "Escadron de chasse 1/12 Cambr\u00e9sis"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "AdA Alsace LF-2",
+    "squadrons": [
+     "Escadron de chasse 1/30 Alsace"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "AdA Chasse 2-5",
+    "squadrons": [
+     "Escadron de chasse 2/5 \u00cele De France"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "Peru052",
+    "squadrons": [
+     "Escuadr\u00f3n A\u00e9reo 412 Halcones"
+    ],
+    "countries": [
+     "Peru"
+    ]
+   }
+  ],
+  "Mi-24P": [
+   {
+    "id": "SyAAF",
+    "squadrons": [
+     "765th Squadron 765th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "Mi-24V": [
+   {
+    "id": "standard",
+    "squadrons": [
+     "766th Squadron 766th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "Mi-8MT": [
+   {
+    "id": "Standard",
+    "squadrons": [
+     "253th Squadron 253th",
+     "255th Squadron 255th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "Syria - New",
+    "squadrons": [
+     "255th Squadron 255th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "North Vietnam",
+    "squadrons": [
+     "VPAF Helo 100th Squadron 100th",
+     "VPAF Helo 110th Squadron 110th",
+     "VPAF Helo 120th Squadron 120th",
+     "VPAF Helo 130th Squadron 130th"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   }
+  ],
+  "MiG-19P": [
+   {
+    "id": "Syria - Silver",
+    "squadrons": [
+     "725th Squadron 725th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "VPAF Green",
+    "squadrons": [
+     "VVPAF - 750th Sao Do 750th"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   },
+   {
+    "id": "CC_NV925th",
+    "squadrons": [
+     "VVPAF - 925th 925th"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   }
+  ],
+  "MiG-21Bis": [
+   {
+    "id": "VVS - 115 GvIAP",
+    "squadrons": [
+     "115th GvIAP Fighter Regiment 115th"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "VVS - 116 CBP",
+    "squadrons": [
+     "116th CBP 116th"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "VVS - 185th GvIAP",
+    "squadrons": [
+     "185th GvIAP Fighter Regiment 185th GvIAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "VVS - 234 GvIAP",
+    "squadrons": [
+     "234th GvIAP Fighter Regiment 234th GvIAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "dprk - 2014 - 34",
+    "squadrons": [
+     "34th Squadron 34th"
+    ],
+    "countries": [
+     "North Korea"
+    ]
+   },
+   {
+    "id": "dprk - 2016 - 42",
+    "squadrons": [
+     "42nd Squadron 42nd"
+    ],
+    "countries": [
+     "North Korea"
+    ]
+   },
+   {
+    "id": "Syria (2)",
+    "squadrons": [
+     "679th Squadron 679th",
+     "680th Squadron 680th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "Syria (1)",
+    "squadrons": [
+     "825th Squadron 825th",
+     "8th Squadron 8th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "iran - standard",
+    "squadrons": [
+     "IRIAF 51 TFS 51 TFS",
+     "IRIAF 52 TFS 52 TFS",
+     "IRIAF 53 TFS 53 TFS"
+    ],
+    "countries": [
+     "Iran"
+    ]
+   },
+   {
+    "id": "VPAF - 921st Sao Do - 5040",
+    "squadrons": [
+     "VPAF - 921st Sao Do - 5040 921st",
+     "921st Fighter Regiment 921st"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   },
+   {
+    "id": "VPAF - 927th Fighter Regiment Metal",
+    "squadrons": [
+     "VPAF - 927th Fighter Regiment Intercept 927th Int",
+     "VPAF - 927th Fighter Regiment 927th"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   },
+   {
+    "id": "VPAF - 927th Lam Son - 6122",
+    "squadrons": [
+     "VPAF - 927th Fighter Regiment Strike 927th Strike"
+    ],
+    "countries": [
+     "Vietnam"
+    ]
+   }
+  ],
+  "MiG-23MLD": [
+   {
+    "id": "af standard-3 (worn-out)",
+    "squadrons": [
+     "678th Squadron 678th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "MiG-25PD": [
+   {
+    "id": "af standard",
+    "squadrons": [
+     "1st Squadron 1st"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "MiG-29S": [
+   {
+    "id": "115 GvIAP_Termez",
+    "squadrons": [
+     "115th Guards Aviation Regiment 115th GvIAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "28 GvIAP_Andreapol",
+    "squadrons": [
+     "28th Guards Aviation Regiment 28th GvIAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "31 GvIAP_Zernograd",
+    "squadrons": [
+     "31st Guards Aviation Regiment 31st GvIAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "Algerian AF FC-16",
+    "squadrons": [
+     "697th Squadron 697th",
+     "699th Squadron 699th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   },
+   {
+    "id": "773 IAP_Damgarten",
+    "squadrons": [
+     "773rd Aviation Regiment 773rd IAP"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   }
+  ],
+  "Mirage 2000-5": [
+   {
+    "id": "ec1_2  spa12 `cigogne a ailes ouvertes`",
+    "squadrons": [
+     "Escadron de chasse 1/2 Cigognes"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "ec2_2 `cote d'or` spa57 `mouette`",
+    "squadrons": [
+     "Escadron de chasse 2/2 C\u00f4te d'Or"
+    ],
+    "countries": [
+     "France"
+    ]
+   }
+  ],
+  "Mirage-F1BE": [
+   {
+    "id": "ALA 46 Camu Lagarto 1975-1990 Gando SQ 462",
+    "squadrons": [
+     "46th Wing, 462nd Squadron \u00c1ngeles"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   }
+  ],
+  "Mirage-F1C-200": [
+   {
+    "id": "EC 1 5 Vendee BA Orange-Cariat",
+    "squadrons": [
+     "Escadron de Chasse 1/5 Vendee Vendee"
+    ],
+    "countries": [
+     "France"
+    ]
+   }
+  ],
+  "Mirage-F1CE": [
+   {
+    "id": "ALA 14 Camu Lagarto 1975-1990 SQ 141",
+    "squadrons": [
+     "14th Wing, 141st Squadron \u00c1ngeles"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   },
+   {
+    "id": "ALA 14 Camu Lagarto 1975-1990 SQ 142",
+    "squadrons": [
+     "14th Wing, 142nd Squadron Tigres Voladores"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   }
+  ],
+  "Mirage-F1CT": [
+   {
+    "id": "EC 3 33 Lorraine",
+    "squadrons": [
+     "Escadron de Chasse 3/33 Lorraine Lorraine"
+    ],
+    "countries": [
+     "France"
+    ]
+   }
+  ],
+  "Mirage-F1EQ": [
+   {
+    "id": "Iraq Air Force",
+    "squadrons": [
+     "No. 89 Squadron Saddam's Guards"
+    ],
+    "countries": [
+     "Iraq"
+    ]
+   },
+   {
+    "id": "Iraq Air Force Blue Scheme",
+    "squadrons": [
+     "No. 91 Squadron Iraq's Angles"
+    ],
+    "countries": [
+     "Iraq"
+    ]
+   }
+  ],
+  "Mirage-F1M-EE": [
+   {
+    "id": "ALA 14 NATO Skin 1 (M-EE)",
+    "squadrons": [
+     "14th Wing, NATO Spaniards"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   }
+  ],
+  "MosquitoFBMkVI": [
+   {
+    "id": "RAF",
+    "squadrons": [
+     "RAF, No. 21 Squadron No. 21"
+    ],
+    "countries": [
+     "UK"
+    ]
+   }
+  ],
+  "OH58D": [
+   {
+    "id": "AUS Army Fictional",
+    "squadrons": [
+     "Australian Army"
+    ],
+    "countries": [
+     "Australia"
+    ]
+   },
+   {
+    "id": "UK Army Fictional",
+    "squadrons": [
+     "British Army Air Corps"
+    ],
+    "countries": [
+     "UK"
+    ]
+   },
+   {
+    "id": "UK Army Fictional Desert",
+    "squadrons": [
+     "British Army Air Corps Desert"
+    ],
+    "countries": [
+     "UK"
+    ]
+   },
+   {
+    "id": "NL Army Fictional",
+    "squadrons": [
+     "Dutch Army"
+    ],
+    "countries": [
+     "The Netherlands"
+    ]
+   },
+   {
+    "id": "FR Army Fictional",
+    "squadrons": [
+     "French Army"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "DE Army Fictional",
+    "squadrons": [
+     "German Army"
+    ],
+    "countries": [
+     "Germany"
+    ]
+   },
+   {
+    "id": "GR Army Fictional",
+    "squadrons": [
+     "Greek Army"
+    ],
+    "countries": [
+     "Greece"
+    ]
+   },
+   {
+    "id": "ISR Army Fictional",
+    "squadrons": [
+     "Israeli Army"
+    ],
+    "countries": [
+     "Israel"
+    ]
+   },
+   {
+    "id": "JPN Army Fictional",
+    "squadrons": [
+     "Japanese Army"
+    ],
+    "countries": [
+     "Japan"
+    ]
+   },
+   {
+    "id": "PL Army Fictional",
+    "squadrons": [
+     "Polish Army"
+    ],
+    "countries": [
+     "Poland"
+    ]
+   },
+   {
+    "id": "RU Army Fictional",
+    "squadrons": [
+     "Russian Army"
+    ],
+    "countries": [
+     "Russia"
+    ]
+   },
+   {
+    "id": "ES Army Fictional",
+    "squadrons": [
+     "Spanish Army"
+    ],
+    "countries": [
+     "Spain"
+    ]
+   },
+   {
+    "id": "TWN Army Fictional",
+    "squadrons": [
+     "Taiwanese Army"
+    ],
+    "countries": [
+     "Combined Joint Task Forces Blue"
+    ]
+   },
+   {
+    "id": "TUN Army",
+    "squadrons": [
+     "Tunisian Army"
+    ],
+    "countries": [
+     "Tunisia"
+    ]
+   },
+   {
+    "id": "US 3-17 B 937 Iraq",
+    "squadrons": [
+     "US Army 17th Cavalry Regiment 3rd Squadron Troop B Blackjack"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "S-3B": [
+   {
+    "id": "usaf standard",
+    "squadrons": [
+     "VS-35 Blue Wolves"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "S-3B Tanker": [
+   {
+    "id": "USN - VS-24 - CAG",
+    "squadrons": [
+     "VS-24 (Tanker) Scouts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF - VS-28 - CAG",
+    "squadrons": [
+     "VS-28 (Tanker) Gamblers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "usaf standard",
+    "squadrons": [
+     "VS-35 (Tanker) Blue Wolves"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "SA342L": [
+   {
+    "id": "Combat",
+    "squadrons": [
+     "5\u00e8me r\u00e9giment d'h\u00e9licopt\u00e8res de combat Le r\u00e9giment du B\u00e9arn"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "Syria Fictional",
+    "squadrons": [
+     "976th Squadron 976th",
+     "977th Squadron 977th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "SA342M": [
+   {
+    "id": "Combat",
+    "squadrons": [
+     "3\u00e8me r\u00e9giment d'h\u00e9licopt\u00e8res de combat Grand 3"
+    ],
+    "countries": [
+     "France"
+    ]
+   },
+   {
+    "id": "Syria Fictional",
+    "squadrons": [
+     "988th Squadron 988th",
+     "989th Squadron 989th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "SA342Minigun": [
+   {
+    "id": "Combat",
+    "squadrons": [
+     "D\u00e9tachement ALAT des op\u00e9rations sp\u00e9ciales DOAS"
+    ],
+    "countries": [
+     "France"
+    ]
+   }
+  ],
+  "SA342Mistral": [
+   {
+    "id": "Combat",
+    "squadrons": [
+     "1er r\u00e9giment d'h\u00e9licopt\u00e8res de combat"
+    ],
+    "countries": [
+     "France"
+    ]
+   }
+  ],
+  "SH-60B": [
+   {
+    "id": "standard",
+    "squadrons": [
+     "HSM-40 Airwolves"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "SK-60": [
+   {
+    "id": "War Markings",
+    "squadrons": [
+     "165. L\u00e4tta attackflygdivisionen Petter Svart",
+     "201. L\u00e4tta attackflygdivisionen Tore R\u00f6d",
+     "202. L\u00e4tta attackflygdivisionen Tore Bl\u00e5",
+     "213. L\u00e4tta attackflygdivisionen Urban Gul",
+     "51. L\u00e4tta attackflygdivisionen Erik R\u00f6d"
+    ],
+    "countries": [
+     "Sweden"
+    ]
+   }
+  ],
+  "SpitfireLFMkIX": [
+   {
+    "id": "RAF, No. 145 Squadron",
+    "squadrons": [
+     "RAF, No. 145 Squadron No. 145"
+    ],
+    "countries": [
+     "UK"
+    ]
+   },
+   {
+    "id": "RAF, No. 16 Squadron",
+    "squadrons": [
+     "RAF, No. 16 Squadron No. 16"
+    ],
+    "countries": [
+     "UK"
+    ]
+   }
+  ],
+  "SpitfireLFMkIXCW": [
+   {
+    "id": "RAF, No. 126 Squadron, Harrowbeer",
+    "squadrons": [
+     "RAF, No. 126 Squadron Harrowbeer"
+    ],
+    "countries": [
+     "UK"
+    ]
+   }
+  ],
+  "Su-17M4": [
+   {
+    "id": "af standard (worn-out)",
+    "squadrons": [
+     "677th Squadron 677th",
+     "685th Squadron 685th",
+     "827th Squadron 827th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "Su-24M": [
+   {
+    "id": "Syrian Air Force",
+    "squadrons": [
+     "819th Squadron 819th"
+    ],
+    "countries": [
+     "Syria"
+    ]
+   }
+  ],
+  "Tornado GR4": [
+   {
+    "id": "HAF_341_Arrow",
+    "squadrons": [
+     "No. 12 Squadron Shiny Twelve"
+    ],
+    "countries": [
+     "UK"
+    ]
+   }
+  ],
+  "UH-1H": [
+   {
+    "id": "US NAVY",
+    "squadrons": [
+     "HMLA-169 (UH-1H) Vipers",
+     "HMLA-269 (UH-1H) Gunrunners"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "UH-60A": [
+   {
+    "id": "standard",
+    "squadrons": [
+     "101st Combat Aviation Brigade Bearcats"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "VSN_A6A": [
+   {
+    "id": "VA-165 Boomers - HD 521 - HiVis",
+    "squadrons": [
+     "VA-165 Boomers Boomers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VA-176 AE 503",
+    "squadrons": [
+     "VA-176 Thunderbolts Thunderbolts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VA-196 Main Battery NK - HD 412 - HiVis",
+    "squadrons": [
+     "VA-196 Main Battery Main Battery"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VA-304 Firebirds AA - HD 422 - HiVis",
+    "squadrons": [
+     "VA-304 Firebirds Firebirds"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VA-34 Blue Blasters AB - HD 514",
+    "squadrons": [
+     "VA-34 Blue Blasters Blue Blasters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VA-52 Knightriders NL - HD 521 - HiVis",
+    "squadrons": [
+     "VA-52 Knightriders Knightriders"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "VSN_F4B": [
+   {
+    "id": "USAF 433 TFS 63-7680 (SEA)",
+    "squadrons": [
+     "USAF 433th TFS Blue Devils"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 45th TFS 40693",
+    "squadrons": [
+     "USAF 45th TFS Hoosier Hogs"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 555 TFS - 463 (SEA)",
+    "squadrons": [
+     "USAF 555th TFS Triple Nickel"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-103 Sluggers 206",
+    "squadrons": [
+     "VF-103 Sluggers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-111 201 USS CORAL SEA",
+    "squadrons": [
+     "VF-111 Sundowners"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-114 Aardvarks 210 (Kills)",
+    "squadrons": [
+     "VF-114 Aardvarks"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-121-118",
+    "squadrons": [
+     "VF-121 Pacemakers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-14 101",
+    "squadrons": [
+     "VF-14 Tophatters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-151 213 USS MIDWAY",
+    "squadrons": [
+     "VF-151 Vigilantes"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-161 101",
+    "squadrons": [
+     "VF-161 Chargers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-21 102 USS MIDWAY",
+    "squadrons": [
+     "VF-21 Freelancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-31 Tomcatters 106",
+    "squadrons": [
+     "VF-31 Tomcatters"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-41 112",
+    "squadrons": [
+     "VF-41 Black Aces"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-51 100 USS CORAL SEA",
+    "squadrons": [
+     "VF-51 Screaming Eagles"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-51 110 USS CORAL SEA",
+    "squadrons": [
+     "VF-51 Screaming Eagles"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VF-84 Jolly Rogers 200 15-5868",
+    "squadrons": [
+     "VF-84 Jolly Rogers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-531 207",
+    "squadrons": [
+     "VFMA-531 Grey Ghosts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-212 AC01",
+    "squadrons": [
+     "VMFA-212 Lancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-212 AC02",
+    "squadrons": [
+     "VMFA-212 Lancers"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-314 5",
+    "squadrons": [
+     "VMFA-314 Black Knights"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "VMFA-531_10",
+    "squadrons": [
+     "VMFA-531 Grey Ghosts"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ],
+  "VSN_F4C": [
+   {
+    "id": "433 TFS 63-7680",
+    "squadrons": [
+     "433rd TFS Satan's Angels"
+    ],
+    "countries": [
+     "USA"
+    ]
+   },
+   {
+    "id": "USAF 40646",
+    "squadrons": [
+     "43rd TFS Hornets"
+    ],
+    "countries": [
+     "USA"
+    ]
+   }
+  ]
+ }
+}
