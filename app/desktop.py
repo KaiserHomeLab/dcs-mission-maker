@@ -6,6 +6,12 @@ data folder's logs/. Starting it again while it runs just opens the browser.
 
     --background   don't open the browser (used when it starts with Windows)
     --no-tray      no tray icon: run until stopped (CI, or a PC without a desktop)
+    --set-autostart / --unset-autostart
+                   turn "Start with Windows" on or off and exit (used by the installer)
+
+If 8080 is taken by another program, it moves to the next free port and saves it in the
+settings. On Windows the data folder is made private to the user running the app (plus
+administrators), since settings.json holds the Discord webhook and passwords.
 """
 import argparse
 import contextlib
@@ -13,12 +19,14 @@ import json
 import logging
 import logging.handlers
 import os
+import socket
+import subprocess
 import sys
 import threading
 import urllib.request
 import webbrowser
 
-from . import __version__, paths
+from . import __version__, paths, settings
 
 NAME = "DCS Mission Maker"
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -47,11 +55,42 @@ def _running_here(port):
         return False
 
 
-def _message(text):
-    log.error(text)
+def _message(text, error=True):
+    (log.error if error else log.warning)(text)
     if sys.platform == "win32":
         import ctypes
-        ctypes.windll.user32.MessageBoxW(None, text, NAME, 0x10)  # MB_ICONERROR
+        ctypes.windll.user32.MessageBoxW(None, text, NAME, 0x10 if error else 0x40)  # error / information
+
+
+def _port_free(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("0.0.0.0", port))
+        except OSError:
+            return False
+    return True
+
+
+def _protect_data_dir():
+    """Windows: only this user, administrators and SYSTEM can open the data folder (other
+    accounts can read C:\\ProgramData by default). Done once; a marker file remembers it."""
+    if sys.platform != "win32" or not paths.FROZEN:
+        return
+    folder = paths.data_dir()
+    marker = folder / ".private"
+    if marker.exists():
+        return
+    no_window = 0x08000000  # CREATE_NO_WINDOW
+    try:
+        who = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True, text=True,
+                             check=True, creationflags=no_window).stdout.strip().split(",")[-1].strip('"')
+        subprocess.run(["icacls", str(folder), "/inheritance:r", "/grant:r",
+                        "*S-1-5-32-544:(OI)(CI)F", "*S-1-5-18:(OI)(CI)F", f"*{who}:(OI)(CI)F"],
+                       capture_output=True, check=True, creationflags=no_window)
+        marker.write_text("The data folder is private to its user (see app/desktop.py).\n", encoding="utf-8")
+        log.info("data folder made private to %s", who)
+    except (OSError, subprocess.CalledProcessError, IndexError) as e:
+        log.warning("couldn't make the data folder private: %s", e)
 
 
 # ---------------------------------------------------------------- start with Windows
@@ -112,9 +151,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog=NAME)
     parser.add_argument("--background", action="store_true", help="don't open the browser")
     parser.add_argument("--no-tray", action="store_true", help="no tray icon")
+    parser.add_argument("--set-autostart", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--unset-autostart", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+    if args.set_autostart or args.unset_autostart:
+        set_autostart(args.set_autostart)
+        return 0
 
     paths.data_dir().mkdir(parents=True, exist_ok=True)
+    _protect_data_dir()
     _setup_logging()
     log.info("%s %s starting; data in %s", NAME, __version__, paths.data_dir())
     try:
@@ -132,13 +177,22 @@ def main(argv=None):
             webbrowser.open(url)
         return 0
 
+    if not _port_free(port):
+        free = next((p for p in range(port + 1, port + 20) if _port_free(p)), None)
+        if free is None or settings.save({"PORT": str(free)}):
+            _message(f"Port {port} is in use by another program. Pick another port on the Settings page, "
+                     f"or in {settings.path()}, and start {NAME} again.")
+            return 1
+        _message(f"Port {port} is in use by another program, so {NAME} now uses port {free}:\n"
+                 f"http://localhost:{free}\n\nYou can change it on the Settings page.", error=False)
+        port, url = free, f"http://localhost:{free}"
+
     from waitress import create_server
     try:
         server = create_server(app, host=os.environ.get("HOST", "0.0.0.0"), port=port,
                                threads=int(os.environ.get("THREADS", "6")))
     except OSError as e:
-        _message(f"Port {port} is in use by another program ({e}).\n\nSet another port in "
-                 f"{paths.output_dir() / 'settings.json'}, e.g. {{\"PORT\": \"8081\"}}, and start it again.")
+        _message(f"{NAME} couldn't open port {port}: {e}")
         return 1
     threading.Thread(target=server.run, name="waitress", daemon=True).start()
     log.info("serving on %s", url)

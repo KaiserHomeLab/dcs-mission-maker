@@ -1,0 +1,91 @@
+# Windows: the tests without Docker, the Windows app (PyInstaller) and its installer (Inno Setup).
+# Called by ci.yml on every push, and by release.yml for tagged releases.
+name: Windows
+
+on:
+  workflow_call:
+    inputs:
+      release:
+        description: "A release build: the tag must match app/__init__.py, and the update check is on"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Version
+        shell: pwsh
+        run: |
+          $v = python -c "import app; print(app.__version__)"
+          if ("${{ inputs.release }}" -eq "true" -and "v$v" -ne "${{ github.ref_name }}") {
+            throw "Tag ${{ github.ref_name }} doesn't match the version in app/__init__.py ($v)"
+          }
+          "VERSION=$v" >> $env:GITHUB_ENV
+      - run: pip install -r requirements.txt -r requirements-build.txt
+      - run: python tools/fetch_vendor.py
+
+      # PYTHONUTF8 stays off, so text files that don't name their encoding would fail here.
+      - name: API tests
+        run: python -m tests.api
+      - name: Mission smoke test (quick sample)
+        run: python -m tests.smoke --quick
+      - name: From source (python -m app) starts and builds a mission
+        shell: pwsh
+        run: ./windows/smoke-test.ps1 -Command python -Arguments "-m", "app"
+
+      - name: Drawings (cached; Wikimedia rate-limits)
+        id: drawings
+        uses: actions/cache@v4
+        with:
+          path: drawings
+          key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
+      - if: steps.drawings.outputs.cache-hit != 'true'
+        run: python tools/fetch_drawings.py drawings.json drawings
+      - if: inputs.release
+        name: Release build info (turns on the update check)
+        run: python tools/write_build_info.py "${{ github.repository }}"
+      - name: Build the app
+        run: pyinstaller --noconfirm windows/dcs-mission-maker.spec
+      - name: The app starts and builds a mission
+        shell: pwsh
+        run: ./windows/smoke-test.ps1 -Command "dist\DCS Mission Maker\DCS Mission Maker.exe" -Arguments "--no-tray", "--background"
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; if ($LASTEXITCODE) { throw "choco failed" } }
+          & $iscc /Q "/DAppVersion=$env:VERSION" windows\installer.iss
+          if ($LASTEXITCODE) { throw "ISCC failed" }
+      - name: Install, run, uninstall
+        shell: pwsh
+        run: |
+          $setup = "dist\DCS-Mission-Maker-Setup-$env:VERSION.exe"
+          Start-Process $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/TASKS=firewall" -Wait
+          $exe = "$env:ProgramFiles\DCS Mission Maker\DCS Mission Maker.exe"
+          if (-not (Test-Path $exe)) { throw "not installed: $exe" }
+          if (-not (netsh advfirewall firewall show rule name="DCS Mission Maker" | Select-String "Allow")) { throw "no firewall rule" }
+          ./windows/smoke-test.ps1 -Command $exe -Arguments "--no-tray", "--background"
+          Start-Process "$env:ProgramFiles\DCS Mission Maker\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES" -Wait
+          Start-Sleep 3
+          if (Test-Path $exe) { throw "still installed after uninstalling" }
+          if (netsh advfirewall firewall show rule name="DCS Mission Maker" | Select-String "Allow") { throw "firewall rule left behind" }
+          Write-Output "installed, ran and uninstalled cleanly"
+
+      - name: Zip the app
+        shell: pwsh
+        run: Compress-Archive -Path "dist\DCS Mission Maker" -DestinationPath "dist\DCS-Mission-Maker-$env:VERSION-windows.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/DCS-Mission-Maker-Setup-*.exe
+            dist/DCS-Mission-Maker-*-windows.zip

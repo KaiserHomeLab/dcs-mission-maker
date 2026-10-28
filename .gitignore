@@ -29,3 +29,5 @@ vendor/
 drawings/
 build/
 dist/
+# Written by the release build (.github/workflows/release.yml)
+app/build_info.py

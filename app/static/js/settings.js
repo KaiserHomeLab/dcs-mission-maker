@@ -19,6 +19,14 @@ function fieldHtml(f, canEdit) {
         ${f.set && !off ? `<button type="button" class="clear" data-key="${f.key}">Clear</button>` : ""}
         <span class="state" id="state_${f.key}"></span>
       </div>`;
+  } else if (f.kind === "toggle") {
+    const on = (f.value || f.placeholder) !== "off";
+    return `<div class="field">
+        <label class="toggle"><input type="checkbox" id="${id}"${on ? " checked" : ""}${off}>
+          ${esc(f.label)}${lock}</label>
+        ${f.help ? `<p class="help">${esc(f.help)}</p>` : ""}
+        <p class="err hidden" id="err_${f.key}"></p>
+      </div>`;
   } else {
     const list = f.kind === "folder" ? ` list="mission_folders"` : "";
     const step = f.kind === "number" ? ` step="any" min="0"` : "";
@@ -63,6 +71,9 @@ function changes() {
     if (f.kind === "secret") {
       if (el.value) out[f.key] = el.value;
       else if (cleared.has(f.key)) out[f.key] = "";
+    } else if (f.kind === "toggle") {
+      const value = el.checked ? "on" : "off";
+      if (value !== (f.value || f.placeholder)) out[f.key] = value;
     } else if (el.value.trim() !== (f.value || "")) {
       out[f.key] = el.value.trim();
     }

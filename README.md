@@ -13,21 +13,32 @@ DCS Liberation and Retribution.
 
 ### The Windows app (no Python, no Docker)
 
-Download `DCS-Mission-Maker-windows` from the latest CI run (or build it yourself with
-`windows\build.bat`), unzip it anywhere, e.g. `C:\DCS Mission Maker`, and run
-`DCS Mission Maker.exe`. It opens the builder in your browser and sits in the tray
-(next to the clock): *Open*, *Settings*, *Open data folder*, *Start with Windows* and *Quit*.
-Running it again while it's running just opens the browser.
+Download `DCS-Mission-Maker-Setup-<version>.exe` from the
+[Releases](../../releases) page and run it. It installs to Program Files, adds a Start menu
+entry and an uninstaller, and offers to:
 
-- Your missions, settings and logs live in `C:\ProgramData\DCS Mission Maker` (not next to
-  the .exe), so replacing the app folder with a new version keeps them.
-- Set everything on the **Settings** page (⚙ in the builder): public address, the server's
-  Missions folder (suggested from your Saved Games), SRS, Discord, password and so on.
-  Settings can be changed from the PC running the app, or from anywhere once a password is set.
-- Other PCs reach it on port 8080; allow it through the firewall with
-  `windows\open-firewall.bat` from the source download, or when Windows asks the first time.
-- It isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC":
-  choose *More info*, then *Run anyway*.
+- **let other PCs reach it** (a Windows Firewall rule for the app, whatever port it uses), and
+- **start it when you log on**.
+
+The app opens the builder in your browser and sits in the tray (next to the clock):
+*Open*, *Settings*, *Open data folder*, *Start with Windows* and *Quit*. Running it again
+while it's running just opens the browser.
+
+- **Your data** (missions, settings, logs) lives in `C:\ProgramData\DCS Mission Maker`,
+  readable only by your account and administrators, since the settings hold your Discord
+  webhook and passwords. Upgrades keep it; uninstalling asks before deleting it.
+- **Settings** (⚙ in the builder): public address, the server's Missions folder (suggested
+  from your Saved Games), SRS, Discord, password and so on. They can be changed from the PC
+  running the app, or from anywhere once a password is set.
+- **Port:** 8080. If another program has it, the app moves to the next free port, tells
+  you, and remembers it (change it on the Settings page).
+- **Updates:** once a day the app asks GitHub for the latest release and the builder shows
+  a note when there's a newer one; download and run its installer over the old one. The
+  request carries only the app's version. Turn it off on the Settings page.
+- **SmartScreen:** the installer isn't code-signed yet, so Windows may say "Windows protected
+  your PC": choose *More info*, then *Run anyway*.
+- No installer? The release (and every CI run) also has a zip of the app: unzip it anywhere
+  and run `DCS Mission Maker.exe`.
 
 ### On Windows from source, without Docker (e.g. on your DCS server PC)
 
@@ -287,8 +298,21 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `app/liveries.py`, `app/data/liveries.json`, `tools/build_liveries.py` | Livery choices: squadron liveries from DCS Retribution (LGPL-3.0, pinned commit; the tool documents how to rebuild the JSON) merged with what the server hook reports |
 | `pyproject.toml`, `eslint.config.mjs` | Lint settings (Ruff for Python, ESLint for the browser scripts) |
 | `Dockerfile`, `docker-entrypoint.sh`, `gunicorn.conf.py`, `docker-compose.yml` | Two-stage image (downloads in the build stage), volume ownership and privilege drop, web server settings |
-| `.github/workflows/ci.yml` | CI: lint, image build and tests, and the tests on Windows without Docker |
+| `.github/workflows/ci.yml`, `windows.yml` | CI: lint, image build and tests; on Windows the tests without Docker, the app build, its installer (installed, run and uninstalled) |
+| `.github/workflows/release.yml` | Publishes a release with the installer and zip when a `v*.*.*` tag is pushed |
+| `windows/installer.iss`, `windows/smoke-test.ps1` | The installer (Inno Setup): Program Files, firewall rule, start at logon, uninstaller; the CI check that starts the app and builds a mission |
+| `app/updates.py`, `tools/write_build_info.py` | The daily update check against GitHub Releases (release builds only) |
 | `THIRD_PARTY.md` | Third-party components and their licences |
+
+### Releasing the Windows app
+
+1. Set the new version in `app/__init__.py` (`__version__`) and `pyproject.toml`, and commit.
+2. `git tag v1.2.0 && git push origin v1.2.0` (the tag must match the version).
+3. `.github/workflows/release.yml` builds and tests the app and installer on Windows and
+   publishes a GitHub release with both. Release builds know the repository they came from
+   (`tools/write_build_info.py`), which turns on their update check.
+
+Locally, `windows\build.bat` builds the same app, zip and (with Inno Setup 6 installed) installer.
 
 ## Credits and licences
 

@@ -2,6 +2,7 @@
 import base64
 import datetime
 import http.server
+import io
 import json
 import os
 import pathlib
@@ -276,6 +277,47 @@ ok(c.put("/api/settings", json={"SRS_NOTE": "remote ok"}, environ_base={"REMOTE_
          headers={"Authorization": "Basic " + base64.b64encode(b"x:pw2").decode()}).status_code == 200,
    "settings: other PCs can with the password")
 os.environ.pop("APP_PASSWORD", None)  # saving re-applied settings.json, which has none
+
+# Update check: off without a release repository; shows only a newer, well-formed release.
+from app import updates  # noqa: E402
+
+ok(c.get("/api/update").json == {"enabled": False, "current": updates.__version__, "available": None},
+   "update check off in source/Docker builds")
+ok(updates.version_tuple("v1.10.0") > updates.version_tuple("1.9.3") and updates.version_tuple("1.2") is None,
+   "version compare")
+updates.REPO = "squadron/dcs-mission-maker"
+release = {"tag_name": "v99.0.0", "html_url": "https://github.com/squadron/dcs-mission-maker/releases/tag/v99.0.0"}
+
+
+class FakeResponse(io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+real_urlopen = updates.urllib.request.urlopen
+updates.urllib.request.urlopen = lambda req, timeout=0: FakeResponse(json.dumps(release).encode())
+c.get("/api/update")  # starts the background check
+for t in [t for t in threading.enumerate() if t.name == "update-check"]:
+    t.join(5)
+u = c.get("/api/update").json
+ok(u["available"] == {"version": "99.0.0", "url": release["html_url"]}, f"newer release shown {u}")
+os.environ["UPDATE_CHECK"] = "off"
+ok(c.get("/api/update").json["available"] is None, "update check can be turned off")
+del os.environ["UPDATE_CHECK"]
+release.update(tag_name="v0.0.1", html_url="https://github.com/squadron/dcs-mission-maker/releases/tag/v0.0.1")
+updates._state["checked"] = 0
+updates._check()
+ok(c.get("/api/update").json["available"] is None, "older release not shown")
+release.update(tag_name="v99.0.0", html_url="https://evil.example/download")
+updates._check()
+ok(updates._state["latest"]["version"] == "0.0.1", "release pointing elsewhere ignored")
+updates.urllib.request.urlopen = real_urlopen
+updates.REPO = ""
+r = c.put("/api/settings", json={"UPDATE_CHECK": "maybe"})
+ok(r.status_code == 400 and "UPDATE_CHECK" in r.json["errors"], "update switch validated")
 
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

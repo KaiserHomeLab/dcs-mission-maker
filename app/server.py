@@ -20,7 +20,20 @@ except ImportError:  # Windows: one process (waitress), so the thread locks belo
 
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 
-from . import __version__, ai, debrief, eras, integrations, liveries, mission_store, mods, paths, scripts, settings
+from . import (
+    __version__,
+    ai,
+    debrief,
+    eras,
+    integrations,
+    liveries,
+    mission_store,
+    mods,
+    paths,
+    scripts,
+    settings,
+    updates,
+)
 from .aircraft import AIRCRAFT, catalog
 from .generator import (
     DIFFICULTIES,
@@ -144,6 +157,11 @@ def put_settings():
     if errors:
         return jsonify({"errors": errors}), 400
     return jsonify(settings.view())
+
+
+@app.get("/api/update")
+def update_status():
+    return jsonify(updates.status())
 
 
 @app.get("/api/options")

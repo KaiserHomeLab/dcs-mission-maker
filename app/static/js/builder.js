@@ -623,6 +623,18 @@ async function onGenerate() {
   }
 }
 
+// ---- update note: the Windows app checks GitHub once a day (see app/updates.py)
+async function showUpdate() {
+  try {
+    const u = await (await fetch("/api/update")).json();
+    if (!u.available) return;
+    const a = $("update_link");
+    a.href = u.available.url;
+    a.textContent = `Version ${u.available.version} is available (you have ${u.current}). Download it`;
+    $("update").classList.remove("hidden");
+  } catch (e) { /* no update info: nothing to show */ }
+}
+
 (async function init() {
   $("keep_btn").onclick = async () => {
     const st = await setKept(lastResult.stem, !lastResult.kept);
@@ -684,4 +696,5 @@ async function onGenerate() {
   try { restore(saved); } catch (e) { $("flights").innerHTML = ""; addFlight(); }
   onMissionType();
   loadRecent();
+  showUpdate();
 })();

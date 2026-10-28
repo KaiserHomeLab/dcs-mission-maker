@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import paths
 
-# key: (group, label, kind, help). Kinds: text, url, folder, file, number, secret.
+# key: (group, label, kind, help). Kinds: text, url, folder, file, number, secret, toggle (on/off).
 FIELDS = {
     "PUBLIC_URL": ("General", "Public address", "url",
                    "How your friends reach this app, e.g. http://203.0.113.5:8080. "
@@ -25,6 +25,9 @@ FIELDS = {
     "MISSION_TTL_HOURS": ("General", "Keep unsaved missions for (hours)", "number",
                           "Missions nobody pressed Keep on are deleted after this. Default 24."),
     "PORT": ("General", "Port", "number", "Default 8080. Restart the app to apply."),
+    "UPDATE_CHECK": ("General", "Check for updates", "toggle",
+                     "The Windows app asks GitHub for the latest release once a day and shows a note in the "
+                     "builder when there's a new one. Nothing else is sent."),
     "SERVER_MISSIONS_DIR": ("DCS server", "Server Missions folder", "folder",
                             "Copy to server puts missions here, e.g. "
                             "C:\\Users\\dcs\\Saved Games\\DCS.server\\Missions."),
@@ -46,7 +49,8 @@ FIELDS = {
 }
 
 # Shown in empty fields: what the app uses when a setting isn't set.
-DEFAULTS = {"MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22", "SRS_ADDRESS": "srs.example.com:5002"}
+DEFAULTS = {"UPDATE_CHECK": "on", "MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22",
+            "SRS_ADDRESS": "srs.example.com:5002"}
 
 # Set in the environment when the app started: these win and can't be changed here.
 LOCKED = {k for k in FIELDS if os.environ.get(k, "").strip()}
@@ -130,6 +134,8 @@ def _check(key, value):
         return "That folder doesn't exist on this PC."
     if kind == "file" and not Path(value).is_file():
         return "That file doesn't exist on this PC."
+    if kind == "toggle" and value not in ("on", "off"):
+        return "Should be on or off."
     if key == "SRS_ADDRESS" and not re.fullmatch(r"[\w.\-:\[\]]{1,100}", value):
         return "Should look like srs.example.com:5002"
     return None

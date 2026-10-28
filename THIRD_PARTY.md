@@ -15,6 +15,7 @@ build and `windows\setup.bat`) downloads each item from a pinned commit or relea
 | [Pillow](https://python-pillow.org/) | MIT-CMU | Kneeboard pages, print pack PDF |
 | [Paramiko](https://www.paramiko.org/) | LGPL-2.1 | SFTP publishing |
 | [pystray](https://github.com/moses-palmer/pystray) | LGPL-3.0 | Tray icon of the Windows app |
+| [Inno Setup](https://jrsoftware.org/isinfo.php) | Inno Setup licence | Builds the installer (not part of the app) |
 | [PyInstaller](https://pyinstaller.org/) | GPL-2.0 with bootloader exception | Builds the Windows app (not part of it, apart from its bootloader, which the exception allows) |
 
 The Windows app bundles these packages unmodified. This repository's source and
