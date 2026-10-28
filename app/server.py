@@ -14,7 +14,7 @@ from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 
-from . import ai, debrief, eras, integrations, liveries, mods, scripts
+from . import ai, debrief, eras, integrations, liveries, mission_store, mods, scripts
 from .aircraft import AIRCRAFT, catalog
 from .generator import (
     DIFFICULTIES,
@@ -83,7 +83,8 @@ def _headers(resp):
     if request.path.startswith("/static/") and request.args.get("v") and resp.status_code == 200:
         resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
-    resp.headers.setdefault("Referrer-Policy", "same-origin")
+    # Map tile servers (OpenStreetMap) require a referrer: send just the origin, never the path.
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     return resp
 
@@ -119,6 +120,7 @@ def options():
         "scripts": scripts.available(),
         "ai_tasks": [[k, v[0]] for k, v in ai.AI_TASKS.items()],
         "integrations": integrations.status(),
+        "mission_ttl_hours": mission_store.ttl_seconds() / 3600,
         "mods": mods.catalog(),
     })
 
@@ -210,10 +212,12 @@ def api_generate():
     except (MissionError, TypeError, ValueError) as e:
         return jsonify({"error": str(e)}), 400
     result["published"] = publish(result["filename"], body.get("publish") or [])
+    result.update(mission_store.status(result["filename"][:-4]))
     return jsonify(result)
 
 
 def build_and_store(body):
+    mission_store.cleanup()
     req = MissionRequest.from_json(body)
     out = generate_full(req)
     data, filename, briefing, warnings = out["data"], out["filename"], out["briefing"], out["warnings"]
@@ -224,7 +228,7 @@ def build_and_store(body):
     (OUTPUT_DIR / (filename[:-4] + ".txt")).write_text(briefing)
     return {"filename": filename, "url": f"/missions/{filename}", "size": len(data),
             "briefing": briefing, "warnings": warnings,
-            "briefing_url": f"/briefing/{filename[:-4]}"}
+            "briefing_url": f"/briefing/{filename[:-4]}", **mission_store.mark_temporary(filename[:-4])}
 
 
 def publish(filename, targets, extra_text=""):
@@ -237,6 +241,8 @@ def publish(filename, targets, extra_text=""):
         out["sftp"] = integrations.publish_sftp(path) or "ok"
     if "discord" in targets:
         out["discord"] = discord_mission(filename, extra_text) or "ok"
+    if "ok" in out.values():     # other people now have links to it
+        mission_store.keep(filename[:-4])
     return out
 
 
@@ -466,6 +472,7 @@ def event_generate(eid):
     ev["mission"] = {"filename": result["filename"], "url": result["url"],
                      "briefing_url": result["briefing_url"]}
     _save_event(ev)
+    result.update(mission_store.keep(result["filename"][:-4]))   # the sign-up page links to it
     ev = _roll_over(ev)
     targets = (request.get_json(silent=True) or {}).get("publish") or []
     result["published"] = publish(result["filename"], targets,
@@ -752,16 +759,30 @@ def event_page(eid):
 
 @app.get("/api/missions")
 def list_missions():
+    mission_store.cleanup()
     files = sorted(OUTPUT_DIR.glob("*.miz"), key=lambda p: p.stat().st_mtime, reverse=True)
     reports = _reports()
     return jsonify([{"filename": p.name, "url": f"/missions/{p.name}",
-                     "size": p.stat().st_size,
+                     "size": p.stat().st_size, "stem": p.stem, **mission_store.status(p.stem),
                      "settings": (f"/api/missions/{p.stem}/settings"
                                   if p.with_suffix(".json").exists() else None),
                      "report": reports.get(p.name),
                      "briefing": (f"/briefing/{p.stem}"
                                   if (OUTPUT_DIR / f"{p.stem}.brief.json").exists() else None)}
                     for p in files[:25]])
+
+
+@app.post("/api/missions/<stem>/keep")
+def keep_mission(stem):
+    """{"keep": true} keeps a mission for good; false makes it temporary again."""
+    keep = (request.get_json(silent=True) or {}).get("keep", True)
+    return jsonify(mission_store.keep(_stem(stem), bool(keep)))
+
+
+@app.delete("/api/missions/<stem>")
+def delete_mission(stem):
+    mission_store.delete(_stem(stem))
+    return jsonify({"deleted": True})
 
 
 @app.get("/api/missions/<stem>/settings")

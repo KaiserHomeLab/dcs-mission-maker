@@ -22,8 +22,13 @@ The first build takes a few minutes: it downloads the pinned mission scripts,
 airfield data and 3-view drawings.
 
 Open <http://localhost:8080> (or `http://<host-ip>:8080` from another PC).
-Generated missions download from the page and are also saved to `./missions`
-(with their settings as `.json`; saved setups go to `./missions/setups`).
+Generated missions download from the page and are stored in `./missions` (with their
+settings as `.json`; saved setups go to `./missions/setups`). New missions are
+**temporary**: their download and Briefing Room work straight away, and they're deleted
+24 hours later (`MISSION_TTL_HOURS`) unless you press **Keep** on the result or in
+*Recent missions*. Missions posted to Discord, published to your server or generated
+from a sign-up page are kept automatically, because other people have links to them.
+Kept missions have a **Delete** button.
 
 ### Optional: Discord and publishing to your server
 
@@ -41,6 +46,7 @@ Copy `.env.example` to `.env`, fill in what you use, and run
   deletes (see [Security](#security)).
 - `SRS_ADDRESS` / `SRS_NOTE`: your usual SRS voice server, the default for the
   per-mission SRS field.
+- `MISSION_TTL_HOURS`: how long unkept missions stay (default 24).
 - `WEB_CONCURRENCY`: worker processes (default 3; each builds one mission at a time).
 
 Then tick *Copy to server*, *Upload (SFTP)* or *Post to Discord* next to the
@@ -226,6 +232,7 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked) fetched at image build |
 | `dcs-hook/dmm_reporter.lua` | DCS server hook: script-error check and debrief events |
 | `app/debrief.py` | Turns the hook's events and flags into the Debrief tab |
+| `app/mission_store.py` | Temporary vs kept missions, expiry and deletion |
 | `app/liveries.py`, `app/data/liveries.json`, `tools/build_liveries.py` | Livery choices: squadron liveries from DCS Retribution (LGPL-3.0, pinned commit; the tool documents how to rebuild the JSON) merged with what the server hook reports |
 | `pyproject.toml`, `eslint.config.mjs` | Lint settings (Ruff for Python, ESLint for the browser scripts) |
 | `Dockerfile`, `docker-entrypoint.sh`, `gunicorn.conf.py`, `docker-compose.yml` | Two-stage image (pinned, checksummed downloads in the build stage), volume ownership and privilege drop, web server settings |

@@ -2,7 +2,9 @@
 import base64
 import datetime
 import http.server
+import json
 import os
+import pathlib
 import sys
 import tempfile
 import threading
@@ -30,6 +32,8 @@ threading.Thread(target=srv.serve_forever, daemon=True).start()
 os.environ["DISCORD_WEBHOOK_URL"] = f"http://127.0.0.1:{srv.server_port}/hook"
 
 from app.server import app  # noqa: E402
+
+OUTPUT_DIR_PATH = pathlib.Path(os.environ["OUTPUT_DIR"])
 
 c = app.test_client()
 fails = []
@@ -147,6 +151,30 @@ ok(c.get(f"/api/missions/{gstem}/brief").json["srs"] == {"address": "srs.other.c
    "per-mission SRS in brief")
 ok("srs.other.com:5010" in c.get(f"/missions/{gstem}/comms.txt").get_data(as_text=True), "per-mission SRS on comm card")
 ok(c.post("/api/generate", json={**gen, "srs": "bad server!"}).status_code == 400, "bad SRS rejected")
+
+# Temporary vs kept missions
+from app import mission_store  # noqa: E402
+
+r = c.post("/api/generate", json=cfg).json
+tstem = r["filename"][:-4]
+left = r["expires"] - datetime.datetime.now().timestamp()
+ok(r["kept"] is False and left > 23 * 3600, f"new mission is temporary {r}")
+ok(c.get(f"/api/events/{eid}").json["mission"] and mission_store.status(name[:-4])["kept"], "event mission kept")
+ok(mission_store.status(stem)["kept"], "published mission kept")
+ok(c.post(f"/api/missions/{tstem}/keep", json={"keep": True}).json["kept"], "keep")
+ok(not c.post(f"/api/missions/{tstem}/keep", json={"keep": False}).json["kept"], "un-keep")
+meta = OUTPUT_DIR_PATH / f"{tstem}.meta.json"
+meta.write_text(json.dumps({"created": 0, "expires": 1}))
+c.post(f"/api/missions/{tstem}/roster", json={"seat": "Viper 1-1", "name": "Mitsu"})
+ok(tstem in mission_store.cleanup(force=True), "expired mission cleaned up")
+ok(not list(OUTPUT_DIR_PATH.glob(f"{tstem}.*")), f"all its files gone {list(OUTPUT_DIR_PATH.glob(f'{tstem}.*'))}")
+ok(c.get(f"/briefing/{tstem}").status_code == 404, "briefing gone with it")
+ok(any(m["stem"] == stem and m["kept"] for m in c.get("/api/missions").json), "list shows kept")
+legacy = c.post("/api/generate", json=cfg).json["filename"][:-4]
+(OUTPUT_DIR_PATH / f"{legacy}.meta.json").unlink()
+ok(mission_store.status(legacy)["kept"], "missions from before count as kept")
+ok(c.delete(f"/api/missions/{legacy}").status_code == 200 and not list(OUTPUT_DIR_PATH.glob(f"{legacy}.*")),
+   "delete removes everything")
 
 # Weekly events: once the date has passed, the next occurrence exists, on the same weekday and time.
 r = c.post("/api/events", json={"title": "Weekly", "config": cfg, "repeat": "weekly"})

@@ -45,6 +45,8 @@ def run(job):
         z = zipfile.ZipFile(io.BytesIO(data))
         names = z.namelist()
         assert "mission" in names, names
+        theatre = z.read("theatre").decode()
+        assert f'["theatre"]="{theatre}"' in z.read("mission").decode(), ("theatre file matches the mission", theatre)
         pages = [n for n in names if n.startswith("KNEEBOARD/")]
         routes = [n for n in pages if n.endswith("_route.png")]
         assert routes and len(routes) * 2 == len(pages), ("every flight gets a route page", pages)

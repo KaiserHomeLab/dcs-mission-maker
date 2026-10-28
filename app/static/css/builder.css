@@ -86,3 +86,8 @@ code { font-size: 12.5px; }
 .badge.ok { color: var(--ok); } .badge.bad { color: var(--err); }
 .route-handle { background: #fff; border: 2px solid #e0a526; border-radius: 50%; width: 14px !important; height: 14px !important; }
 .opt-grid { display: grid; gap: 8px 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 12px; }
+
+/* Keep / temporary missions */
+#keep_line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+button.keepbtn { padding: 4px 10px; font-size: 13px; }
+#recent .badge:not(.ok):not(.bad) { color: var(--muted); }

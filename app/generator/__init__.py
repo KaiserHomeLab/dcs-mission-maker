@@ -25,10 +25,12 @@ def generate_full(req: MissionRequest) -> dict:
         filename = f"{safe}_{datetime.datetime.now():%Y%m%d_%H%M%S}.miz"
         path = os.path.join(tmp, filename)
         m.save(path)
-        if b.dtc_files:
-            with zipfile.ZipFile(path, "a", zipfile.ZIP_DEFLATED) as z:
-                for name, text in b.dtc_files.items():
-                    z.writestr(f"DTC/{name}.dtc", text)
+        with zipfile.ZipFile(path, "a", zipfile.ZIP_DEFLATED) as z:
+            # The Mission Editor stores the map name in its own "theatre" file too; pydcs
+            # doesn't, and some loaders (dedicated servers, mission tools) look for it.
+            z.writestr("theatre", m.terrain.miz_theatre_name)
+            for name, text in b.dtc_files.items():
+                z.writestr(f"DTC/{name}.dtc", text)
         with open(path, "rb") as fh:
             data = fh.read()
     return {"data": data, "filename": filename, "briefing": b.briefing_text,

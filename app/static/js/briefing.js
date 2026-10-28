@@ -37,7 +37,9 @@ function buildMap() {
   map = L.map("map", { zoomControl: false });
   L.control.zoom({ position: "bottomright" }).addTo(map);
   const base = {
-    "Map": L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 14, attribution: "© OpenStreetMap" }),
+    // OpenStreetMap's tile policy: no a/b/c subdomains, a referrer, and this attribution.
+    "Map": L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom: 14, referrerPolicy: "strict-origin-when-cross-origin", attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors" }),
     "Terrain": L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 14, attribution: "© OpenTopoMap (CC-BY-SA)" }),
     "Satellite": L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       { maxZoom: 14, attribution: "Imagery © Esri" }),

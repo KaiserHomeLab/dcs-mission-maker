@@ -308,8 +308,9 @@ function drawMap(p) {
   $("map").classList.remove("hidden");
   if (!map) {
     map = L.map("map", { zoomControl: false, attributionControl: true });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      { maxZoom: 12, attribution: "© OpenStreetMap" }).addTo(map);
+    // OpenStreetMap's tile policy: no a/b/c subdomains, a referrer, and this attribution.
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom: 12, referrerPolicy: "strict-origin-when-cross-origin", attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors" }).addTo(map);
     layer = L.layerGroup().addTo(map);
   }
   layer.clearLayers();
@@ -542,15 +543,51 @@ async function createEvent() {
   loadEvents();
 }
 
+// Temporary missions disappear after a while unless kept.
+function expiresIn(ts) {
+  const h = Math.max(0, (ts * 1000 - Date.now()) / 3600000);
+  return h >= 1 ? `${Math.round(h)} h` : `${Math.max(1, Math.round(h * 60))} min`;
+}
+function keepText(m) {
+  return m.kept ? "Kept: this mission stays until you delete it."
+    : `Temporary: deleted in ${expiresIn(m.expires)} unless you keep it.`;
+}
+async function setKept(stem, keep) {
+  const res = await fetch(`/api/missions/${encodeURIComponent(stem)}/keep`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ keep }) });
+  return res.ok ? res.json() : null;
+}
+let lastResult = null;
+function showKeep() {
+  if (!lastResult) return;
+  $("keep_text").textContent = keepText(lastResult);
+  $("keep_btn").textContent = lastResult.kept ? "Don't keep" : "Keep this mission";
+}
+
 async function loadRecent() {
   const list = await (await fetch("/api/missions")).json();
   $("recent").innerHTML = list.length
-    ? list.map(m => `<li><a href="${esc(m.url)}">${esc(m.filename)}</a>${m.briefing
+    ? list.map(m => `<li><a href="${esc(m.url)}">${esc(m.filename)}</a>${m.kept
+        ? `<span class="badge ok" title="Stays until you delete it">kept</span>`
+        : `<span class="badge" title="Deleted automatically unless you keep it">${esc(expiresIn(m.expires))} left</span>`}${m.briefing
         ? ` · <a href="${esc(m.briefing)}" target="_blank">Briefing</a>` : ""}${m.report
         ? (m.report.errors.length ? `<span class="badge bad" title="${esc(m.report.errors.join("\n"))}">${m.report.errors.length} script error(s) on server</span>`
           : `<span class="badge ok">loaded clean on server</span>`) : ""}${m.settings
-        ? ` · <button type="button" class="link reuse" data-url="${esc(m.settings)}" title="Load this mission's settings into the form">Reuse settings</button>` : ""}</li>`).join("")
+        ? ` · <button type="button" class="link reuse" data-url="${esc(m.settings)}" title="Load this mission's settings into the form">Reuse settings</button>` : ""}
+        · ${m.kept ? `<button type="button" class="link del" data-stem="${esc(m.stem)}">Delete</button>`
+          : `<button type="button" class="link keep" data-stem="${esc(m.stem)}">Keep</button>`}</li>`).join("")
     : "<li>None yet.</li>";
+  document.querySelectorAll("#recent .keep").forEach(b => b.onclick = async () => {
+    const st = await setKept(b.dataset.stem, true);
+    if (st && lastResult && lastResult.stem === b.dataset.stem) { Object.assign(lastResult, st); showKeep(); }
+    loadRecent();
+  });
+  document.querySelectorAll("#recent .del").forEach(b => b.onclick = async () => {
+    if (!confirm(`Delete ${b.dataset.stem}? Its download, Briefing Room and debrief go too.`)) return;
+    await fetch(`/api/missions/${encodeURIComponent(b.dataset.stem)}`, { method: "DELETE" });
+    if (lastResult && lastResult.stem === b.dataset.stem) $("result").classList.add("hidden");
+    loadRecent();
+  });
   document.querySelectorAll(".reuse").forEach(b => b.onclick = async () => {
     applyConfig(await (await fetch(b.dataset.url)).json());
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -573,6 +610,8 @@ async function onGenerate() {
     const PUB = { folder: "Server folder", sftp: "SFTP", discord: "Discord" };
     $("published").textContent = Object.entries(data.published || {})
       .map(([k, v]) => `${PUB[k]}: ${v === "ok" ? "done" : v}`).join(" · ");
+    lastResult = { stem: data.filename.replace(/\.miz$/, ""), kept: data.kept, expires: data.expires };
+    showKeep();
     $("result").classList.remove("hidden");
     $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
     loadRecent();
@@ -584,6 +623,10 @@ async function onGenerate() {
 }
 
 (async function init() {
+  $("keep_btn").onclick = async () => {
+    const st = await setKept(lastResult.stem, !lastResult.kept);
+    if (st) { Object.assign(lastResult, st); showKeep(); loadRecent(); }
+  };
   OPT = await (await fetch("/api/options")).json();
   const srsDefault = OPT.integrations.srs;
   $("srs").placeholder = srsDefault ? `${srsDefault.address} (default)` : "e.g. srs.myserver.com:5002";
