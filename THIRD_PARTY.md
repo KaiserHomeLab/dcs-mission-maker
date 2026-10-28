@@ -14,6 +14,7 @@ build and `windows\setup.bat`) downloads each item from a pinned commit or relea
 | [Waitress](https://github.com/Pylons/waitress) | ZPL-2.1 | Web server (Windows, `python -m app`) |
 | [Pillow](https://python-pillow.org/) | MIT-CMU | Kneeboard pages, print pack PDF |
 | [Paramiko](https://www.paramiko.org/) | LGPL-2.1 | SFTP publishing |
+| [pypdfium2](https://github.com/pypdfium2-team/pypdfium2) with [PDFium](https://pdfium.googlesource.com/pdfium/) | Apache-2.0 / BSD-3-Clause | Reading PDF pages pilots upload to the kneeboards |
 | [pystray](https://github.com/moses-palmer/pystray) | LGPL-3.0 | Tray icon of the Windows app |
 | [Inno Setup](https://jrsoftware.org/isinfo.php) | Inno Setup licence | Builds the installer (not part of the app) |
 | [PyInstaller](https://pyinstaller.org/) | GPL-2.0 with bootloader exception | Builds the Windows app (not part of it, apart from its bootloader, which the exception allows) |

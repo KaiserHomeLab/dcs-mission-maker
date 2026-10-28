@@ -41,14 +41,20 @@ jobs:
         shell: pwsh
         run: ./windows/smoke-test.ps1 -Command python -Arguments "-m", "app"
 
+      # Saved straight after fetching, so a later failing step doesn't throw away a 30-minute download.
       - name: Drawings (cached; Wikimedia rate-limits)
         id: drawings
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: drawings
           key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
       - if: steps.drawings.outputs.cache-hit != 'true'
         run: python tools/fetch_drawings.py drawings.json drawings
+      - if: steps.drawings.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: drawings
+          key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
       - if: inputs.release
         name: Release build info (turns on the update check)
         run: python tools/write_build_info.py "${{ github.repository }}"
@@ -79,6 +85,7 @@ jobs:
           if (Test-Path $exe) { throw "still installed after uninstalling" }
           if (netsh advfirewall firewall show rule name="DCS Mission Maker" | Select-String "Allow") { throw "firewall rule left behind" }
           Write-Output "installed, ran and uninstalled cleanly"
+          exit 0  # the last netsh check leaves exit code 1 when the rule is (rightly) gone
 
       - name: Zip the app
         shell: pwsh

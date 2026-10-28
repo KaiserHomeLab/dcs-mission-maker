@@ -256,15 +256,16 @@ def route_page(log, mission, path):
     p.save(path)
 
 
-def text_pages(title, sub, text):
-    """A plain-text document (e.g. the briefing) as kneeboard-sized pages; ALL-CAPS lines
-    become headings. Returns PIL images, starting a new page whenever one fills up."""
-    pages = [Page()]
+def text_pages(title, sub, text, palette=DAY, size=14):
+    """A plain-text document (e.g. the briefing, or a pilot's notes page) as kneeboard-sized
+    pages; ALL-CAPS lines become headings. Returns PIL images, starting a new page whenever
+    one fills up."""
+    pages = [Page(palette)]
     pages[0].title(title, sub)
     for raw in text.splitlines():
         p = pages[-1]
         if p.y > H - 60:
-            pages.append(Page())
+            pages.append(Page(palette))
             p = pages[-1]
             p.title(title, f"{sub}  ·  page {len(pages)}")
         stripped = raw.strip()
@@ -273,5 +274,5 @@ def text_pages(title, sub, text):
         elif stripped.isupper() and len(stripped) < 40:
             p.heading(stripped)
         else:
-            p.line(stripped, size=14)
+            p.line(stripped, size=size)
     return [p.img for p in pages]

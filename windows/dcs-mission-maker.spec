@@ -14,8 +14,12 @@ from app.icon import save_ico  # noqa: E402
 if not (ROOT / "vendor" / "beacons").is_dir():
     raise SystemExit("vendor\\ is missing: run python tools\\fetch_vendor.py first.")
 
-# pydcs loads terrain and unit data files and imports some modules by name.
+# pydcs loads terrain and unit data files and imports some modules by name; pypdfium2 ships
+# the PDFium library as a data file.
 datas, binaries, hiddenimports = collect_all("dcs")
+for package in ("pypdfium2", "pypdfium2_raw"):
+    d, b, h = collect_all(package)
+    datas, binaries, hiddenimports = datas + d, binaries + b, hiddenimports + h
 datas += [
     (str(ROOT / "app" / "templates"), "app/templates"),
     (str(ROOT / "app" / "static"), "app/static"),

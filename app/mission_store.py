@@ -10,6 +10,7 @@ kept. Missions from before this existed have no meta file and count as kept.
 """
 import json
 import os
+import shutil
 import time
 
 from . import paths
@@ -65,7 +66,10 @@ def delete(stem):
     for path in [*OUTPUT_DIR.glob(f"{stem}.*"), OUTPUT_DIR / f".{stem}.lock"]:
         if path != meta:
             try:
-                path.unlink(missing_ok=True)
+                if path.is_dir():  # <stem>.kb: pilots' kneeboard pages
+                    shutil.rmtree(path)
+                else:
+                    path.unlink(missing_ok=True)
             except OSError:
                 return False
     meta.unlink(missing_ok=True)

@@ -33,3 +33,4 @@ finally {
     $log = Join-Path $data "logs\app.log"
     if (Test-Path $log) { Get-Content $log -Tail 8 }
 }
+exit 0

@@ -23,9 +23,11 @@ from flask import Flask, abort, jsonify, render_template, request, send_from_dir
 from . import (
     __version__,
     ai,
+    dcs_install,
     debrief,
     eras,
     integrations,
+    kneeboard_store,
     liveries,
     mission_store,
     mods,
@@ -62,8 +64,8 @@ app = Flask(__name__)
 # Mission building keeps module-level state. Gunicorn runs one request per process, but
 # waitress (python -m app, used on Windows) runs threads, so builds take turns.
 _build_lock = threading.Lock()
-# Largest request body: the DCS hook's livery scan is the biggest legitimate one.
-app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
+# Largest request body: a kneeboard upload (a PDF of checklists, say) is the biggest legitimate one.
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 
 @functools.cache
@@ -86,6 +88,8 @@ PUBLIC_ENDPOINTS = {
     "briefing_room", "mission_brief", "comm_card", "mission_debrief", "get_roster", "claim_roster_seat",
     "kneeboard_page", "print_pack", "drawing", "download",
     "add_report", "add_debrief", "installed_liveries", "dcs_hook",
+    # Kneeboard edits check the roster instead: only pilots with a seat in that aircraft.
+    "mission_kneeboards", "kneeboard_image", "edit_kneeboard", "upload_kneeboard",
 }
 
 
@@ -172,7 +176,9 @@ def options():
             "blue_bases": t.blue_bases, "red_bases": [b.name for b in t.red_bases],
             "default_blue": t.default_blue, "default_red": t.default_red,
             "has_sea": t.red_sea is not None, "has_carrier": t.blue_carrier is not None,
+            "allowed": dcs_install.allowed(t.key),
         } for t in THEATERS.values()],
+        "installed_maps": dcs_install.installed_maps(),
         "aircraft": catalog(),
         "mission_types": list(MISSION_TYPES.items()),
         "difficulties": DIFFICULTIES,
@@ -283,6 +289,9 @@ def api_generate():
 def build_and_store(body):
     mission_store.cleanup()
     req = MissionRequest.from_json(body)
+    if not dcs_install.allowed(req.theater):
+        raise MissionError(f"{THEATERS[req.theater].label} isn't installed on this DCS server. "
+                           "Pick another map, or turn off the map check on the Settings page.")
     with _build_lock:
         out = generate_full(req)
     data, filename, briefing, warnings = out["data"], out["filename"], out["briefing"], out["warnings"]
@@ -291,6 +300,8 @@ def build_and_store(body):
     # Keep the settings so the mission can be regenerated or tweaked later.
     (OUTPUT_DIR / (filename[:-4] + ".json")).write_text(json.dumps(body, indent=2), encoding="utf-8")
     (OUTPUT_DIR / (filename[:-4] + ".txt")).write_text(briefing, encoding="utf-8")
+    if kneeboard_store.apply_library(filename[:-4], out["brief"]):  # squadron kneeboard pages
+        data = (OUTPUT_DIR / filename).read_bytes()
     return {"filename": filename, "url": f"/missions/{filename}", "size": len(data),
             "briefing": briefing, "warnings": warnings,
             "briefing_url": f"/briefing/{filename[:-4]}", **mission_store.mark_temporary(filename[:-4])}
@@ -774,21 +785,134 @@ def claim_roster_seat(stem):
             claims[seat] = name
         (OUTPUT_DIR / f"{stem}.roster.json").write_text(json.dumps(claims, indent=1), encoding="utf-8")
         _apply_names_to_miz(stem, claims, seats)
+        _refresh_server_copy(stem)
     return jsonify(_roster_view(stem, brief, claims))
+
+
+def _refresh_server_copy(stem):
+    """The .miz changed (names, kneeboards): if it was copied to the server folder, copy it again.
+    DCS reads it the next time the mission loads; a running mission isn't affected."""
+    dest = integrations.env("SERVER_MISSIONS_DIR")
+    if dest and (Path(dest) / f"{stem}.miz").is_file():
+        error = integrations.publish_folder(OUTPUT_DIR / f"{stem}.miz")
+        if error:
+            app.logger.warning("couldn't update the server copy of %s: %s", stem, error)
 
 
 @app.get("/missions/<stem>/kneeboard/<page>.png")
 def kneeboard_page(stem, page):
-    """page is the flight number, optionally with a page suffix: "2" or "2_route"."""
+    """A generated page by flight number, optionally with a page suffix: "2" or "2_route".
+    Still there when pilots hid it from the cockpit kneeboard."""
     if not re.fullmatch(r"\d{1,2}(_route)?", page):
         abort(404)
-    with zipfile.ZipFile(OUTPUT_DIR / f"{_stem(stem)}.miz") as z:
-        names = [x for x in z.namelist() if x.startswith("KNEEBOARD/")
-                 and x.endswith(f"/kneeboard_{page}.png")]
-        if not names:
-            abort(404)
-        data = z.read(names[0])
+    return kneeboard_image(stem, f"g:kneeboard_{page}")
+
+
+@app.get("/missions/<stem>/kb/<page_id>.png")
+def kneeboard_image(stem, page_id):
+    if not kneeboard_store.PAGE_ID.fullmatch(page_id):
+        abort(404)
+    data = kneeboard_store.page_bytes(_stem(stem), page_id)
+    if data is None and page_id.startswith("g:"):  # never edited: straight from the .miz
+        with zipfile.ZipFile(OUTPUT_DIR / f"{stem}.miz") as z:
+            names = [x for x in z.namelist() if re.fullmatch(
+                rf"KNEEBOARD/[^/]+/IMAGES/+(\d+_)?{re.escape(page_id[2:])}\.png", x)]
+            data = z.read(names[0]) if names else None
+    if data is None:
+        abort(404)
+    # Page ids never come back with different content, except generated pages on Reset (same pixels).
     return data, 200, {"Content-Type": "image/png", "Cache-Control": "max-age=86400"}
+
+
+# --------------------------------------------------------------- kneeboard editing
+def _kneeboard_context(stem):
+    path = OUTPUT_DIR / f"{_stem(stem)}.brief.json"
+    if not path.exists():
+        abort(404)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _kneeboard_pilot(stem, brief, type_id, name):
+    """The pilot's name as on the roster, if they have a seat in that aircraft type; else None."""
+    name = (name or "").strip().lower()
+    flights = set(kneeboard_store.types_in(stem, brief).get(type_id, {}).get("flights", []))
+    claims = _load_roster(stem, brief)
+    for st in _roster_seats(brief):
+        pilot = claims.get(st["seat"], "")
+        if not st["ai"] and st["flight"] in flights and name and pilot.lower() == name:
+            return pilot
+    return None
+
+
+def _kneeboard_guard(stem, brief, type_id, name):
+    if type_id not in kneeboard_store.types_in(stem, brief):
+        return None, (jsonify({"error": "That aircraft isn't flown in this mission."}), 404)
+    pilot = _kneeboard_pilot(stem, brief, type_id, name)
+    if not pilot:
+        return None, (jsonify({"error": "Take a seat in this aircraft on the roster first (Overview tab), "
+                                        "with the same name."}), 403)
+    return pilot, None
+
+
+@app.get("/api/missions/<stem>/kneeboards")
+def mission_kneeboards(stem):
+    return jsonify(kneeboard_store.view(stem, _kneeboard_context(stem)))
+
+
+@app.post("/api/missions/<stem>/kneeboards/<type_id>")
+def edit_kneeboard(stem, type_id):
+    """{"name", "action": "arrange" (order) | "notes" (title, text) | "delete" (id) | "reset"
+    | "unlibrary" (id)}. Only pilots with a seat in that aircraft type."""
+    brief = _kneeboard_context(stem)
+    body = request.get_json(silent=True) or {}
+    pilot, error = _kneeboard_guard(stem, brief, type_id, body.get("name"))
+    if error:
+        return error
+    action = body.get("action")
+    try:
+        with _locked(stem):
+            if action == "arrange":
+                kneeboard_store.arrange(stem, brief, type_id, body.get("order") or [], pilot)
+            elif action == "notes":
+                kneeboard_store.add_notes(stem, brief, type_id, body.get("title"), body.get("text"), pilot,
+                                          night=bool(brief["meta"].get("night")))
+            elif action == "delete":
+                kneeboard_store.remove(stem, brief, type_id, str(body.get("id")), pilot)
+            elif action == "reset":
+                kneeboard_store.reset(stem, brief, type_id, pilot)
+            elif action == "unlibrary":
+                kneeboard_store.remove_from_library(type_id, str(body.get("id")))
+            else:
+                return jsonify({"error": "Unknown action."}), 400
+            if action != "unlibrary":
+                _refresh_server_copy(stem)
+    except kneeboard_store.KneeboardError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(kneeboard_store.view(stem, brief))
+
+
+@app.post("/api/missions/<stem>/kneeboards/<type_id>/upload")
+def upload_kneeboard(stem, type_id):
+    """Multipart: name, library ("1" to also save to the squadron library), files (PNG, JPG, PDF)."""
+    brief = _kneeboard_context(stem)
+    pilot, error = _kneeboard_guard(stem, brief, type_id, request.form.get("name"))
+    if error:
+        return error
+    files = request.files.getlist("files")
+    if not files or len(files) > 10:
+        return jsonify({"error": "Choose between 1 and 10 files."}), 400
+    try:
+        with _locked(stem):
+            for f in files:
+                try:
+                    kneeboard_store.add_upload(stem, brief, type_id, f.filename, f.read(), pilot,
+                                               to_library=request.form.get("library") == "1")
+                except kneeboard_store.KneeboardError as e:
+                    raise kneeboard_store.KneeboardError(f"{f.filename}: {e}") from e
+            _refresh_server_copy(stem)
+    except kneeboard_store.KneeboardError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(kneeboard_store.view(stem, brief))
 
 
 @app.get("/missions/<stem>/pack.pdf")

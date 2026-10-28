@@ -28,7 +28,7 @@ function fieldHtml(f, canEdit) {
         <p class="err hidden" id="err_${f.key}"></p>
       </div>`;
   } else {
-    const list = f.kind === "folder" ? ` list="mission_folders"` : "";
+    const list = f.key === "DCS_INSTALL_DIR" ? ` list="dcs_installs"` : f.kind === "folder" ? ` list="mission_folders"` : "";
     const step = f.kind === "number" ? ` step="any" min="0"` : "";
     input = `<input type="${INPUT_TYPES[f.kind] || "text"}" id="${id}" value="${esc(f.value)}"${list}${step}${off}
       placeholder="${esc(f.placeholder)}"
@@ -55,6 +55,12 @@ function render(data) {
       ${fields.filter(f => f.group === g).map(f => fieldHtml(f, data.can_edit)).join("")}</section>`).join("");
   $("mission_folders").innerHTML = (data.suggestions.SERVER_MISSIONS_DIR || [])
     .map(p => `<option value="${esc(p)}">`).join("");
+  $("dcs_installs").innerHTML = (data.suggestions.DCS_INSTALL_DIR || []).map(p => `<option value="${esc(p)}">`).join("");
+  const m = data.maps;
+  $("maps").textContent = !m ? "No DCS install found on this PC: every map is offered."
+    : !m.theaters.length ? `No maps found in ${m.install}\\Mods\\terrains: every map is offered.`
+    : `DCS maps installed in ${m.install}: ${m.names.join(", ")}. `
+      + (m.filter ? "The builder offers only these." : "The builder offers every map (the check is off).");
   $("save").disabled = !data.can_edit;
   document.querySelectorAll("button.clear").forEach(b => b.onclick = () => {
     cleared.add(b.dataset.key);

@@ -13,9 +13,11 @@
   <h1>Settings</h1>
   <p class="meta">DCS Mission Maker {{ version }} · data in <code id="data_dir"></code></p>
   <p class="notice hidden" id="readonly"></p>
+  <p class="meta" id="maps"></p>
   <form id="form" novalidate onsubmit="return false">
     <div id="groups"><p class="meta">Loading…</p></div>
     <datalist id="mission_folders"></datalist>
+    <datalist id="dcs_installs"></datalist>
     <div class="actions">
       <button type="submit" class="primary" id="save">Save</button>
       <span id="status" role="status"></span>

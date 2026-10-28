@@ -145,6 +145,7 @@ function fitMine() {
 function tab(name) {
   if (name === "mine") fitMine();
   if (name === "debrief") loadDebrief();
+  if (name === "kneeboards") loadKneeboards();
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === name));
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("on", p.dataset.tab === name));
   try { history.replaceState(null, "", "#" + name); } catch (e) {}
@@ -222,12 +223,7 @@ function renderPanels() {
     <h2>Home field</h2><div class="card">${esc(B.home.card)}</div>
     <h2>Bullseye</h2><div class="card mono">${esc(B.bullseye.text)}</div>`;
 
-  $("p_kneeboards").innerHTML = `<p class="muted" style="margin-top:0">These pages are in the cockpit kneeboard too. Click one to open it full size.</p>
-    <div class="kb">${B.flights.flatMap(f => (f.kneeboards || [{ page: f.kneeboard, label: "Flight" }]).map(k => {
-      const src = `/missions/${encodeURIComponent(STEM)}/kneeboard/${encodeURIComponent(k.page)}.png`;
-      return `<div><a href="${src}" target="_blank"><img loading="lazy" src="${src}" alt="${esc(k.label)} kneeboard for ${esc(f.name)}"></a>
-      <p>${esc(f.name)} · ${esc(k.label)}</p></div>`;
-    })).join("")}</div>`;
+  renderKneeboards();
 }
 // ------------------------------------------------------------------- debrief
 const EVENT_ICON = { kill: "✕", crash: "▼", eject: "⇡", pilot_death: "✝", takeoff: "↗", landing: "↘",
@@ -396,7 +392,7 @@ function renderRoster() {
 let lastMine = null;  // null so the first roster load always renders the tab
 async function loadRoster() {
   const res = await fetch(`/api/missions/${encodeURIComponent(STEM)}/roster`);
-  if (res.ok) { ROSTER = await res.json(); renderRoster(); refreshMine(); }
+  if (res.ok) { ROSTER = await res.json(); renderRoster(); refreshMine(); renderKneeboards(); }
 }
 function refreshMine() {
   const s = mySeat(), key = s ? s.seat : "";
@@ -409,7 +405,155 @@ async function claim(seat, act) {
     body: JSON.stringify({ seat, name: act === "take" ? myName.trim() : "", me: myName.trim() }) });
   const data = await res.json();
   if (!res.ok) { await loadRoster(); $("rerr").textContent = data.error; $("rerr").className = "warn"; return; }
-  ROSTER = data; renderRoster(); refreshMine();
+  ROSTER = data; renderRoster(); refreshMine(); renderKneeboards();
+}
+
+// ---------------------------------------------------------------- kneeboards
+// One kneeboard per aircraft type (that's how DCS does it). Pilots with a seat in that type can
+// hide, show and reorder its pages, add notes pages and upload pages; the server checks the roster.
+let KB = null;
+let kbSaving = false;  // one change at a time: each one is based on the page list the last one returned
+const KB_KIND = { upload: "uploaded", notes: "notes", library: "squadron library" };
+const kbUrl = (id) => `/missions/${encodeURIComponent(STEM)}/kb/${encodeURIComponent(id)}.png`;
+const kbApi = (t) => `/api/missions/${encodeURIComponent(STEM)}/kneeboards/${encodeURIComponent(t.type)}`;
+
+async function loadKneeboards() {
+  try {
+    const res = await fetch(`/api/missions/${encodeURIComponent(STEM)}/kneeboards`);
+    if (res.ok) KB = await res.json();
+  } catch (e) { /* keep what we had */ }
+  renderKneeboards(true);
+}
+
+function kbCanEdit(t) {
+  const me = myName.trim().toLowerCase();
+  return !!me && !!ROSTER && ROSTER.seats.some(st => !st.ai && st.pilot && st.pilot.toLowerCase() === me
+    && t.flights.includes(st.flight));
+}
+
+function kbAgo(ts) {
+  const min = Math.round((Date.now() / 1000 - ts) / 60);
+  return min < 1 ? "just now" : min < 60 ? `${min} min ago` : min < 1440 ? `${Math.round(min / 60)} h ago`
+    : new Date(ts * 1000).toLocaleDateString();
+}
+
+function renderKneeboards(force) {
+  const box = $("p_kneeboards");
+  if (!box) return;
+  if (!KB) { box.innerHTML = `<p class="muted" style="margin-top:0">Loading…</p>`; return; }
+  // Roster refreshes come every few seconds: don't wipe a notes page or file choice in progress.
+  const busy = box.querySelector("textarea:not(:placeholder-shown), input[type=file]:valid, details[open]");
+  if (busy && !force) return;
+  box.innerHTML = `<p class="muted" style="margin-top:0">DCS shows these pages, in this order, to everyone flying that
+      aircraft. Pilots with a seat in an aircraft can change its kneeboard. Changes go into the .miz: download it
+      again; if it was copied to the server, that copy is updated too (for the next time the mission loads).</p>`
+    + KB.types.map(kbTypeHtml).join("")
+    + (KB.log.length ? `<h2>Changes</h2><div class="card kblog">${KB.log.slice(0, 15).map(l =>
+      `<div><b>${esc(l.by)}</b> ${esc(l.what)} <span class="muted">· ${esc((KB.types.find(t => t.type === l.type) || { label: l.type }).label)}
+        · ${kbAgo(l.at)}</span></div>`).join("")}</div>` : "");
+  box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => kbAction(b.dataset.a, +b.dataset.t, +b.dataset.i));
+}
+
+function kbTypeHtml(t, ti) {
+  const edit = kbCanEdit(t), last = t.pages.length - 1;
+  const pages = t.pages.map((p, i) => `<div class="kbpage${p.hidden ? " off" : ""}">
+      <a href="${kbUrl(p.id)}" target="_blank"><img loading="lazy" src="${kbUrl(p.id)}" alt="${esc(p.label)}"></a>
+      <p>${i + 1}. ${esc(p.label)}${p.hidden ? " · <b>hidden</b>" : ""}${KB_KIND[p.kind] ? ` · ${KB_KIND[p.kind]}` : ""}${p.by ? ` by ${esc(p.by)}` : ""}</p>
+      ${edit ? `<div class="kbtools">
+        <button type="button" data-a="up" data-t="${ti}" data-i="${i}" ${i === 0 ? "disabled" : ""} title="Move earlier" aria-label="Move earlier">◀</button>
+        <button type="button" data-a="down" data-t="${ti}" data-i="${i}" ${i === last ? "disabled" : ""} title="Move later" aria-label="Move later">▶</button>
+        <button type="button" data-a="hide" data-t="${ti}" data-i="${i}">${p.hidden ? "Show" : "Hide"}</button>
+        ${p.kind === "upload" || p.kind === "notes" ? `<button type="button" data-a="del" data-t="${ti}" data-i="${i}">Delete</button>` : ""}
+      </div>` : ""}</div>`).join("");
+  const library = t.library.length ? `<p class="muted kblib">Squadron library for the ${esc(t.label)} (added to every new
+      mission with it): ${t.library.map((e, i) => `${esc(e.label)}${e.by ? ` <small>by ${esc(e.by)}</small>` : ""}${edit
+        ? ` <button type="button" class="linkbtn" data-a="unlib" data-t="${ti}" data-i="${i}">remove</button>` : ""}`).join(", ")}</p>` : "";
+  const editor = edit ? `<div class="card kbedit">
+      <details><summary>Add a notes page</summary>
+        <input type="text" id="kbn_title_${ti}" maxlength="60" placeholder="Title, e.g. Game plan">
+        <textarea id="kbn_text_${ti}" rows="8" maxlength="4000"
+          placeholder="Frequencies, the plan, reminders… Lines in CAPITALS become headings."></textarea>
+        <button type="button" data-a="notes" data-t="${ti}">Add the page</button>
+      </details>
+      <details><summary>Upload pages (PNG, JPG or PDF)</summary>
+        <input type="file" id="kbu_files_${ti}" multiple required accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf">
+        <label class="kbchk"><input type="checkbox" id="kbu_lib_${ti}"> Also save to the squadron library: added to every
+          new mission with the ${esc(t.label)}</label>
+        <button type="button" data-a="upload" data-t="${ti}">Upload</button>
+      </details>
+      <button type="button" class="linkbtn" data-a="reset" data-t="${ti}">Reset to the original pages</button>
+      <p class="muted kbmsg" id="kbmsg_${ti}" role="status"></p>
+    </div>`
+    : `<p class="muted">To change this kneeboard, take a seat in a ${esc(t.label)} on the roster (Overview tab).</p>`;
+  return `<h2>${esc(t.label)} <small class="muted">${esc(t.flights.join(", "))}</small></h2>
+    <div class="kb">${pages}</div>${editor}${library}`;
+}
+
+async function kbAction(action, ti, i) {
+  if (kbSaving) return;
+  const t = KB.types[ti], name = myName.trim();
+  const order = t.pages.map(p => ({ id: p.id, hidden: !!p.hidden }));
+  let body = null;
+  if (action === "up" || action === "down") {
+    const j = action === "up" ? i - 1 : i + 1;
+    [order[i], order[j]] = [order[j], order[i]];
+    body = { action: "arrange", order };
+  } else if (action === "hide") {
+    order[i].hidden = !order[i].hidden;
+    body = { action: "arrange", order };
+  } else if (action === "del") {
+    if (!confirm(`Delete "${t.pages[i].label}" from this kneeboard?`)) return;
+    body = { action: "delete", id: t.pages[i].id };
+  } else if (action === "reset") {
+    if (!confirm(`Put the ${t.label} kneeboard back to the pages the mission was built with? Pages pilots added are deleted.`)) return;
+    body = { action: "reset" };
+  } else if (action === "unlib") {
+    const e = t.library[i];
+    if (!confirm(`Take "${e.label}" out of the squadron library? Missions that already have it keep it.`)) return;
+    body = { action: "unlibrary", id: e.id };
+  } else if (action === "notes") {
+    body = { action: "notes", title: $(`kbn_title_${ti}`).value, text: $(`kbn_text_${ti}`).value };
+  }
+  const msg = $(`kbmsg_${ti}`);
+  const say = (text, warn) => {
+    if (msg) { msg.className = `${warn ? "warn" : "muted"} kbmsg`; msg.textContent = text; } else if (warn) alert(text);
+  };
+  let request;
+  if (action === "upload") {
+    const files = $(`kbu_files_${ti}`).files;
+    if (!files.length) { say("Choose a file first.", true); return; }
+    const form = new FormData();
+    form.append("name", name);
+    if ($(`kbu_lib_${ti}`).checked) form.append("library", "1");
+    for (const f of files) form.append("files", f);
+    request = [`${kbApi(t)}/upload`, { method: "POST", body: form }];
+  } else {
+    request = [kbApi(t), { method: "POST", headers: { "Content-Type": "application/json" },
+                           body: JSON.stringify({ ...body, name }) }];
+  }
+  // Buttons off until this change is saved: the next one must start from the page list it returns.
+  const buttons = [...$("p_kneeboards").querySelectorAll("[data-a]")];
+  const wasDisabled = buttons.map(b => b.disabled);
+  buttons.forEach(b => { b.disabled = true; });
+  kbSaving = true;
+  say(action === "upload" ? "Uploading…" : "Saving…");
+  let data, error = "";
+  try {
+    const res = await fetch(...request);
+    data = await res.json().catch(() => ({ error: res.status === 413 ? "That's too big (16 MB at most)." : "Something went wrong." }));
+    if (!res.ok) error = data.error || "Something went wrong.";
+  } catch (e) {
+    error = "Couldn't reach the app.";
+  } finally {
+    kbSaving = false;
+  }
+  if (error) {  // keep what's on screen (typed notes, chosen files) so it can be fixed and sent again
+    buttons.forEach((b, k) => { b.disabled = wasDisabled[k]; });
+    say(error, true);
+    return;
+  }
+  KB = data;
+  renderKneeboards(true);
 }
 
 const cap = (s) => String(s).charAt(0).toUpperCase() + String(s).slice(1);

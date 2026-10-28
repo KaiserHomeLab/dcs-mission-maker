@@ -11,7 +11,7 @@ import os
 import re
 from pathlib import Path
 
-from . import paths
+from . import dcs_install, paths
 
 # key: (group, label, kind, help). Kinds: text, url, folder, file, number, secret, toggle (on/off).
 FIELDS = {
@@ -31,6 +31,12 @@ FIELDS = {
     "SERVER_MISSIONS_DIR": ("DCS server", "Server Missions folder", "folder",
                             "Copy to server puts missions here, e.g. "
                             "C:\\Users\\dcs\\Saved Games\\DCS.server\\Missions."),
+    "DCS_INSTALL_DIR": ("DCS server", "DCS install folder", "folder",
+                        "Where DCS (the server) is installed, e.g. "
+                        "C:\\Program Files\\Eagle Dynamics\\DCS World Server. Found by itself when it's in "
+                        "the usual place; the builder then offers only the maps installed there."),
+    "MAPS_FILTER": ("DCS server", "Only offer maps installed on this DCS", "toggle",
+                    "Turn off to build missions for maps this PC doesn't have (e.g. for another server)."),
     "SRS_ADDRESS": ("DCS server", "SRS server", "text",
                     "Your usual SRS voice server, e.g. srs.example.com:5002. The default for each mission."),
     "SRS_NOTE": ("DCS server", "SRS note", "text",
@@ -49,7 +55,7 @@ FIELDS = {
 }
 
 # Shown in empty fields: what the app uses when a setting isn't set.
-DEFAULTS = {"UPDATE_CHECK": "on", "MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22",
+DEFAULTS = {"UPDATE_CHECK": "on", "MAPS_FILTER": "on", "MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22",
             "SRS_ADDRESS": "srs.example.com:5002"}
 
 # Set in the environment when the app started: these win and can't be changed here.
@@ -98,7 +104,13 @@ def view():
         else:
             f["value"] = value
         fields.append(f)
-    return {"fields": fields, "suggestions": {"SERVER_MISSIONS_DIR": mission_folders()},
+    found = dcs_install.found_installs()
+    maps = dcs_install.installed_maps()
+    if maps:
+        from .theaters import THEATERS  # loaded already by the server; names for the page
+        maps = {**maps, "names": [THEATERS[k].label for k in maps["theaters"]]}
+    return {"fields": fields, "suggestions": {"SERVER_MISSIONS_DIR": mission_folders(), "DCS_INSTALL_DIR": found},
+            "maps": maps,
             "data_dir": str(paths.data_dir()), "missions_dir": str(paths.output_dir())}
 
 
@@ -132,6 +144,8 @@ def _check(key, value):
             return "At least 0.25 hours."
     if kind == "folder" and not Path(value).is_dir():
         return "That folder doesn't exist on this PC."
+    if key == "DCS_INSTALL_DIR" and not (Path(value) / "Mods" / "terrains").is_dir():
+        return "That folder has no Mods\\terrains: pick the folder DCS is installed in."
     if kind == "file" and not Path(value).is_file():
         return "That file doesn't exist on this PC."
     if kind == "toggle" and value not in ("on", "off"):

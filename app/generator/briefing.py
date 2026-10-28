@@ -22,6 +22,11 @@ class BriefingMixin:
         what the Briefing Room computes from lat/long)."""
         return bra(self.bullseye, pos)
 
+    def dark_cockpit(self):
+        """Dark kneeboard pages when the cockpit will be dark: night, or a winter dawn/dusk."""
+        r = self.req
+        return r.time_of_day == "night" or (r.season == "winter" and r.time_of_day in ("dawn", "dusk"))
+
     def add_kneeboards(self):
         r = self.req
         hh, mm = TIMES[r.time_of_day]
@@ -37,8 +42,7 @@ class BriefingMixin:
                        + f", {self.m.weather.season_temperature:.0f} C.",
             "bullseye": fmt_latlon(self.bullseye),
             "home": self.home_card,
-            # dark pages when the cockpit will be dark: night, or a winter dawn/dusk
-            "night": r.time_of_day == "night" or (r.season == "winter" and r.time_of_day in ("dawn", "dusk")),
+            "night": self.dark_cockpit(),
         }
         for i, card in enumerate(self.cards):
             card["steerpoints"] = [{
@@ -170,7 +174,7 @@ class BriefingMixin:
         flights = []
         for i, c in enumerate(self.cards):
             flights.append({
-                "name": c["name"], "aircraft": c["aircraft"], "squadron": c["squadron"],
+                "name": c["name"], "aircraft": c["aircraft"], "type": c["type"].id, "squadron": c["squadron"],
                 "seats": c["seats"], "ai": c["ai"], "base": c["base"], "start": c["start"],
                 "loadout": c["loadout"], "presets": c["presets"], "pilots": c["pilots"],
                 "timing": c["timing"], "kneeboard": i + 1,
@@ -188,7 +192,7 @@ class BriefingMixin:
                      "start": f"{hh:02d}:{mm:02d}", "tot": r.tot or None,
                      "weather": r.weather, "wind": r.wind,
                      "wind_from": self.wind_from if self.wind_strength else None,
-                     "temp_c": round(self.m.weather.season_temperature)},
+                     "temp_c": round(self.m.weather.season_temperature), "night": self.dark_cockpit()},
             "situation": self.brief.situation, "tasking": self.brief.tasking,
             "support": self.brief.comms, "notes": self.warnings,
             "home": {"name": self.home.name, "pos": latlng_pair(self.home.position),

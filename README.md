@@ -32,6 +32,10 @@ while it's running just opens the browser.
   running the app, or from anywhere once a password is set.
 - **Port:** 8080. If another program has it, the app moves to the next free port, tells
   you, and remembers it (change it on the Settings page).
+- **Installed maps:** on the DCS server's PC the app finds the DCS install (`Program Files\Eagle
+  Dynamics\DCS World Server` and the other usual places, or the folder set on the Settings page)
+  and offers only the maps installed there, by the folders in `Mods\terrains`. Turn the check
+  off on the Settings page to build missions for maps this PC doesn't have.
 - **Updates:** once a day the app asks GitHub for the latest release and the builder shows
   a note when there's a newer one; download and run its installer over the old one. The
   request carries only the app's version. Turn it off on the Settings page.
@@ -142,6 +146,7 @@ Generate button.
 | **Friendly AI** | AI wingmen inside your own flights (players take the first seats, AI fills the rest), plus separate AI flights: CAP, escort (sticks to a player flight you pick), SEAD, CAS, strike and anti-ship, with an optional launch delay (T+5 to T+60 min). AI types suitable for the job and era are listed first. |
 | **JTAC** | For CAS, strike and SEAD (Vietnam era onward): JTAC "Axeman" on 266.0 AM, laser code 1688. In the modern era it's an MQ-9 orbiting the target, otherwise a ground team. Invisible and immortal so it stays on station. |
 | **Kneeboards** | Two pages per flight, dark pages for night (and winter dawn/dusk) missions so they don't blind you. **Flight:** tasking, steerpoints with lat/long and bullseye bearing/range, radio presets, support frequencies, threats and weather. **Route:** a north-up sketch of the route (numbered waypoints, threat rings, bullseye, scale), a nav log (true course, leg and total distance, altitude, speed and ETA, worked back from the TOT when one is set), and what to do at each waypoint for your mission type and aircraft. Both are in the Briefing Room's Kneeboards tab too. DCS shows kneeboard pages per aircraft type, so flights flying the same type see each other's pages. |
+| **Kneeboard editing** | In the Briefing Room's *Kneeboards* tab, pilots with a seat in an aircraft (on the roster) can change that aircraft's kneeboard: hide, show and reorder pages, add a **notes page** (typed text, drawn like the other pages and dark at night), and **upload pages** as PNG, JPG or PDF (up to 20 PDF pages, 16 MB per upload, 30 pages per aircraft). Uploads are re-drawn as plain PNG images, so nothing but pixels goes into the `.miz`. Ticking *Also save to the squadron library* adds the pages to every new mission with that aircraft (stored in `missions/kneeboards/`; hide them per mission, or remove them from the library). *Reset* restores the pages the mission was built with, and a change list shows who did what. Every change rewrites the `.miz`; when the mission was copied to the server folder, that copy is updated too (for the next time the mission loads). |
 | **Bullseye** | Set halfway between your airfield and the target; shown in the briefing, kneeboards and cartridges. |
 | **Mission options** | Unit labels, F10 map visibility, external views, unlimited fuel/weapons, easy comms, civilian traffic, bird strikes. |
 | **Saved setups** | Save your group's usual setup by name and load it next time. Every generated mission also keeps its settings, so you can "Reuse settings" from the recent list and tweak them. |
@@ -301,6 +306,8 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `.github/workflows/ci.yml`, `windows.yml` | CI: lint, image build and tests; on Windows the tests without Docker, the app build, its installer (installed, run and uninstalled) |
 | `.github/workflows/release.yml` | Publishes a release with the installer and zip when a `v*.*.*` tag is pushed |
 | `windows/installer.iss`, `windows/smoke-test.ps1` | The installer (Inno Setup): Program Files, firewall rule, start at logon, uninstaller; the CI check that starts the app and builds a mission |
+| `app/kneeboard_store.py` | Kneeboard editing in the Briefing Room: page state per mission, uploads (re-encoded), notes pages, the squadron library, rewriting the `.miz` |
+| `app/dcs_install.py` | Finds the DCS install on this PC and which maps it has (`Mods\terrains`) |
 | `app/updates.py`, `tools/write_build_info.py` | The daily update check against GitHub Releases (release builds only) |
 | `THIRD_PARTY.md` | Third-party components and their licences |
 

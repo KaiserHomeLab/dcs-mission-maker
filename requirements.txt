@@ -5,6 +5,8 @@ waitress==3.*
 # pydcs from a pinned commit (an archive, so installing doesn't need git)
 pydcs @ https://github.com/pydcs/dcs/archive/55dc18adbd6907ea17d87de559445c4f9bc39146.zip
 pillow==11.*
+# reads PDF pages pilots upload to the kneeboards (PDFium)
+pypdfium2==5.*
 paramiko==3.*
 # tray icon of the Windows app (app/desktop.py)
 pystray==0.19.*; sys_platform == "win32"

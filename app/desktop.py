@@ -159,8 +159,8 @@ def main(argv=None):
         return 0
 
     paths.data_dir().mkdir(parents=True, exist_ok=True)
-    _protect_data_dir()
     _setup_logging()
+    _protect_data_dir()
     log.info("%s %s starting; data in %s", NAME, __version__, paths.data_dir())
     try:
         from .server import app  # applies settings.json (PORT, ...)

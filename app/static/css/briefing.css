@@ -51,6 +51,23 @@ tr.tgt td { color: var(--accent); font-weight: 600; }
 .kb a { display: block; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
 .kb img { width: 100%; display: block; }
 .kb p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+.kbpage.off img { opacity: .3; }
+.kbtools { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.kbtools button { padding: 3px 9px; font-size: 12.5px; }
+.kbtools button:disabled { opacity: .4; cursor: not-allowed; }
+.kbedit { margin-top: 12px; }
+.kbedit details { margin-bottom: 10px; }
+.kbedit summary { cursor: pointer; font-weight: 600; }
+.kbedit input[type=text], .kbedit textarea { width: 100%; margin: 8px 0 0; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font: inherit; }
+.kbedit textarea { resize: vertical; }
+.kbedit input[type=file] { display: block; margin: 8px 0; max-width: 100%; }
+.kbedit details button { margin-top: 8px; }
+.kbchk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--muted); }
+.kbmsg { margin: 6px 0 0; min-height: 1em; }
+button.linkbtn { background: none; border: none; color: var(--accent); padding: 0; text-decoration: underline; font-size: 13px; }
+.kblib { margin-top: 10px; }
+.kblog div { padding: 3px 0; font-size: 13px; }
 .wp-label { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 4px;
             font-size: 11px; padding: 1px 4px; box-shadow: none; }
 .wp-label::before { display: none; }

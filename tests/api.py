@@ -319,5 +319,122 @@ updates.REPO = ""
 r = c.put("/api/settings", json={"UPDATE_CHECK": "maybe"})
 ok(r.status_code == 400 and "UPDATE_CHECK" in r.json["errors"], "update switch validated")
 
+# Kneeboards edited in the Briefing Room: only pilots with a seat in that aircraft type; pages
+# hidden, moved, added (notes, PNG/JPG/PDF uploads), deleted and reset; the squadron library.
+from PIL import Image  # noqa: E402
+
+from app import kneeboard_store  # noqa: E402
+
+kb_cfg = {"theater": "caucasus", "mission_type": "cas", "time_of_day": "night",
+          "flights": [{"aircraft": "F-16C_50", "slots": 2, "callsign": "Viper", "number": 1},
+                      {"aircraft": "FA-18C_hornet", "slots": 1, "callsign": "Hornet", "number": 2}]}
+kb_stem = c.post("/api/generate", json=kb_cfg).json["filename"][:-4]
+kb_api = f"/api/missions/{kb_stem}/kneeboards"
+
+
+def miz_pages(stem, type_id):
+    with zipfile.ZipFile(OUTPUT_DIR_PATH / f"{stem}.miz") as z:
+        return sorted(n.rsplit("/", 1)[1] for n in z.namelist() if n.startswith(f"KNEEBOARD/{type_id}/IMAGES/"))
+
+
+def png(color, size=(600, 800), fmt="PNG"):
+    buf = io.BytesIO()
+    Image.new("RGB", size, color).save(buf, fmt)
+    return buf.getvalue()
+
+
+view = c.get(kb_api).json
+viper = next(t for t in view["types"] if t["type"] == "F-16C_50")
+ok([p["label"] for p in viper["pages"]] == ["Viper 1 · Flight", "Viper 1 · Route"] and viper["flights"] == ["Viper 1"],
+   f"kneeboard view {viper}")
+ok(not kneeboard_store.state_path(kb_stem).exists(), "viewing writes nothing")
+ok(c.get(f"/missions/{kb_stem}/kb/g:kneeboard_1_route.png").status_code == 200, "page image before any edit")
+arr = {"action": "arrange", "name": "Mitsu",
+       "order": [{"id": "g:kneeboard_1_route"}, {"id": "g:kneeboard_1", "hidden": True}]}
+ok(c.post(f"{kb_api}/F-16C_50", json=arr).status_code == 403, "kneeboard: not on the roster, no edits")
+seat = next(st for st in c.get(f"/api/missions/{kb_stem}/roster").json["seats"] if st["flight"] == "Viper 1")
+c.post(f"/api/missions/{kb_stem}/roster", json={"seat": seat["seat"], "name": "Mitsu", "me": "Mitsu"})
+ok(c.post(f"{kb_api}/FA-18C_hornet", json={**arr, "order": []}).status_code == 403,
+   "kneeboard: a seat in another aircraft doesn't count")
+# Published to the server folder earlier: edits update that copy.
+server_copy = pathlib.Path(os.environ["SERVER_MISSIONS_DIR"]) / f"{kb_stem}.miz"
+server_copy.write_bytes((OUTPUT_DIR_PATH / f"{kb_stem}.miz").read_bytes())
+r = c.post(f"{kb_api}/F-16C_50", json=arr)
+ok(r.status_code == 200 and miz_pages(kb_stem, "F-16C_50") == ["01_kneeboard_1_route.png"],
+   f"kneeboard: reordered and hidden in the .miz {r.json} {miz_pages(kb_stem, 'F-16C_50')}")
+ok(miz_pages(kb_stem, "FA-18C_hornet") == ["01_kneeboard_2.png", "02_kneeboard_2_route.png"],
+   "other aircraft untouched")
+ok(server_copy.read_bytes() == (OUTPUT_DIR_PATH / f"{kb_stem}.miz").read_bytes(), "kneeboard: server copy updated")
+ok(c.get(f"/missions/{kb_stem}/kneeboard/1.png").status_code == 200, "hidden page still viewable (My flight tab)")
+bad = c.post(f"{kb_api}/F-16C_50", json={**arr, "order": arr["order"][:1]})
+ok(bad.status_code == 400, "arrange must list every page")
+r = c.post(f"{kb_api}/F-16C_50", json={"action": "notes", "name": "mitsu", "title": "Game plan",
+                                        "text": "PUSH\nPush at 0130 on 251.000.\nRTB if winchester."})
+notes = next(p for t in r.json["types"] if t["type"] == "F-16C_50" for p in t["pages"] if p["kind"] == "notes")
+ok(r.status_code == 200 and notes["by"] == "Mitsu" and notes["label"] == "Game plan", f"notes page {r.json}")
+night_px = Image.open(io.BytesIO(c.get(f"/missions/{kb_stem}/kb/{notes['id']}.png").data)).getpixel((5, 5))
+ok(sum(night_px[:3]) < 120, f"notes page is dark at night {night_px}")
+pdf = io.BytesIO()
+Image.new("RGB", (612, 792), "white").save(pdf, "PDF", save_all=True,
+                                           append_images=[Image.new("RGB", (612, 792), "gray")])
+r = c.post(f"{kb_api}/F-16C_50/upload", content_type="multipart/form-data", data={
+    "name": "Mitsu", "library": "1",
+    "files": [(io.BytesIO(png("red")), "Startup checklist.png"), (io.BytesIO(png("blue", fmt="JPEG")), "chart.jpg"),
+              (io.BytesIO(pdf.getvalue()), "Ramp start.pdf")]})
+pages = next(t for t in r.json["types"] if t["type"] == "F-16C_50")["pages"] if r.status_code == 200 else []
+ok([p["label"] for p in pages if p["kind"] == "upload"]
+   == ["Startup checklist", "chart", "Ramp start (1/2)", "Ramp start (2/2)"], f"uploads {r.status_code} {r.json}")
+ok(len(miz_pages(kb_stem, "F-16C_50")) == 6, f"uploads in the .miz {miz_pages(kb_stem, 'F-16C_50')}")
+ok(len(kneeboard_store.library("F-16C_50")) == 4, "uploads saved to the squadron library")
+up = next(p for p in pages if p["label"] == "chart")
+img = Image.open(io.BytesIO(c.get(f"/missions/{kb_stem}/kb/{up['id']}.png").data))
+ok(img.format == "PNG" and img.size == (600, 800), f"uploads re-encoded as PNG {img.format} {img.size}")
+for junk, why in [(b"<html><script>alert(1)</script>", "not an image"), (b"%PDF-1.7 broken", "broken PDF")]:
+    r = c.post(f"{kb_api}/F-16C_50/upload", content_type="multipart/form-data",
+               data={"name": "Mitsu", "files": [(io.BytesIO(junk), "evil.png")]})
+    ok(r.status_code == 400 and "evil.png" in r.json["error"], f"upload refused: {why} {r.json}")
+ok(c.post(f"{kb_api}/F-16C_50", json={"action": "delete", "name": "Mitsu", "id": "g:kneeboard_1"}).status_code == 400,
+   "generated pages can only be hidden")
+r = c.post(f"{kb_api}/F-16C_50", json={"action": "delete", "name": "Mitsu", "id": up["id"]})
+ok(r.status_code == 200 and len(miz_pages(kb_stem, "F-16C_50")) == 5, "uploaded page deleted")
+r = c.post(f"{kb_api}/F-16C_50", json={"action": "reset", "name": "Mitsu"})
+ok(miz_pages(kb_stem, "F-16C_50") == ["01_kneeboard_1.png", "02_kneeboard_1_route.png"]
+   and len(list(kneeboard_store.pages_dir(kb_stem).glob("u_*"))) == 0, "reset to the original pages")
+ok(any("reset" in entry["what"] for entry in r.json["log"]) and r.json["log"][0]["by"] == "Mitsu", "changes logged")
+# A new mission with that aircraft gets the library pages; they can be hidden there.
+new = c.post("/api/generate", json=kb_cfg).json["filename"][:-4]
+ok(len(miz_pages(new, "F-16C_50")) == 6 and len(miz_pages(new, "FA-18C_hornet")) == 2,
+   f"library pages in new missions {miz_pages(new, 'F-16C_50')}")
+lib_id = kneeboard_store.library("F-16C_50")[0]["id"]
+r = c.post(f"{kb_api}/F-16C_50", json={"action": "unlibrary", "name": "Mitsu", "id": lib_id})
+ok(r.status_code == 200 and len(kneeboard_store.library("F-16C_50")) == 3 and len(miz_pages(new, "F-16C_50")) == 6,
+   "removed from the library; missions keep their copy")
+ok(mission_store.delete(kb_stem) and not kneeboard_store.pages_dir(kb_stem).exists(),
+   "deleting a mission removes its pages")
+
+# Maps installed on the DCS server's PC: only those are offered and generated.
+from app import dcs_install  # noqa: E402
+from app.theaters import THEATERS  # noqa: E402
+
+ok({k: t.terrain_cls().miz_theatre_name for k, t in THEATERS.items()} == dcs_install.DCS_NAMES,
+   "DCS map folder names match pydcs")
+ok(all(t["allowed"] for t in c.get("/api/options").json["theaters"]), "no DCS install: every map offered")
+dcs = pathlib.Path(tmp) / "DCS World Server"
+for folder in ("Caucasus", "SinaiMap", "SomeModMap"):
+    (dcs / "Mods" / "terrains" / folder).mkdir(parents=True)
+os.environ["DCS_INSTALL_DIR"] = str(dcs)
+opts = c.get("/api/options").json
+ok(sorted(t["key"] for t in opts["theaters"] if t["allowed"]) == ["caucasus", "sinai"]
+   and opts["installed_maps"]["filter"], f"only installed maps offered {opts['installed_maps']}")
+r = c.post("/api/generate", json={**cfg, "theater": "syria"})
+ok(r.status_code == 400 and "isn't installed" in r.json["error"], f"map not installed refused {r.json}")
+ok(c.post("/api/generate", json=cfg).status_code == 200, "installed map still builds")
+os.environ["MAPS_FILTER"] = "off"
+ok(all(t["allowed"] for t in c.get("/api/options").json["theaters"]), "map check can be turned off")
+del os.environ["MAPS_FILTER"]
+r = c.put("/api/settings", json={"DCS_INSTALL_DIR": tmp})
+ok(r.status_code == 400 and "Mods" in r.json["errors"]["DCS_INSTALL_DIR"], "DCS install folder checked")
+os.environ.pop("DCS_INSTALL_DIR", None)
+
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

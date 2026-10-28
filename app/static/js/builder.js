@@ -429,7 +429,7 @@ async function updateSummary() {
 function restore(s) {
   $("flights").innerHTML = ""; $("ai_flights").innerHTML = "";
   if (!s) return addFlight();
-  if (OPT.theaters.some(t => t.key === s.theater)) { $("theater").value = s.theater; onTheater(); }
+  if (OPT.theaters.some(t => t.key === s.theater && t.allowed)) { $("theater").value = s.theater; onTheater(); }
   $("blue_base").value = s.blue_base; $("red_base").value = s.red_base;
   ["mission_type", "difficulty", "enemy_air", "season", "wind"].forEach(k => setRadio(k, s[k]));
   $("time_of_day").value = s.time_of_day; $("weather").value = s.weather; $("era").value = s.era || "auto";
@@ -481,7 +481,7 @@ async function setupDelete() {
 function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 function surprise() {
   clearRoutes();
-  const t = pick(OPT.theaters);
+  const t = pick(OPT.theaters.filter(m => m.allowed));
   $("theater").value = t.key; onTheater();
   $("blue_base").value = pick(t.blue_bases); $("red_base").value = pick(t.red_bases);
   const types = OPT.mission_types.map(m => m[0]).filter(k => k !== "free" && (k !== "antiship" || t.has_sea));
@@ -645,7 +645,15 @@ async function showUpdate() {
   $("srs").placeholder = srsDefault ? `${srsDefault.address} (default)` : "e.g. srs.myserver.com:5002";
   $("srs_note").placeholder = srsDefault?.note ? `${srsDefault.note} (default)` : "e.g. password in #dcs-info";
   OPT.aircraft.forEach(a => AC[a.id] = a);
-  fillSelect($("theater"), OPT.theaters.map(t => [t.key, t.label]), "caucasus");
+  // On the DCS server's PC: only the maps installed there (app/dcs_install.py).
+  const maps = OPT.theaters.filter(t => t.allowed);
+  fillSelect($("theater"), maps.map(t => [t.key, t.label]), maps.some(t => t.key === "caucasus") ? "caucasus" : null);
+  const inst = OPT.installed_maps;
+  if (inst && inst.filter && maps.length < OPT.theaters.length) {
+    $("maps_note").innerHTML = `Showing the ${maps.length} maps installed on your DCS server. `
+      + `<a href="/settings">Settings</a> can turn this off.`;
+    $("maps_note").classList.remove("hidden");
+  }
   $("mission_types").innerHTML = OPT.mission_types.map(([k, v]) =>
     `<label class="card"><input type="radio" name="mission_type" value="${k}" ${k === "cas" ? "checked" : ""}>
      <b>${esc(v)}</b><small>${MISSION_HINTS[k] || ""}</small></label>`).join("");
