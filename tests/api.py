@@ -157,6 +157,12 @@ ok(c.get(f"/api/missions/{gstem}/brief").json["srs"] == {"address": "srs.other.c
 ok("srs.other.com:5010" in c.get(f"/missions/{gstem}/comms.txt").get_data(as_text=True), "per-mission SRS on comm card")
 ok(c.post("/api/generate", json={**gen, "srs": "bad server!"}).status_code == 400, "bad SRS rejected")
 
+# Same title in the same second: two missions, not one overwritten.
+twins = [c.post("/api/generate", json=cfg).json["filename"] for _ in range(3)]
+ok(len(set(twins)) == 3 and all((OUTPUT_DIR_PATH / f).exists() for f in twins),
+   f"same-second missions kept apart {twins}")
+ok(c.get(f"/api/missions/{twins[-1][:-4]}/brief").json["file"] == twins[-1], "brief names its own file")
+
 # Temporary vs kept missions
 from app import mission_store  # noqa: E402
 
@@ -439,6 +445,80 @@ del os.environ["MAPS_FILTER"]
 r = c.put("/api/settings", json={"DCS_INSTALL_DIR": tmp})
 ok(r.status_code == 400 and "Mods" in r.json["errors"]["DCS_INSTALL_DIR"], "DCS install folder checked")
 os.environ.pop("DCS_INSTALL_DIR", None)
+
+# SRS EAM password rotation: only the two password lines of server.cfg change.
+from app import srs_eam  # noqa: E402
+
+srs_cfg = ("[General Settings]\r\nEXTERNAL_AWACS_MODE=false\r\nEXTERNAL_AWACS_MODE_BLUE_PASSWORD=not-this-section\r\n"
+           "\r\n[Server Settings]\r\nSERVER_PORT=5002\r\n# a comment\r\n\r\n[External AWACS Mode Settings]\r\n"
+           "EXTERNAL_AWACS_MODE_BLUE_PASSWORD=oldblue\r\nEXTERNAL_AWACS_MODE_RED_PASSWORD = old red\r\n\r\n"
+           "[Other]\r\nX=1\r\n")
+new_pw = {"blue": "B1ue", "red": "R3d"}
+edited = srs_eam.edit_cfg(srs_cfg, new_pw)
+ok(edited == srs_cfg.replace("PASSWORD=oldblue", "PASSWORD=B1ue").replace("PASSWORD = old red", "PASSWORD = R3d"),
+   f"server.cfg: only the EAM passwords change {edited!r}")
+no_keys = "[External AWACS Mode Settings]\nSOMETHING=1\n\n[Next]\nY=2\n"
+ok(srs_eam.edit_cfg(no_keys, new_pw) == "[External AWACS Mode Settings]\nSOMETHING=1\n"
+   "EXTERNAL_AWACS_MODE_BLUE_PASSWORD=B1ue\nEXTERNAL_AWACS_MODE_RED_PASSWORD=R3d\n\n[Next]\nY=2\n",
+   "server.cfg: missing keys added to the section")
+ok(srs_eam.edit_cfg("[General Settings]\nA=1", new_pw) == "[General Settings]\nA=1\n\n[External AWACS Mode Settings]\n"
+   "EXTERNAL_AWACS_MODE_BLUE_PASSWORD=B1ue\nEXTERNAL_AWACS_MODE_RED_PASSWORD=R3d\n", "server.cfg: section added")
+pw = srs_eam.new_password()
+ok(len(pw) == 12 and all(ch in srs_eam.ALPHABET for ch in pw) and pw != srs_eam.new_password(), "random passwords")
+
+cfg_path = pathlib.Path(tmp) / "srs" / "server.cfg"
+cfg_path.parent.mkdir()
+cfg_path.write_bytes(srs_eam.BOM + srs_cfg.encode())
+calls = []
+task_result = {"stop": None, "start": None}
+
+
+def fake_task(action, name, folder):
+    calls.append(action)
+    return task_result[action]
+
+
+srs_eam._task, srs_eam.ON_WINDOWS = fake_task, True
+os.environ.update(SRS_EAM_ROTATE="on", SRS_CONFIG_PATH=str(cfg_path), SRS_TASK_NAME="SRS Server")
+eam_stem = c.post("/api/generate", json=cfg).json["filename"][:-4]
+ok(c.get(f"/api/missions/{eam_stem}/brief").json["eam"] is None, "no EAM passwords before publishing")
+r = c.post("/api/publish", json={"filename": f"{eam_stem}.miz", "targets": ["folder"]})
+ok(r.json.get("srs") == "ok" and calls == ["stop", "start"], f"publish rotates SRS passwords {r.json} {calls}")
+eam = c.get(f"/api/missions/{eam_stem}/brief").json["eam"]
+raw = cfg_path.read_bytes()
+ok(raw.startswith(srs_eam.BOM)
+   and raw[3:].decode() == srs_eam.edit_cfg(srs_cfg, {"blue": eam["blue"], "red": eam["red"]}),
+   "server.cfg written: BOM, line endings and the rest kept")
+ok((cfg_path.parent / "server.cfg.dmm-backup").read_bytes() == srs_eam.BOM + srs_cfg.encode(), "previous cfg backed up")
+other = c.post("/api/generate", json=cfg).json["filename"][:-4]
+c.post("/api/publish", json={"filename": f"{other}.miz", "targets": ["folder"]})
+ok(c.get(f"/api/missions/{eam_stem}/brief").json["eam"] is None
+   and c.get(f"/api/missions/{other}/brief").json["eam"]["blue"] != eam["blue"],
+   "only the latest published mission shows the passwords")
+calls.clear()
+task_result["stop"] = "Access is denied."
+before = cfg_path.read_bytes()
+r = c.post("/api/publish", json={"filename": f"{eam_stem}.miz", "targets": ["folder"]})
+ok("Access is denied" in r.json["srs"] and calls == ["stop"] and cfg_path.read_bytes() == before,
+   f"SRS won't stop: nothing changed {r.json}")
+calls.clear()
+task_result["stop"] = None
+cfg_path.chmod(0o444)
+cfg_path.parent.chmod(0o555)
+r = c.post("/api/publish", json={"filename": f"{eam_stem}.miz", "targets": ["folder"]})
+cfg_path.parent.chmod(0o755)
+cfg_path.chmod(0o644)
+ok("Couldn't write" in r.json["srs"] and calls == ["stop", "start"], f"write fails: SRS still restarted {r.json}")
+ok(c.get(f"/api/missions/{other}/brief").json["eam"] is not None, "failed rotation keeps the passwords in force")
+r = c.post("/api/publish", json={"filename": f"{eam_stem}.miz", "targets": ["sftp"]})
+ok("srs" not in r.json, "only copying to the server folder rotates")
+os.environ["SRS_EAM_ROTATE"] = "off"
+r = c.post("/api/publish", json={"filename": f"{eam_stem}.miz", "targets": ["folder"]})
+ok("srs" not in r.json, "rotation off by default")
+for k in ("SRS_EAM_ROTATE", "SRS_CONFIG_PATH", "SRS_TASK_NAME"):
+    os.environ.pop(k, None)
+srs_eam.ON_WINDOWS = False
+ok(c.put("/api/settings", json={"SRS_TASK_NAME": "x; Stop-Computer"}).status_code == 400, "task name checked")
 
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

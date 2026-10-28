@@ -41,6 +41,16 @@ FIELDS = {
                     "Your usual SRS voice server, e.g. srs.example.com:5002. The default for each mission."),
     "SRS_NOTE": ("DCS server", "SRS note", "text",
                  "e.g. \"password in #dcs-info\". Never the password itself."),
+    "SRS_EAM_ROTATE": ("SRS password rotation", "New External AWACS passwords on publish", "toggle",
+                       "Each time a mission is copied to the server: random blue and red EAM passwords "
+                       "go into SRS's server.cfg, and SRS is restarted (everyone on SRS drops for a few "
+                       "seconds). The mission's Briefing Room shows them. Needs SRS on this PC."),
+    "SRS_CONFIG_PATH": ("SRS password rotation", "SRS server.cfg", "file",
+                        "e.g. C:\\Program Files\\DCS-SimpleRadio-Standalone\\server.cfg. Only the two EAM "
+                        "password lines are changed; the old file is kept as server.cfg.dmm-backup."),
+    "SRS_TASK_NAME": ("SRS password rotation", "SRS scheduled task", "text",
+                      "The Task Scheduler task that runs the SRS server (e.g. \"SRS Server\", or "
+                      "\"\\Folder\\SRS Server\"). It should start SR-Server.exe directly, not through a script."),
     "DISCORD_WEBHOOK_URL": ("Discord", "Discord webhook", "secret",
                             "Server Settings > Integrations > Webhooks > New Webhook > Copy URL."),
     "SFTP_HOST": ("Remote server (SFTP)", "Host", "text", "Upload missions to a server elsewhere."),
@@ -55,7 +65,8 @@ FIELDS = {
 }
 
 # Shown in empty fields: what the app uses when a setting isn't set.
-DEFAULTS = {"UPDATE_CHECK": "on", "MAPS_FILTER": "on", "MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22",
+DEFAULTS = {"UPDATE_CHECK": "on", "MAPS_FILTER": "on", "SRS_EAM_ROTATE": "off",
+            "MISSION_TTL_HOURS": "24", "PORT": "8080", "SFTP_PORT": "22",
             "SRS_ADDRESS": "srs.example.com:5002"}
 
 # Set in the environment when the app started: these win and can't be changed here.
@@ -150,6 +161,8 @@ def _check(key, value):
         return "That file doesn't exist on this PC."
     if kind == "toggle" and value not in ("on", "off"):
         return "Should be on or off."
+    if key == "SRS_TASK_NAME" and not re.fullmatch(r"[\w \-.()\\]{1,200}", value):
+        return "Letters, numbers, spaces and - . ( ) \\ only."
     if key == "SRS_ADDRESS" and not re.fullmatch(r"[\w.\-:\[\]]{1,100}", value):
         return "Should look like srs.example.com:5002"
     return None

@@ -139,6 +139,7 @@ Generate button.
 | **Mods** | Tick the mods your group has: Community A-4E-C and UH-60L Black Hawk as flyable aircraft, High Digit SAMs (SA-20/SA-20B for modern Soviet-side enemies). The mission lists them as required modules. |
 | **Server load check** | An optional DCS server hook reports whether each mission loaded without script errors; the result shows next to the mission in the app. |
 | **Debrief** | With the same hook installed, the Briefing Room's *Debrief* tab fills in while the mission is flown and after it ends: which objectives were destroyed, a row per pilot (kills and what they destroyed, losses, landings, friendly fire) and a timeline. The hook reports every minute and once more at mission end. |
+| **SRS password rotation** | Optional (Settings > *SRS password rotation*, Windows app on the PC running SRS). Each time a mission is copied to the server, the app makes random blue and red **External AWACS Mode** passwords, stops SRS through its Task Scheduler task, writes them into SRS's `server.cfg` (only `EXTERNAL_AWACS_MODE_BLUE_PASSWORD` and `EXTERNAL_AWACS_MODE_RED_PASSWORD` in `[External AWACS Mode Settings]` change; the old file is kept as `server.cfg.dmm-backup`) and starts SRS again. If SRS can't be stopped, nothing changes; if writing fails, SRS is still started again. That mission's Briefing Room (Comms tab) shows the passwords until another mission is published. Restarting SRS drops everyone on it for a few seconds, so it only happens on publish. The task should start `SR-Server.exe` directly, and the app's user must be allowed to stop and start it. |
 | **Print pack** | One PDF with the briefing and every kneeboard page (Briefing Room > *Print pack*), for printing or a tablet. |
 | **Liveries** | Each flight has a livery dropdown. Built in: the stock DCS liveries that DCS Retribution's squadrons use (e.g. "VFA-37 Ragin' Bulls (USA)"), for about 30 of the flyable aircraft; picking one fills in the squadron name if it's empty. With the DCS server hook installed, the server also reports every livery it has (stock and custom, by in-game name) and those are listed first. Everyone flying needs the livery installed; DCS shows its default otherwise. |
 | **SRS** | Set the SRS voice server per mission in the builder (step 5, plus an optional note such as where the password is), or a default with `SRS_ADDRESS` / `SRS_NOTE` in `.env`. It appears on the Comms tab, the kneeboards and Discord posts. The Comms tab also has a plain-text **comm card** with every frequency for a second screen or phone. The password is never stored. |
@@ -227,6 +228,9 @@ LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
   every request.
 - Sign-up and Briefing Room links are hard to guess but not secret: anyone with a link
   can claim a seat.
+- With SRS password rotation on, the EAM passwords are shown in the published mission's
+  Briefing Room, which anyone with its link can open (including through a Cloudflare bypass).
+  Anyone who has the link can join SRS as an external AWACS for either side.
 - Secrets (Discord webhook, SFTP password, `APP_PASSWORD`) live only in `.env`, which is
   ignored by git. Never put the SRS password in the SRS note.
 

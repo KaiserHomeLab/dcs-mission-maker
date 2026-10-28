@@ -34,6 +34,7 @@ from . import (
     paths,
     scripts,
     settings,
+    srs_eam,
     updates,
 )
 from .aircraft import AIRCRAFT, catalog
@@ -286,6 +287,20 @@ def api_generate():
     return jsonify(result)
 
 
+def _claim_filename(filename):
+    """Names are "<title>_<date>_<time to the second>.miz": two missions with the same title in
+    the same second get _2, _3... Created exclusively, so parallel requests and workers can't
+    both take one name."""
+    stem, n = filename[:-4], 1
+    while True:
+        try:
+            os.close(os.open(OUTPUT_DIR / filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+            return filename
+        except FileExistsError:
+            n += 1
+            filename = f"{stem}_{n}.miz"
+
+
 def build_and_store(body):
     mission_store.cleanup()
     req = MissionRequest.from_json(body)
@@ -295,6 +310,8 @@ def build_and_store(body):
     with _build_lock:
         out = generate_full(req)
     data, filename, briefing, warnings = out["data"], out["filename"], out["briefing"], out["warnings"]
+    filename = _claim_filename(filename)
+    out["brief"]["file"] = filename
     (OUTPUT_DIR / filename).write_bytes(data)
     (OUTPUT_DIR / (filename[:-4] + ".brief.json")).write_text(json.dumps(out["brief"]), encoding="utf-8")
     # Keep the settings so the mission can be regenerated or tweaked later.
@@ -313,6 +330,8 @@ def publish(filename, targets, extra_text=""):
     out = {}
     if "folder" in targets:
         out["folder"] = integrations.publish_folder(path) or "ok"
+        if out["folder"] == "ok" and srs_eam.enabled():  # new EAM passwords, SRS restarted
+            out["srs"] = srs_eam.rotate(filename[:-4])
     if "sftp" in targets:
         out["sftp"] = integrations.publish_sftp(path) or "ok"
     if "discord" in targets:
@@ -622,6 +641,7 @@ def mission_brief(stem):
     brief["download"] = f"/missions/{stem}.miz"
     if "srs" not in brief:              # missions generated before SRS was per mission
         brief["srs"] = integrations.srs()
+    brief["eam"] = srs_eam.current_for(stem)  # only while this mission's passwords are in force
     return jsonify(brief)
 
 

@@ -608,9 +608,9 @@ async function onGenerate() {
     $("download").textContent = `Download ${data.filename}`;
     $("briefing").textContent = data.briefing;
     $("warnings").textContent = (data.warnings || []).join(" ");
-    const PUB = { folder: "Server folder", sftp: "SFTP", discord: "Discord" };
+    const PUB = { folder: "Server folder", sftp: "SFTP", discord: "Discord", srs: "SRS passwords" };
     $("published").textContent = Object.entries(data.published || {})
-      .map(([k, v]) => `${PUB[k]}: ${v === "ok" ? "done" : v}`).join(" · ");
+      .map(([k, v]) => `${PUB[k]}: ${v === "ok" ? (k === "srs" ? "new ones, SRS restarted" : "done") : v}`).join(" · ");
     lastResult = { stem: data.filename.replace(/\.miz$/, ""), kept: data.kept, expires: data.expires };
     showKeep();
     $("result").classList.remove("hidden");

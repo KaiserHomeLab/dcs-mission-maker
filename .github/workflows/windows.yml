@@ -17,8 +17,8 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Version
@@ -37,6 +37,8 @@ jobs:
         run: python -m tests.api
       - name: Mission smoke test (quick sample)
         run: python -m tests.smoke --quick
+      - name: SRS password rotation against a real scheduled task
+        run: python -m tests.srs_windows
       - name: From source (python -m app) starts and builds a mission
         shell: pwsh
         run: ./windows/smoke-test.ps1 -Command python -Arguments "-m", "app"
@@ -44,14 +46,14 @@ jobs:
       # Saved straight after fetching, so a later failing step doesn't throw away a 30-minute download.
       - name: Drawings (cached; Wikimedia rate-limits)
         id: drawings
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: drawings
           key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
       - if: steps.drawings.outputs.cache-hit != 'true'
         run: python tools/fetch_drawings.py drawings.json drawings
       - if: steps.drawings.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: drawings
           key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
@@ -90,7 +92,7 @@ jobs:
       - name: Zip the app
         shell: pwsh
         run: Compress-Archive -Path "dist\DCS Mission Maker" -DestinationPath "dist\DCS-Mission-Maker-$env:VERSION-windows.zip"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows
           path: |

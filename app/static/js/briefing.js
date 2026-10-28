@@ -199,6 +199,10 @@ function renderPanels() {
     ${B.srs ? `<h2>Voice (SRS)</h2><div class="card">SRS server <b class="mono">${esc(B.srs.address)}</b>${B.srs.note
       ? ` <span class="muted">· ${esc(B.srs.note)}</span>` : ""}<br><span class="muted">Connect the SRS client, then
       tune the frequencies below. Your cockpit radios set your SRS frequency.</span></div>` : ""}
+    ${B.eam ? `<h2>External AWACS Mode (SRS)</h2><div class="card">For EAM clients only (an external AWACS or GCI,
+      LotATC): pilots in cockpits don't need these.<br>Blue (your side): <b class="mono">${esc(B.eam.blue)}</b>
+      · Red: <b class="mono">${esc(B.eam.red)}</b><br><span class="muted">New passwords were set when this mission
+      was published, ${esc(new Date(B.eam.at * 1000).toLocaleString())}; publishing another mission changes them.</span></div>` : ""}
     <p><a class="btn" href="/missions/${encodeURIComponent(STEM)}/comms.txt" target="_blank">Comm card (text)</a>
       <span class="muted">every frequency on one page, for a second screen or your phone.</span></p>
     <h2>Support &amp; agencies</h2>${B.support.length ? B.support.map(s => `<div class="card">${esc(s)}</div>`).join("") : `<p class="muted">No support aircraft in this era.</p>`}
