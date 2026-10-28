@@ -14,7 +14,7 @@ DCS Liberation and Retribution.
 ### The Windows app (no Python, no Docker)
 
 Download `DCS-Mission-Maker-Setup-<version>.exe` from the
-[Releases](../../releases) page and run it. It installs to Program Files, adds a Start menu
+[Releases](https://github.com/KaiserHomeLab/dcs-mission-maker/releases) page and run it. It installs to Program Files, adds a Start menu
 entry and an uninstaller, and offers to:
 
 - **let other PCs reach it** (a Windows Firewall rule for the app, whatever port it uses), and
@@ -45,7 +45,7 @@ while it's running just opens the browser.
 This is the lighter option next to a DCS server: no Docker, no virtual machine taking RAM.
 
 1. Install [Python 3.12](https://www.python.org/downloads/) (keep *py launcher* ticked).
-2. Get this project: `git clone <this repository> dcs-mission-maker`, or download it as a ZIP
+2. Get this project: `git clone https://github.com/KaiserHomeLab/dcs-mission-maker.git dcs-mission-maker`, or download it as a ZIP
    and unpack it, e.g. to `C:\dcs-mission-maker`.
 3. Double-click `windows\setup.bat`. It creates a Python environment in `.venv`, installs
    the packages, downloads the pinned mission scripts, airfield data, fonts and 3-view
@@ -68,7 +68,7 @@ over the old folder) and run `setup.bat` again. `python -m app` runs the same se
 You need Docker with the Compose plugin (Docker Desktop on Windows/macOS, or Docker Engine on Linux).
 
 ```bash
-git clone <this repository> dcs-mission-maker
+git clone https://github.com/KaiserHomeLab/dcs-mission-maker.git dcs-mission-maker
 cd dcs-mission-maker
 docker compose up -d --build
 ```
@@ -319,3 +319,5 @@ Locally, `windows\build.bat` builds the same app, zip and (with Inno Setup 6 ins
 Built on pydcs, MOOSE, MIST, Skynet IADS, Hound ELINT, EWRS, DCS Retribution's data,
 Wikimedia Commons drawings and Leaflet. See [THIRD_PARTY.md](THIRD_PARTY.md) for each
 component and its licence. DCS World is © Eagle Dynamics; this project isn't affiliated with it.
+
+DCS Mission Maker is free software under the [GNU General Public License v3.0](LICENSE) or later.
