@@ -244,5 +244,38 @@ ok("DMM_T2" not in os.environ and os.environ.get("DMM_T3") == "quoted value", ".
 ok(os.environ["DMM_T4"] == "from env", ".env: environment wins")
 load_env(pathlib.Path(tmp) / "missing.env")
 
+# Settings page: secrets never sent back; changes only from this PC (or with the password);
+# settings from the environment are locked; saved values apply at once.
+from app import settings  # noqa: E402
+
+view = c.get("/api/settings").json
+by_key = {f["key"]: f for f in view["fields"]}
+ok(view["can_edit"] and by_key["DISCORD_WEBHOOK_URL"] == {**by_key["DISCORD_WEBHOOK_URL"], "set": True, "locked": True}
+   and "value" not in by_key["DISCORD_WEBHOOK_URL"], "settings: secrets only say they're set")
+ok(c.put("/api/settings", json={"SRS_NOTE": "x"}, environ_base={"REMOTE_ADDR": "10.0.0.5"}).status_code == 403,
+   "settings: other PCs can't change them without a password")
+ok(c.put("/api/settings", json={"SRS_NOTE": "x"}, headers={"Host": "evil.example:8080"}).status_code == 403,
+   "settings: a page rebinding its domain to 127.0.0.1 can't change them")
+r = c.put("/api/settings", json={"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/1/x", "PORT": "99999",
+                                 "PUBLIC_URL": "ftp://x", "NOPE": "1", "SRS_NOTE": "a\nb"})
+ok(r.status_code == 400 and set(r.json["errors"]) == {"DISCORD_WEBHOOK_URL", "PORT", "PUBLIC_URL", "NOPE", "SRS_NOTE"},
+   f"settings: validation and locked keys {r.json}")
+ok(not settings.path().exists(), "settings: nothing saved when anything is wrong")
+r = c.put("/api/settings", json={"SRS_ADDRESS": "srs.saved.net:5002", "SFTP_PASSWORD": "s3cret",
+                                 "SFTP_KEY_FILE": str(env_file)})
+ok(r.status_code == 200 and os.environ["SRS_ADDRESS"] == "srs.saved.net:5002", "settings: saved and applied")
+ok("s3cret" not in r.get_data(as_text=True) and os.environ["SFTP_PASSWORD"] == "s3cret", "settings: secret kept")
+ok(c.get("/api/options").json["integrations"]["srs"]["address"] == "srs.saved.net:5002", "settings: used by the app")
+c.put("/api/settings", json={"SFTP_PASSWORD": "", "SRS_ADDRESS": ""})
+saved = json.loads(settings.path().read_text(encoding="utf-8"))
+ok("SFTP_PASSWORD" not in os.environ and "SRS_ADDRESS" not in saved, "settings: cleared")
+ok(c.get("/healthz").json["app"] == "dcs-mission-maker", "healthz names the app (single-instance check)")
+os.environ["APP_PASSWORD"] = "pw2"
+ok(c.put("/api/settings", json={"SRS_NOTE": "x"}).status_code == 401, "settings: password asked when set")
+ok(c.put("/api/settings", json={"SRS_NOTE": "remote ok"}, environ_base={"REMOTE_ADDR": "10.0.0.5"},
+         headers={"Authorization": "Basic " + base64.b64encode(b"x:pw2").decode()}).status_code == 200,
+   "settings: other PCs can with the password")
+os.environ.pop("APP_PASSWORD", None)  # saving re-applied settings.json, which has none
+
 print(f"api checks done, {len(fails)} failures")
 sys.exit(1 if fails else 0)

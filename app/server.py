@@ -20,7 +20,7 @@ except ImportError:  # Windows: one process (waitress), so the thread locks belo
 
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 
-from . import ai, debrief, eras, integrations, liveries, mission_store, mods, paths, scripts
+from . import __version__, ai, debrief, eras, integrations, liveries, mission_store, mods, paths, scripts, settings
 from .aircraft import AIRCRAFT, catalog
 from .generator import (
     DIFFICULTIES,
@@ -43,6 +43,7 @@ SETUPS_DIR = OUTPUT_DIR / "setups"
 SETUPS_DIR.mkdir(exist_ok=True)
 EVENTS_DIR = OUTPUT_DIR / "events"
 EVENTS_DIR.mkdir(exist_ok=True)
+settings.refresh()  # settings.json -> os.environ before anything reads PORT etc.
 
 app = Flask(__name__)
 # Mission building keeps module-level state. Gunicorn runs one request per process, but
@@ -77,6 +78,7 @@ PUBLIC_ENDPOINTS = {
 
 @app.before_request
 def _require_password():
+    settings.refresh()  # first, so a password set on the Settings page applies at once
     password = os.environ.get("APP_PASSWORD", "")
     if not password or request.endpoint in PUBLIC_ENDPOINTS:
         return None
@@ -105,9 +107,43 @@ def index():
 
 @app.get("/healthz")
 def healthz():
-    """Container health check: the app is up and the output folder is writable."""
+    """Health check (Docker, and the Windows app checking it's already running): the app
+    is up and the output folder is writable."""
     ok = os.access(OUTPUT_DIR, os.W_OK)
-    return jsonify({"ok": ok}), 200 if ok else 503
+    return jsonify({"ok": ok, "app": "dcs-mission-maker", "version": __version__}), 200 if ok else 503
+
+
+# ------------------------------------------------------------------ settings
+LOCAL_HOSTS = re.compile(r"(localhost|127\.0\.0\.1|\[::1\])(:\d+)?")
+
+
+def _on_this_pc():
+    """The browser is on the PC running the app. Checks the Host header too, so a web page
+    can't reach the settings by pointing its own domain name at 127.0.0.1."""
+    return request.remote_addr in ("127.0.0.1", "::1") and bool(LOCAL_HOSTS.fullmatch(request.host or ""))
+
+
+@app.get("/settings")
+def settings_page():
+    return render_template("settings.html", version=__version__)
+
+
+@app.get("/api/settings")
+def get_settings():
+    return jsonify({**settings.view(), "can_edit": bool(os.environ.get("APP_PASSWORD")) or _on_this_pc()})
+
+
+@app.put("/api/settings")
+def put_settings():
+    # With a password set, the before_request check already asked for it. Without one,
+    # anyone who can reach the app could otherwise point publishing at another folder.
+    if not os.environ.get("APP_PASSWORD") and not _on_this_pc():
+        return jsonify({"errors": {"": "Set a builder password first, or change settings on the PC "
+                                       "running the app (http://localhost)."}}), 403
+    errors = settings.save(request.get_json(silent=True))
+    if errors:
+        return jsonify({"errors": errors}), 400
+    return jsonify(settings.view())
 
 
 @app.get("/api/options")
@@ -499,7 +535,7 @@ def delete_event(eid):
 
 # -------------------------------------------------------- DCS server reports
 REPORTS = OUTPUT_DIR / "reports.json"
-HOOK = Path(__file__).resolve().parent.parent / "dcs-hook" / "dmm_reporter.lua"
+HOOK = paths.ROOT / "dcs-hook" / "dmm_reporter.lua"
 
 
 def _reports():

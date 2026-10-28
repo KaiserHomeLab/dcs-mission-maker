@@ -14,6 +14,12 @@ build and `windows\setup.bat`) downloads each item from a pinned commit or relea
 | [Waitress](https://github.com/Pylons/waitress) | ZPL-2.1 | Web server (Windows, `python -m app`) |
 | [Pillow](https://python-pillow.org/) | MIT-CMU | Kneeboard pages, print pack PDF |
 | [Paramiko](https://www.paramiko.org/) | LGPL-2.1 | SFTP publishing |
+| [pystray](https://github.com/moses-palmer/pystray) | LGPL-3.0 | Tray icon of the Windows app |
+| [PyInstaller](https://pyinstaller.org/) | GPL-2.0 with bootloader exception | Builds the Windows app (not part of it, apart from its bootloader, which the exception allows) |
+
+The Windows app bundles these packages unmodified. This repository's source and
+`windows\build.bat` let anyone rebuild it with modified versions of the LGPL libraries
+(pydcs, Paramiko, pystray).
 
 ## Mission scripts (downloaded at setup, embedded in missions you tick them for)
 

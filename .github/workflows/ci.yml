@@ -64,3 +64,37 @@ jobs:
           Write-Output "$($r.filename) $($r.size) bytes"
           Invoke-WebRequest "http://127.0.0.1:8080/missions/$($r.filename.Replace('.miz', ''))/pack.pdf" | Out-Null
           Stop-Process $server.Id
+      # The Windows app (windows/build.bat does the same locally).
+      - name: Drawings (cached; Wikimedia rate-limits)
+        id: drawings
+        uses: actions/cache@v4
+        with:
+          path: drawings
+          key: drawings-${{ hashFiles('drawings.json', 'tools/fetch_drawings.py') }}
+      - if: steps.drawings.outputs.cache-hit != 'true'
+        run: python tools/fetch_drawings.py drawings.json drawings
+      - run: pip install -r requirements-build.txt
+      - run: pyinstaller --noconfirm windows/dcs-mission-maker.spec
+      - name: The built app starts and builds a mission
+        shell: pwsh
+        run: |
+          $env:DATA_DIR = "$env:RUNNER_TEMP\dmm-data"
+          $app = Start-Process "dist\DCS Mission Maker\DCS Mission Maker.exe" -ArgumentList "--no-tray", "--background" -PassThru
+          $up = $false
+          foreach ($i in 1..60) {
+            try { $h = Invoke-RestMethod http://127.0.0.1:8080/healthz; $up = $true; break } catch { Start-Sleep 2 }
+          }
+          if (-not $up) { Get-Content "$env:DATA_DIR\logs\app.log" -ErrorAction SilentlyContinue; throw "app didn't start" }
+          Write-Output "running: $($h.app) $($h.version)"
+          $body = '{"theater": "syria", "mission_type": "sead", "flights": [{"aircraft": "F-16C_50", "slots": 2}], "scripts": ["skynet"]}'
+          $r = Invoke-RestMethod http://127.0.0.1:8080/api/generate -Method Post -Body $body -ContentType application/json
+          Write-Output "$($r.filename) $($r.size) bytes"
+          $stem = $r.filename.Replace('.miz', '')
+          Invoke-WebRequest "http://127.0.0.1:8080/missions/$stem/pack.pdf" | Out-Null
+          Invoke-WebRequest http://127.0.0.1:8080/settings | Out-Null
+          Stop-Process $app.Id
+          Get-Content "$env:DATA_DIR\logs\app.log" -Tail 5
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DCS-Mission-Maker-windows
+          path: dist/DCS Mission Maker

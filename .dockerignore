@@ -16,3 +16,5 @@ eslint.config.mjs
 vendor
 drawings
 windows
+build
+dist

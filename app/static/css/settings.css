@@ -1,0 +1,32 @@
+/* settings.html */
+main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
+h1 { margin: 0; font-size: 24px; }
+.back { margin: 0 0 8px; }
+.meta { color: var(--muted); margin: 6px 0 16px; overflow-wrap: anywhere; }
+.notice { border: 1px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 12px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0 0 12px; }
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.help { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.field .err { font-size: 13px; margin: 4px 0 0; }
+.locked { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.secret { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.secret input { flex: 1 1 220px; }
+.secret .state { font-size: 13px; color: var(--muted); }
+.secret .state:empty { display: none; }
+input[type=text], input[type=url], input[type=number], input[type=password] {
+  width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font: inherit; min-width: 0; }
+input:disabled { opacity: .6; }
+input[aria-invalid=true] { border-color: var(--err); }
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+         background: var(--panel-2); color: var(--text); padding: 6px 12px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; padding: 8px 18px; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.actions { display: flex; gap: 12px; align-items: center; position: sticky; bottom: 0; padding: 12px 0; background: var(--bg); }
+.err { color: var(--err); }
+.ok { color: var(--ok); }
+a { color: var(--accent); }
+code { overflow-wrap: anywhere; }

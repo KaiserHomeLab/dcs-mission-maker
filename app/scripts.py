@@ -7,7 +7,7 @@ in the UI as a custom script.
 from . import paths
 
 VENDOR_DIR = paths.vendor_dir()
-CUSTOM_DIR = paths.folder("CUSTOM_SCRIPTS_DIR", "scripts")
+CUSTOM_DIR = paths.scripts_dir()
 
 # id -> metadata. "file" is relative to VENDOR_DIR; "needs" are loaded first.
 CATALOG = {

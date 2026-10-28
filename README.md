@@ -11,7 +11,25 @@ DCS Liberation and Retribution.
 
 ## Run it
 
-### On Windows, without Docker (e.g. on your DCS server PC)
+### The Windows app (no Python, no Docker)
+
+Download `DCS-Mission-Maker-windows` from the latest CI run (or build it yourself with
+`windows\build.bat`), unzip it anywhere, e.g. `C:\DCS Mission Maker`, and run
+`DCS Mission Maker.exe`. It opens the builder in your browser and sits in the tray
+(next to the clock): *Open*, *Settings*, *Open data folder*, *Start with Windows* and *Quit*.
+Running it again while it's running just opens the browser.
+
+- Your missions, settings and logs live in `C:\ProgramData\DCS Mission Maker` (not next to
+  the .exe), so replacing the app folder with a new version keeps them.
+- Set everything on the **Settings** page (⚙ in the builder): public address, the server's
+  Missions folder (suggested from your Saved Games), SRS, Discord, password and so on.
+  Settings can be changed from the PC running the app, or from anywhere once a password is set.
+- Other PCs reach it on port 8080; allow it through the firewall with
+  `windows\open-firewall.bat` from the source download, or when Windows asks the first time.
+- It isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC":
+  choose *More info*, then *Run anyway*.
+
+### On Windows from source, without Docker (e.g. on your DCS server PC)
 
 This is the lighter option next to a DCS server: no Docker, no virtual machine taking RAM.
 
@@ -260,7 +278,9 @@ docker run --rm -v /tmp/lua:/lua:ro debian:stable-slim sh -c \
 | `drawings.json`, `tools/fetch_drawings.py` | Pinned real 3-view drawings (Wikimedia Commons, SHA-1 checked), fetched at setup |
 | `tools/fetch_vendor.py` | Downloads the pinned, SHA-256-checked mission scripts, beacon data and fonts into `vendor/` |
 | `app/paths.py` | Where data lives: from the environment (Docker) or folders in the project (Windows) |
-| `app/__main__.py`, `windows/` | `python -m app` (waitress server, reads `.env`); Windows setup, start, autostart and firewall scripts |
+| `app/__main__.py`, `windows/*.bat` | `python -m app` (waitress server, reads `.env`); Windows setup, start, autostart, firewall and build scripts |
+| `app/desktop.py`, `app/icon.py`, `windows/launcher.py`, `windows/dcs-mission-maker.spec` | The Windows app: tray icon, single instance, start with Windows, logs; its icon; the PyInstaller recipe |
+| `app/settings.py`, `app/templates/settings.html`, `app/static/js/settings.js` | The Settings page: settings.json, validation, locked `.env` values, secrets never sent back |
 | `dcs-hook/dmm_reporter.lua` | DCS server hook: script-error check and debrief events |
 | `app/debrief.py` | Turns the hook's events and flags into the Debrief tab |
 | `app/mission_store.py` | Temporary vs kept missions, expiry and deletion |

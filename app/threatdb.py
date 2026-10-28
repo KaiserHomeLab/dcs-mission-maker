@@ -425,7 +425,7 @@ def _base_card(key):
 
 # ------------------------------------------------------------ real drawings
 # Wikimedia Commons 3-view drawings fetched at image build (tools/fetch_drawings.py).
-DRAWINGS_DIR = str(paths.folder("DRAWINGS_DIR", "drawings"))
+DRAWINGS_DIR = str(paths.drawings_dir())
 # Variants that borrow another drawing; "shows" is printed on the sheet when the
 # drawing isn't of the exact variant.
 DRAWING_ALIAS = {"P-51D-30-NA": "P-51D", "MiG-29S": "MiG-29A", "F-14A-135-GR": "F-14B",

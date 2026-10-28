@@ -1,0 +1,2 @@
+# Building the Windows app (windows\build.bat): requirements.txt plus
+pyinstaller==6.*

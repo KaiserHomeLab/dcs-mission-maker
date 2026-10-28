@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · DCS Mission Maker</title>
+<link rel="stylesheet" href="{{ static_url('css/base.css') }}">
+<link rel="stylesheet" href="{{ static_url('css/settings.css') }}">
+</head>
+<body>
+<main>
+  <p class="back"><a href="/">← Mission builder</a></p>
+  <h1>Settings</h1>
+  <p class="meta">DCS Mission Maker {{ version }} · data in <code id="data_dir"></code></p>
+  <p class="notice hidden" id="readonly"></p>
+  <form id="form" novalidate onsubmit="return false">
+    <div id="groups"><p class="meta">Loading…</p></div>
+    <datalist id="mission_folders"></datalist>
+    <div class="actions">
+      <button type="submit" class="primary" id="save">Save</button>
+      <span id="status" role="status"></span>
+    </div>
+  </form>
+</main>
+<script src="{{ static_url('js/common.js') }}"></script>
+<script src="{{ static_url('js/settings.js') }}"></script>
+</body>
+</html>
