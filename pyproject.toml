@@ -1,6 +1,6 @@
 [project]
 name = "dcs-mission-maker"
-version = "1.0.0"
+version = "1.1.0"
 description = "Web app that builds DCS World .miz missions, briefings and sign-ups"
 requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
