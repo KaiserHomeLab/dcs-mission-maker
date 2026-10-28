@@ -98,6 +98,7 @@ ok(c.post("/api/debrief", json={"mission": "nope.miz"}).status_code == 404, "deb
 r = c.get(f"/missions/{stem}/pack.pdf")
 pdf_pages = r.data.count(b"/Type /Page\n") + r.data.count(b"/Type /Page ")
 ok(r.status_code == 200 and r.data[:5] == b"%PDF-" and pdf_pages >= 3, f"print pack {r.status_code} {pdf_pages} pages")
+ok(r.headers.get("Cache-Control") == "no-store", "print pack never cached (kneeboard edits change it)")
 
 # SRS default from the settings, stored with each mission + comm card
 ok(c.get(f"/api/missions/{stem}/brief").json["srs"] is None, "no SRS when none was set")
@@ -124,8 +125,11 @@ r = c.post("/api/reports", json={"mission": name, "errors": ["SCRIPTING (Main): 
 ok(r.status_code == 200, "report")
 missions = c.get("/api/missions").json
 ok(missions[0]["report"]["errors"] == ["SCRIPTING (Main): boom"], "report listed")
-hook = c.get("/dcs-hook.lua").data.decode()
-ok('local APP_URL = "http://missions.local"' in hook, "hook has app url")
+hook = c.get("/dcs-hook.lua", environ_base={"REMOTE_ADDR": "10.0.0.5"},
+             headers={"Host": "10.0.0.13:8080"}).data.decode()
+ok('local APP_URL = "http://missions.local"' in hook, "hook from another PC reports to the public address")
+hook = c.get("/dcs-hook.lua", headers={"Host": "localhost:8080"}).data.decode()
+ok('local APP_URL = "http://localhost:8080"' in hook, "hook from the server's PC reports to localhost")
 ok(c.put("/api/setups/My Night", json=cfg).status_code == 200, "save setup")
 ok(c.get("/api/setups").json == ["My Night"], "list setups")
 # Liveries: squadron liveries built in; the hook's scan of the server adds installed ones first.

@@ -230,6 +230,24 @@ LuaSocket library that ships with DCS. **It hasn't been run inside DCS yet.**
 - Secrets (Discord webhook, SFTP password, `APP_PASSWORD`) live only in `.env`, which is
   ignored by git. Never put the SRS password in the SRS note.
 
+### Reaching it from outside your network (Cloudflare Tunnel)
+
+A Cloudflare Tunnel publishes the app over HTTPS without opening a port on your router:
+
+1. Zero Trust > Networks > Tunnels: create a tunnel, run its Windows install command on the
+   PC running the app (it becomes a service), and add a public hostname, e.g.
+   `missions.example.com`, pointing to `http://localhost:8080`.
+2. Zero Trust > Access > Applications: one app for the whole hostname that allows only you,
+   and a second app on the same hostname for what pilots use, with a **Bypass** (Everyone)
+   policy on these paths: `briefing/*`, `e/*`, `missions/*`, `api/missions/*`, `api/events/*`,
+   `static/*`, `drawings/*` and `api/options`.
+3. In the app's Settings, set a builder password too: a few builder actions (deleting a
+   mission, generating from a sign-up) live under those paths, and the app asks for the
+   password there. Set the public address to `https://missions.example.com`.
+
+Download the DCS server hook on the server's PC itself (`http://localhost:8080/dcs-hook.lua`)
+so it reports straight to the app instead of through Cloudflare.
+
 ## Development
 
 Templates hold markup only; scripts and styles live in `app/static`, and server values reach the

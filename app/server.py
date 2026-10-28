@@ -589,7 +589,9 @@ def add_report():
 
 @app.get("/dcs-hook.lua")
 def dcs_hook():
-    url = integrations.status()["public_url"] or request.host_url.rstrip("/")
+    # Downloaded on the PC running the app (the DCS server's PC): report straight to it, not
+    # out through the public address (behind Cloudflare Access, say) and back.
+    url = ((not _on_this_pc() and integrations.status()["public_url"]) or request.host_url).rstrip("/")
     text = HOOK.read_text(encoding="utf-8").replace("__APP_URL__", url)
     return text, 200, {"Content-Type": "text/plain; charset=utf-8",
                        "Content-Disposition": "attachment; filename=dmm_reporter.lua"}
@@ -933,7 +935,8 @@ def print_pack(stem):
         abort(404)
     out = io.BytesIO()
     pages[0].save(out, "PDF", save_all=True, append_images=pages[1:], resolution=96)
-    return out.getvalue(), 200, {"Content-Type": "application/pdf",
+    # no-store: kneeboard edits change it, and CDNs (Cloudflare) cache PDFs by default.
+    return out.getvalue(), 200, {"Content-Type": "application/pdf", "Cache-Control": "no-store",
                                  "Content-Disposition": f'inline; filename="{stem}.pdf"'}
 
 
