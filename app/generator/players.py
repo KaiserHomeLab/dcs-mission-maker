@@ -16,46 +16,24 @@ class PlayersMixin:
     """Player flights: spawning, callsigns, loadouts, routes, TOT timing and data cartridges."""
 
     # ---------------------------------------------------------------- players
+    START_TYPES = {"cold": StartType.Cold, "hot": StartType.Warm, "runway": StartType.Runway}
+
     def add_players(self):
         r = self.req
         reset_stn()
-        start_map = {"cold": StartType.Cold, "hot": StartType.Warm, "runway": StartType.Runway}
         for idx, f in enumerate(r.flights):
             a = AIRCRAFT[f.aircraft]
-            cls = a["cls"]
-            maintask = pick_task(cls, r.mission_type)
+            maintask = pick_task(a["cls"], r.mission_type)
             flight_name = f"{f.callsign} {f.number}"
             group_name = f"{f.squadron} - {flight_name}" if f.squadron else flight_name
 
             heli = a["helicopter"]
             cruise_alt = 300 if heli else (7000 if r.mission_type == "cap" else 5500)
             cruise_spd = 220 if heli else 750
-            if not heli and cls.max_speed and cls.max_speed < 800:  # warbirds/trainers
+            if not heli and a["cls"].max_speed and a["cls"].max_speed < 800:  # warbirds/trainers
                 cruise_alt, cruise_spd = 3000, 450
 
-            size = f.slots + f.ai_wingmen
-            try:
-                if f.start == "air":
-                    origin = self.carrier.position if f.base == "carrier" else self.home.position
-                    pos = origin.point_from_heading(origin.heading_between_point(self.target), 8000)
-                    g = self.m.flight_group_inflight(self.blue, group_name, cls, pos, cruise_alt,
-                                                     cruise_spd, maintask=maintask,
-                                                     group_size=size)
-                elif f.base == "carrier":
-                    g = self.m.flight_group_from_unit(self.blue, group_name, cls, self.carrier,
-                                                      maintask=maintask,
-                                                      start_type=start_map[f.start],
-                                                      group_size=size)
-                else:
-                    g = self.m.flight_group_from_airport(self.blue, group_name, cls, self.home,
-                                                         maintask=maintask,
-                                                         start_type=start_map[f.start],
-                                                         group_size=size)
-            except NoParkingSlotError as e:
-                raise MissionError(
-                    f"{self.home.name} ran out of parking for {a['name']} ({flight_name}). "
-                    "Try fewer slots, a bigger base, or an air start.") from e
-
+            g = self.spawn_player_group(f, a, maintask, group_name, flight_name, cruise_alt, cruise_spd)
             apply_callsign(g, f.callsign, f.number)
             for u, pilot in zip(g.units, f.pilots, strict=False):
                 if pilot:
@@ -82,46 +60,70 @@ class PlayersMixin:
             if heli:
                 self.heli_groups.append(group_name)
 
-            origin = self.carrier.position if f.base == "carrier" else self.home.position
+            carrier = f.base == "carrier"
+            origin = self.carrier.position if carrier else self.home.position
             nm = origin.distance_to_point(self.target) / 1852
-            base = (self.carrier.name if f.base == "carrier" else self.home.name)
+            base = self.carrier.name if carrier else self.home.name
+            kit = ", ".join(weapons) or "none"
+            pilots = [f"{f.number}-{i} {p}" for i, p in enumerate(f.pilots, start=1) if p]
             crew = (f"{f.slots} seat{'s' if f.slots > 1 else ''}"
                     + (f" + {f.ai_wingmen} AI" if f.ai_wingmen else "") + " ×")
             lines = [f"{group_name}: {crew} {a['name']} from {base} ({f.start} start), "
                      f"{nm:.0f} nm to target. Tasked {maintask.name}."]
             if getattr(f, "timing", None):
                 lines.append(f"  {f.timing}.")
-            lines.append(f"  Loadout ({loadout}): " + (", ".join(weapons) or "none"))
+            lines.append(f"  Loadout ({loadout}): {kit}")
             if applied:
                 lines.append("  Radio presets: " + CommPlan.describe(applied))
             if f.dtc and f.aircraft in dtc.SUPPORTED:
                 self.add_cartridge(g, f, flight_name, route, applied)
                 lines.append("  Data cartridge loaded at spawn (route, comms, threats).")
-            if any(f.pilots):
-                lines.append("  Pilots: " + ", ".join(
-                    f"{f.number}-{i} {p}" for i, p in enumerate(f.pilots, start=1) if p))
+            if pilots:
+                lines.append("  Pilots: " + ", ".join(pilots))
             self.brief.flights.extend(lines)
             self.cards.append({
-                "name": flight_name, "aircraft": a["name"], "type": cls,
+                "name": flight_name, "aircraft": a["name"], "type": a["cls"],
                 "squadron": f.squadron, "seats": f.slots, "ai": f.ai_wingmen, "base": base,
-                "pilots": [f"{f.number}-{i} {p}" for i, p in enumerate(f.pilots, start=1) if p],
-                "timing": getattr(f, "timing", None),
-                "start": f.start, "loadout": f"{loadout}: " + (", ".join(weapons) or "none"),
-                "route": route, "origin": origin, "carrier": f.base == "carrier",
+                "pilots": pilots, "timing": getattr(f, "timing", None),
+                "start": f.start, "loadout": f"{loadout}: {kit}",
+                "route": route, "origin": origin, "carrier": carrier,
                 "radios": radio_table(applied)})
+            self.player_warnings(f, a, flight_name, nm, heli, weapons)
 
-            if not heli and nm > 300 and not (self.has_boom or self.has_drogue):
-                self.warnings.append(
-                    f"{flight_name}: target is {nm:.0f} nm away and there's no tanker; "
-                    "check your fuel or start in the air.")
-            if heli and nm > 80 and f.start != "air":
-                self.warnings.append(
-                    f"{flight_name}: target is {nm:.0f} nm away, a long haul for a helicopter. "
-                    "Consider an in-air start or a closer friendly base.")
-            if not weapons and f.start == "air":
-                self.warnings.append(
-                    f"{flight_name}: no stores could be loaded for {a['name']}, and an air "
-                    "start means no chance to rearm.")
+    def spawn_player_group(self, f, a, maintask, group_name, flight_name, cruise_alt, cruise_spd):
+        """The flight's group: in the air, on the carrier or at the home field."""
+        size = f.slots + f.ai_wingmen
+        try:
+            if f.start == "air":
+                origin = self.carrier.position if f.base == "carrier" else self.home.position
+                pos = origin.point_from_heading(origin.heading_between_point(self.target), 8000)
+                return self.m.flight_group_inflight(self.blue, group_name, a["cls"], pos, cruise_alt,
+                                                    cruise_spd, maintask=maintask, group_size=size)
+            if f.base == "carrier":
+                return self.m.flight_group_from_unit(self.blue, group_name, a["cls"], self.carrier,
+                                                     maintask=maintask, start_type=self.START_TYPES[f.start],
+                                                     group_size=size)
+            return self.m.flight_group_from_airport(self.blue, group_name, a["cls"], self.home,
+                                                    maintask=maintask, start_type=self.START_TYPES[f.start],
+                                                    group_size=size)
+        except NoParkingSlotError as e:
+            raise MissionError(
+                f"{self.home.name} ran out of parking for {a['name']} ({flight_name}). "
+                "Try fewer slots, a bigger base, or an air start.") from e
+
+    def player_warnings(self, f, a, flight_name, nm, heli, weapons):
+        if not heli and nm > 300 and not (self.has_boom or self.has_drogue):
+            self.warnings.append(
+                f"{flight_name}: target is {nm:.0f} nm away and there's no tanker; "
+                "check your fuel or start in the air.")
+        if heli and nm > 80 and f.start != "air":
+            self.warnings.append(
+                f"{flight_name}: target is {nm:.0f} nm away, a long haul for a helicopter. "
+                "Consider an in-air start or a closer friendly base.")
+        if not weapons and f.start == "air":
+            self.warnings.append(
+                f"{flight_name}: no stores could be loaded for {a['name']}, and an air "
+                "start means no chance to rearm.")
 
     # -------------------------------------------------------------------- timing
     STARTUP_S = {"cold": 20 * 60, "hot": 8 * 60, "runway": 3 * 60, "air": 0}

@@ -138,61 +138,13 @@ def validate(r: MissionRequest) -> None:
         raise MissionError(str(e)) from e
     used = set()
     for i, f in enumerate(r.flights):
-        a = AIRCRAFT.get(f.aircraft)
-        if not a:
-            raise MissionError(f"Unknown aircraft '{f.aircraft}'")
-        f.slots = int(f.slots)
-        f.ai_wingmen = int(f.ai_wingmen or 0)
-        if f.slots < 1 or f.ai_wingmen < 0 or f.slots + f.ai_wingmen > a["max_group"]:
-            raise MissionError(f"{a['name']}: seats + AI wingmen must be 1-{a['max_group']}")
-        if f.start not in ("cold", "hot", "runway", "air"):
-            raise MissionError("Bad start type")
-        if f.base == "carrier":
-            if not t.blue_carrier:
-                raise MissionError(f"{t.label} has no carrier ops")
-            if not a["carrier"]:
-                raise MissionError(f"{a['name']} can't operate from a carrier")
-        f.callsign = (f.callsign or "").strip() or default_callsign(f.aircraft, i)
-        if f.callsign not in callsign_options(a["cls"]):
-            raise MissionError(f"'{f.callsign}' isn't a DCS callsign for {a['name']}")
-        f.number = int(f.number or 1)
-        if not 1 <= f.number <= 9:
-            raise MissionError("Flight numbers go from 1 to 9")
-        while (f.callsign, f.number) in used:
-            f.number += 1
-            if f.number > 9:
-                raise MissionError(f"Too many {f.callsign} flights")
-        used.add((f.callsign, f.number))
-        f.squadron = re.sub(r"[^\w \-#.']", "", f.squadron or "")[:40].strip()
-        f.livery = str(f.livery or "").strip()
-        if f.livery and not liveries.VALID_ID.fullmatch(f.livery):
-            raise MissionError(f"{a['name']}: bad livery name")
-        f.pilots = [re.sub(r"[^\w \-.']", "", str(p or ""))[:24].strip()
-                    for p in (f.pilots or [])][:f.slots]
+        _check_flight(f, i, t, used)
     if len(r.ai_flights) > 8:
         raise MissionError("Maximum 8 AI flights")
     player_names = {f"{f.callsign} {f.number}" for f in r.flights}
     for af in r.ai_flights:
-        if af.aircraft not in ai.TYPES:
-            raise MissionError(f"Unknown AI aircraft '{af.aircraft}'")
-        if af.task not in ai.AI_TASKS:
-            raise MissionError(f"Unknown AI task '{af.task}'")
-        cls = ai.TYPES[af.aircraft]
-        if not any(t in cls.tasks for t in ai.AI_TASKS[af.task][1]):
-            raise MissionError(f"{af.aircraft} can't fly {ai.AI_TASKS[af.task][0].lower()}")
-        af.count = int(af.count or 1)
-        if af.delay == "tot":
-            if not r.tot:
-                raise MissionError("An AI flight is timed off the TOT, but no TOT is set")
-        else:
-            af.delay = int(af.delay or 0)
-        if not 1 <= af.count <= (cls.group_size_max or 4) or \
-                (af.delay != "tot" and not 0 <= af.delay <= 120):
-            raise MissionError(f"AI {af.aircraft}: bad size or launch delay")
-        if af.task == "escort":
-            af.escort = af.escort or next(iter(sorted(player_names)))
-            if af.escort not in player_names:
-                raise MissionError(f"AI escort: no player flight called '{af.escort}'")
+        _check_ai_flight(af, r, player_names)
+    bad = [x for x in r.mods or [] if x not in mods.MODS]
     bad = [x for x in r.mods or [] if x not in mods.MODS]
     if bad:
         raise MissionError(f"Unknown mod '{bad[0]}'")
@@ -225,3 +177,62 @@ def validate(r: MissionRequest) -> None:
     if r.srs and not re.fullmatch(r"[\w.\-:\[\]]{1,100}", r.srs):
         raise MissionError("SRS server should look like srs.example.com:5002")
     r.srs_note = re.sub(r"[^\w #@.,:;!?()'/\-]", "", str(r.srs_note or ""))[:80].strip()
+
+
+def _check_flight(f, i, t, used):
+    """One player flight; used holds the (callsign, number) pairs taken so far."""
+    a = AIRCRAFT.get(f.aircraft)
+    if not a:
+        raise MissionError(f"Unknown aircraft '{f.aircraft}'")
+    f.slots = int(f.slots)
+    f.ai_wingmen = int(f.ai_wingmen or 0)
+    if f.slots < 1 or f.ai_wingmen < 0 or f.slots + f.ai_wingmen > a["max_group"]:
+        raise MissionError(f"{a['name']}: seats + AI wingmen must be 1-{a['max_group']}")
+    if f.start not in ("cold", "hot", "runway", "air"):
+        raise MissionError("Bad start type")
+    if f.base == "carrier":
+        if not t.blue_carrier:
+            raise MissionError(f"{t.label} has no carrier ops")
+        if not a["carrier"]:
+            raise MissionError(f"{a['name']} can't operate from a carrier")
+    f.callsign = (f.callsign or "").strip() or default_callsign(f.aircraft, i)
+    if f.callsign not in callsign_options(a["cls"]):
+        raise MissionError(f"'{f.callsign}' isn't a DCS callsign for {a['name']}")
+    f.number = int(f.number or 1)
+    if not 1 <= f.number <= 9:
+        raise MissionError("Flight numbers go from 1 to 9")
+    while (f.callsign, f.number) in used:
+        f.number += 1
+        if f.number > 9:
+            raise MissionError(f"Too many {f.callsign} flights")
+    used.add((f.callsign, f.number))
+    f.squadron = re.sub(r"[^\w \-#.']", "", f.squadron or "")[:40].strip()
+    f.livery = str(f.livery or "").strip()
+    if f.livery and not liveries.VALID_ID.fullmatch(f.livery):
+        raise MissionError(f"{a['name']}: bad livery name")
+    f.pilots = [re.sub(r"[^\w \-.']", "", str(p or ""))[:24].strip()
+                for p in (f.pilots or [])][:f.slots]
+
+
+def _check_ai_flight(af, r, player_names):
+    """One AI flight; escorts must name a player flight."""
+    if af.aircraft not in ai.TYPES:
+        raise MissionError(f"Unknown AI aircraft '{af.aircraft}'")
+    if af.task not in ai.AI_TASKS:
+        raise MissionError(f"Unknown AI task '{af.task}'")
+    cls = ai.TYPES[af.aircraft]
+    if not any(t in cls.tasks for t in ai.AI_TASKS[af.task][1]):
+        raise MissionError(f"{af.aircraft} can't fly {ai.AI_TASKS[af.task][0].lower()}")
+    af.count = int(af.count or 1)
+    if af.delay == "tot":
+        if not r.tot:
+            raise MissionError("An AI flight is timed off the TOT, but no TOT is set")
+    else:
+        af.delay = int(af.delay or 0)
+    if not 1 <= af.count <= (cls.group_size_max or 4) or \
+            (af.delay != "tot" and not 0 <= af.delay <= 120):
+        raise MissionError(f"AI {af.aircraft}: bad size or launch delay")
+    if af.task == "escort":
+        af.escort = af.escort or next(iter(sorted(player_names)))
+        if af.escort not in player_names:
+            raise MissionError(f"AI escort: no player flight called '{af.escort}'")

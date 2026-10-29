@@ -8,12 +8,11 @@ import tempfile
 import zipfile
 
 from .builder import Builder
-from .common import default_callsign
 from .preview import map_points, preview
 from .request import DIFFICULTIES, MISSION_TYPES, TIMES, WEATHER, WINDS, MissionError, MissionRequest
 
 __all__ = ["DIFFICULTIES", "MISSION_TYPES", "TIMES", "WEATHER", "WINDS", "MissionError", "MissionRequest",
-           "default_callsign", "generate_full", "map_points", "preview"]
+           "generate_full", "map_points", "preview"]
 
 
 def generate_full(req: MissionRequest) -> dict:

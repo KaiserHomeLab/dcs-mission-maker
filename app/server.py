@@ -47,7 +47,6 @@ from .generator import (
     WINDS,
     MissionError,
     MissionRequest,
-    default_callsign,
     generate_full,
     preview,
 )
@@ -269,14 +268,6 @@ def installed_liveries():
     """The DCS server hook's scan of the liveries installed on the server."""
     body = request.get_json(force=True, silent=True) or {}
     return jsonify({"ok": True, **liveries.save_installed(body, time.time())})
-
-
-@app.get("/api/callsign")
-def callsign():
-    ac = request.args.get("aircraft", "")
-    if ac not in AIRCRAFT:
-        return jsonify({"error": "unknown aircraft"}), 400
-    return jsonify({"callsign": default_callsign(ac, int(request.args.get("index", 0)))})
 
 
 @app.post("/api/preview")
