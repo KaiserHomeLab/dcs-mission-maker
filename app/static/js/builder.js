@@ -645,6 +645,10 @@ async function showUpdate() {
   $("srs").placeholder = srsDefault ? `${srsDefault.address} (default)` : "e.g. srs.myserver.com:5002";
   $("srs_note").placeholder = srsDefault?.note ? `${srsDefault.note} (default)` : "e.g. password in #dcs-info";
   OPT.aircraft.forEach(a => AC[a.id] = a);
+  // The hook reminder goes once the hook has reported in (app/server.py _hook_status).
+  if (OPT.hook === "working") $("hook_note").classList.add("hidden");
+  else if (OPT.hook === "installed") $("hook_note").textContent = "DCS server hook installed. "
+    + "It reports here once DCS starts a mission (restart DCS if it's running).";
   // On the DCS server's PC: only the maps installed there (app/dcs_install.py).
   const maps = OPT.theaters.filter(t => t.allowed);
   fillSelect($("theater"), maps.map(t => [t.key, t.label]), maps.some(t => t.key === "caucasus") ? "caucasus" : null);

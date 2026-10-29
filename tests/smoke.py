@@ -57,6 +57,8 @@ def run(job):
             doc = json.loads(z.read(n))
             assert doc["type"] in ("FA-18C_hornet", "F-16C_50") and doc["data"], n
             assert f'["name"]="{doc["name"]}"' in mission, f"cartridge {n} not bound"
+            if doc["type"] == "FA-18C_hornet":
+                assert doc["data"]["COMM"]["COMM1"]["Channel_1"]["name"] == "FLIGH", (n, "comm plan in COMM1")
         for s in expect_scripts:
             assert any(s in n for n in names), (s, names)
         if lua_dir:

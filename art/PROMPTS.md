@@ -2,7 +2,7 @@
 
 Written by `python tools/art_drawings.py`; don't edit by hand.
 
-35 units have a drawing, 77 still need one.
+48 units have a drawing, 64 still need one.
 
 1. Paste one block into a new Gemini chat. If it adds text, a grid or a second copy of a view,
    reply "same drawing, remove all text and the grid" in the same chat.
@@ -44,395 +44,7 @@ Draw each view ONCE. Views must not overlap and must have plenty of white margin
 Landscape image, about 1.4:1.
 ```
 
-### MIM-104 Patriot  ->  `MIM_104_Patriot.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the MIM-104 Patriot M901 launching station (semi-trailer) at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing position, canister box raised.
-
-Real proportions (approximate): length 10.4 m, width 2.5 m, height 3.9 m.
-In the plan view it must be 4.2x as long as it is wide.
-In the side view it must be 2.7x as long as it is tall.
-
-Distinctive features that must be correct:
-- a large box of four rectangular missile canisters (2x2), raised to about 38 degrees
-- the box sits on a two-axle semi-trailer with outrigger jacks lowered
-- a generator and electronics box at the front of the trailer
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### NASAMS  ->  `NASAMS.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the NASAMS launcher (AMRAAM canister launcher on a trailer) at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing position, canisters raised.
-
-Real proportions (approximate): length 7 m, width 2.5 m, height 3 m.
-In the plan view it must be 2.8x as long as it is wide.
-In the side view it must be 2.3x as long as it is tall.
-
-Distinctive features that must be correct:
-- six box-shaped missile canisters in two rows of three, in one block, raised at an angle
-- the block sits on a small towed trailer with four outrigger legs lowered
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
 ## Short-range air defence and AAA
-
-### Flakvierling 38  ->  `flak38.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the German 2 cm Flakvierling 38 quadruple anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 4.1 m, width 2.4 m, height 2 m.
-In the plan view it must be 1.7x as long as it is wide.
-In the side view it must be 2x as long as it is tall.
-
-Distinctive features that must be correct:
-- four 20 mm barrels in a square 2 x 2 arrangement pointing upward about 30 degrees
-- small curved gun shield, gunner's seat behind the guns
-- a low cross-shaped ground platform with three or four outrigger legs, wheels removed
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### 8.8 cm Flak 36  ->  `flak36.png`
-
-Now: generated line drawing. Also used for: 8.8 cm Flak battery, Heavy Flak battery.
-
-```
-Three orthographic views of the German 8.8 cm Flak 36 anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 7.6 m, width 2.3 m, height 2.4 m.
-In the plan view it must be 3.3x as long as it is wide.
-In the side view it must be 3.2x as long as it is tall.
-
-Distinctive features that must be correct:
-- long 88 mm barrel with a recuperator cylinder above it, raised about 30 degrees
-- flat gun shield in front of the breech
-- cross-shaped platform with four long outrigger legs on the ground, wheels removed
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### 8.8 cm Flak 41  ->  `flak41.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the German 8.8 cm Flak 41 anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 9.6 m, width 2.4 m, height 2.4 m.
-In the plan view it must be 4x as long as it is wide.
-In the side view it must be 4x as long as it is tall.
-
-Distinctive features that must be correct:
-- very long 88 mm barrel with a muzzle brake, mounted low on a turntable
-- large angular gun shield
-- cross-shaped platform with four outrigger legs on the ground, wheels removed
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### M45 Quadmount  ->  `M45_Quadmount.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the US M45 Quadmount (four .50 cal machine guns) on its M17 trailer at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 3 m, width 2.1 m, height 1.9 m.
-In the plan view it must be 1.4x as long as it is wide.
-In the side view it must be 1.6x as long as it is tall.
-
-Distinctive features that must be correct:
-- four .50 cal machine guns, two on each side of a central armoured gunner's seat
-- a curved armour shield in front of the gunner
-- small two-wheeled trailer with levelling jacks
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### Bofors 40 mm  ->  `bofors40.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the Bofors 40 mm anti-aircraft gun (WWII) at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 6.4 m, width 2 m, height 2.3 m.
-In the plan view it must be 3.2x as long as it is wide.
-In the side view it must be 2.8x as long as it is tall.
-
-Distinctive features that must be correct:
-- single 40 mm barrel with a cone-shaped flash hider, raised about 30 degrees
-- a clip-loading ammunition guide on top of the breech, gunners' seats on both sides
-- four-wheeled carriage with outrigger legs lowered
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### QF 3.7-inch  ->  `QF_37_AA.png`
-
-Now: generated line drawing. Also used for: QF 3.7-inch AA battery, Heavy AA battery.
-
-```
-Three orthographic views of the British QF 3.7-inch heavy anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 8.6 m, width 2.4 m, height 2.5 m.
-In the plan view it must be 3.6x as long as it is wide.
-In the side view it must be 3.4x as long as it is tall.
-
-Distinctive features that must be correct:
-- long barrel with a large breech, raised about 40 degrees
-- a fuze setter and loading tray beside the breech
-- four-wheeled carriage with four outrigger legs on the ground
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### ZU-23-2  ->  `ZU_23_Emplacement.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the ZU-23-2 twin 23 mm anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 4.6 m, width 1.8 m, height 1.9 m.
-In the plan view it must be 2.6x as long as it is wide.
-In the side view it must be 2.4x as long as it is tall.
-
-Distinctive features that must be correct:
-- two long 23 mm barrels side by side on a light mount
-- a gunner's seat on each side and an optical sight
-- light two-wheeled carriage with the wheels raised and three levelling feet on the ground
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### S-60 57 mm  ->  `S_60_Type59_Artillery.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the S-60 57 mm anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 8.5 m, width 2.1 m, height 2.5 m.
-In the plan view it must be 4x as long as it is wide.
-In the side view it must be 3.4x as long as it is tall.
-
-Distinctive features that must be correct:
-- single long 57 mm barrel with a slotted "pepperbox" muzzle brake
-- small gun shield and an open loading platform
-- four-wheeled carriage with outrigger legs lowered
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### KS-19 100 mm  ->  `KS_19.png`
-
-Now: generated line drawing. Also used for: Radar-directed AAA.
-
-```
-Three orthographic views of the KS-19 100 mm heavy anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 9.5 m, width 2.3 m, height 2.6 m.
-In the plan view it must be 4.1x as long as it is wide.
-In the side view it must be 3.7x as long as it is tall.
-
-Distinctive features that must be correct:
-- very long 100 mm barrel with a muzzle brake
-- gun shield, large breech and loading platform
-- four-wheeled carriage with outrigger legs lowered
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### ZSU-23-4 Shilka  ->  `ZSU_23_4_Shilka.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the ZSU-23-4 Shilka self-propelled anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-Facing forward, any turret or launcher pointing forward in its travel position.
-
-Real proportions (approximate): length 6.5 m, width 3.1 m, height 2.6 m.
-In the plan view it must be 2.1x as long as it is wide.
-In the side view it must be 2.5x as long as it is tall.
-
-Distinctive features that must be correct:
-- low tracked hull with six road wheels per side and no return rollers
-- large, flat, boxy turret with four 23 mm barrels in a square 2 x 2 arrangement at the front
-- a round "Gun Dish" radar dish on a mast at the back of the turret
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### ZSU-57-2  ->  `ZSU_57_2.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the ZSU-57-2 self-propelled anti-aircraft gun at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-Facing forward, any turret or launcher pointing forward in its travel position.
-
-Real proportions (approximate): length 8.5 m, width 3.3 m, height 2.8 m.
-In the plan view it must be 2.6x as long as it is wide.
-In the side view it must be 3x as long as it is tall.
-
-Distinctive features that must be correct:
-- tracked hull with four large road wheels per side (a shortened T-54 chassis)
-- a large open-topped box turret with two long 57 mm barrels side by side
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
 
 ### SA-9 "Gaskin"  ->  `Strela_1_9P31.png`
 
@@ -1710,6 +1322,123 @@ Landscape image, about 1.4:1.
 
 ## Artillery
 
+### MLRS M270 227mm  ->  `MLRS.png`
+
+Now: generated line drawing.
+
+```
+Three orthographic views of the M270 MLRS multiple rocket launcher at exactly the same scale, no perspective:
+- side view (left side, front pointing left) across the top
+- top-down plan view directly below it, front pointing left, lined up so the front and
+  rear sit at the same horizontal positions as in the side view
+- front view (looking straight at the front) to the right of the plan view
+
+Facing forward, any turret or launcher pointing forward in its travel position.
+
+Real proportions (approximate): length 7 m, width 3 m, height 2.6 m.
+In the plan view it must be 2.3x as long as it is wide.
+In the side view it must be 2.7x as long as it is tall.
+
+Distinctive features that must be correct:
+- tracked chassis with six road wheels per side, armoured cab at the front
+- a large box launcher on the back holding two pods of six rocket tubes
+
+Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
+pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
+ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
+NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
+Draw each view ONCE. Views must not overlap and must have plenty of white margin.
+Landscape image, about 1.4:1.
+```
+
+### MLRS BM-21 Grad 122mm  ->  `Grad_URAL.png`
+
+Now: generated line drawing.
+
+```
+Three orthographic views of the BM-21 Grad rocket launcher on a Ural-375 truck at exactly the same scale, no perspective:
+- side view (left side, front pointing left) across the top
+- top-down plan view directly below it, front pointing left, lined up so the front and
+  rear sit at the same horizontal positions as in the side view
+- front view (looking straight at the front) to the right of the plan view
+
+Facing forward, any turret or launcher pointing forward in its travel position.
+
+Real proportions (approximate): length 7.3 m, width 2.4 m, height 3.1 m.
+In the plan view it must be 3.1x as long as it is wide.
+In the side view it must be 2.4x as long as it is tall.
+
+Distinctive features that must be correct:
+- 6x6 Ural truck with a long bonnet and a cab
+- a block of 40 rocket tubes (four rows of ten) on the back, pointing forward over the cab
+
+Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
+pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
+ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
+NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
+Draw each view ONCE. Views must not overlap and must have plenty of white margin.
+Landscape image, about 1.4:1.
+```
+
+### Mortar 2B11 120mm  ->  `2B11_mortar.png`
+
+Now: generated line drawing.
+
+```
+Three orthographic views of the 2B11 120 mm mortar at exactly the same scale, no perspective:
+- side view (left side, front pointing left) across the top
+- top-down plan view directly below it, front pointing left, lined up so the front and
+  rear sit at the same horizontal positions as in the side view
+- front view (looking straight at the front) to the right of the plan view
+
+In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
+
+Real proportions (approximate): length 1.9 m, width 1 m, height 1.4 m.
+In the plan view it must be 1.9x as long as it is wide.
+In the side view it must be 1.4x as long as it is tall.
+
+Distinctive features that must be correct:
+- a mortar tube on a round base plate, held up by a bipod with a sight
+- no wheels or carriage
+
+Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
+pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
+ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
+NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
+Draw each view ONCE. Views must not overlap and must have plenty of white margin.
+Landscape image, about 1.4:1.
+```
+
+### SPH 2S19 Msta 152mm  ->  `SAU_Msta.png`
+
+Now: generated line drawing.
+
+```
+Three orthographic views of the 2S19 Msta-S self-propelled howitzer at exactly the same scale, no perspective:
+- side view (left side, front pointing left) across the top
+- top-down plan view directly below it, front pointing left, lined up so the front and
+  rear sit at the same horizontal positions as in the side view
+- front view (looking straight at the front) to the right of the plan view
+
+Facing forward, any turret or launcher pointing forward in its travel position.
+
+Real proportions (approximate): length 6.7 m (11.9 m including the gun), width 3.6 m, height 3 m.
+In the plan view it must be 1.9x as long as it is wide (not counting the gun).
+In the side view it must be 2.2x as long as it is tall.
+
+Distinctive features that must be correct:
+- tracked chassis with six road wheels per side
+- very large, tall boxy turret
+- long 152 mm gun with a fume extractor and a muzzle brake
+
+Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
+pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
+ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
+NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
+Draw each view ONCE. Views must not overlap and must have plenty of white margin.
+Landscape image, about 1.4:1.
+```
+
 ### SPH M109 Paladin 155mm  ->  `M_109.png`
 
 Now: generated line drawing.
@@ -1731,35 +1460,6 @@ Distinctive features that must be correct:
 - tracked chassis with seven road wheels per side
 - large boxy turret set to the back of the hull
 - long 155 mm gun with a fume extractor and a muzzle brake, a travel lock on the front of the hull
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### MLRS M270 227mm  ->  `MLRS.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the M270 MLRS multiple rocket launcher at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-Facing forward, any turret or launcher pointing forward in its travel position.
-
-Real proportions (approximate): length 7 m, width 3 m, height 2.6 m.
-In the plan view it must be 2.3x as long as it is wide.
-In the side view it must be 2.7x as long as it is tall.
-
-Distinctive features that must be correct:
-- tracked chassis with six road wheels per side, armoured cab at the front
-- a large box launcher on the back holding two pods of six rocket tubes
 
 Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
 pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
@@ -1827,65 +1527,6 @@ Draw each view ONCE. Views must not overlap and must have plenty of white margin
 Landscape image, about 1.4:1.
 ```
 
-### MLRS BM-21 Grad 122mm  ->  `Grad_URAL.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the BM-21 Grad rocket launcher on a Ural-375 truck at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-Facing forward, any turret or launcher pointing forward in its travel position.
-
-Real proportions (approximate): length 7.3 m, width 2.4 m, height 3.1 m.
-In the plan view it must be 3.1x as long as it is wide.
-In the side view it must be 2.4x as long as it is tall.
-
-Distinctive features that must be correct:
-- 6x6 Ural truck with a long bonnet and a cab
-- a block of 40 rocket tubes (four rows of ten) on the back, pointing forward over the cab
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### SPH 2S19 Msta 152mm  ->  `SAU_Msta.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the 2S19 Msta-S self-propelled howitzer at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-Facing forward, any turret or launcher pointing forward in its travel position.
-
-Real proportions (approximate): length 6.7 m (11.9 m including the gun), width 3.6 m, height 3 m.
-In the plan view it must be 1.9x as long as it is wide (not counting the gun).
-In the side view it must be 2.2x as long as it is tall.
-
-Distinctive features that must be correct:
-- tracked chassis with six road wheels per side
-- very large, tall boxy turret
-- long 152 mm gun with a fume extractor and a muzzle brake
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
 ### SPH 2S1 Gvozdika 122mm  ->  `SAU_Gvozdika.png`
 
 Now: generated line drawing.
@@ -1907,35 +1548,6 @@ Distinctive features that must be correct:
 - low amphibious tracked chassis with seven road wheels per side
 - turret at the back of the hull
 - 122 mm gun with a double-baffle muzzle brake
-
-Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
-pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.
-ABSOLUTELY NO grid, NO text of any kind, NO labels, NO arrows, NO callouts, NO title block,
-NO scale bar, NO dimensions, NO border, NO paper texture, NO colour, NO shading, NO shadows.
-Draw each view ONCE. Views must not overlap and must have plenty of white margin.
-Landscape image, about 1.4:1.
-```
-
-### Mortar 2B11 120mm  ->  `2B11_mortar.png`
-
-Now: generated line drawing.
-
-```
-Three orthographic views of the 2B11 120 mm mortar at exactly the same scale, no perspective:
-- side view (left side, front pointing left) across the top
-- top-down plan view directly below it, front pointing left, lined up so the front and
-  rear sit at the same horizontal positions as in the side view
-- front view (looking straight at the front) to the right of the plan view
-
-In firing positionFacing forward, any turret or launcher pointing forward in its travel position..
-
-Real proportions (approximate): length 1.9 m, width 1 m, height 1.4 m.
-In the plan view it must be 1.9x as long as it is wide.
-In the side view it must be 1.4x as long as it is tall.
-
-Distinctive features that must be correct:
-- a mortar tube on a round base plate, held up by a bipod with a sight
-- no wheels or carriage
 
 Style: a technical line drawing like a published scale-modelling plan. Black lines only on a
 pure white background (#FFFFFF). Uniform thin lines for detail, slightly heavier outlines.

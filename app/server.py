@@ -193,7 +193,16 @@ def options():
         "integrations": integrations.status(),
         "mission_ttl_hours": mission_store.ttl_seconds() / 3600,
         "mods": mods.catalog(),
+        "hook": _hook_status(),
     })
+
+
+def _hook_status():
+    """"working" once the DCS server hook has sent anything (a load check, a debrief or its
+    livery scan), "installed" if its file is in Saved Games on this PC, else "missing"."""
+    if REPORTS.exists() or liveries.INSTALLED.exists() or next(OUTPUT_DIR.glob("*.debrief.json"), None):
+        return "working"
+    return "installed" if dcs_install.hook_files() else "missing"
 
 
 @app.get("/api/ai_aircraft")

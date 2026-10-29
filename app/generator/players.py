@@ -3,7 +3,6 @@
 from dcs.mapping import LatLng, Point
 from dcs.mission import StartType
 from dcs.terrain import NoParkingSlotError
-from dcs.unit import Skill
 
 from .. import dtc, liveries, routes
 from ..aircraft import AIRCRAFT
@@ -69,9 +68,14 @@ class PlayersMixin:
                 self.warnings.append(f"{flight_name}: livery '{f.livery}' isn't known for the {a['name']}; "
                                      "DCS will use its default.")
             for i, u in enumerate(g.units):
-                u.skill = Skill.Client if i < f.slots else SKILLS["hard"]
+                # set_player/set_client also give the jet its radio channel table, which the
+                # comm plan below fills in; setting .skill alone leaves the radios unset.
                 if r.singleplayer and idx == 0 and i == 0:
-                    u.skill = Skill.Player
+                    u.set_player()
+                elif i < f.slots:
+                    u.set_client()
+                else:
+                    u.skill = SKILLS["hard"]
             self.player_groups[flight_name] = g
             applied = self.comm_plan.apply(g, idx)
             route = self.route_player(g, cruise_alt, cruise_spd, heli, f)
@@ -208,15 +212,11 @@ class PlayersMixin:
                 f"(earliest about {self.clock(earliest)}).")
 
     def add_cartridge(self, g, f, flight_name, route, applied):
-        labels = {}
-        for chans in applied.values():
-            for _, freq, label in chans:
-                labels.setdefault(round(freq, 3), label[:5])
         name = dtc.cartridge_name(flight_name, f.aircraft)
         dests = [] if f.base == "carrier" else [{"name": self.home.name,
                                                  "pos": self.home.position}]
-        text = dtc.build(f.aircraft, name, self.terrain.name, unit=g.units[0], route=route,
-                         labels=labels, orbits=self.orbits, threats=self.threats,
+        text = dtc.build(f.aircraft, name, self.terrain.name, route=route,
+                         radios=applied, orbits=self.orbits, threats=self.threats,
                          dests=dests, carrier=self.carrier_info if f.base == "carrier" else None)
         if text:
             self.dtc_files[name] = text

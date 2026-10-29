@@ -1,4 +1,5 @@
-"""Which DCS maps are installed on this PC (the Windows app usually runs next to the DCS server).
+"""Which DCS maps are installed on this PC (the Windows app usually runs next to the DCS server),
+and whether the app's server hook is installed there.
 
 Every installed map is a folder in <DCS install>\\Mods\\terrains named like the theatre name
 missions use. The install is DCS_INSTALL_DIR (Settings page) or the first one found in the
@@ -81,6 +82,18 @@ def installed_maps():
                  "filter": bool(theaters) and os.environ.get("MAPS_FILTER", "on").lower() != "off"}
     _cache.update(at=now, key=key, value=value)
     return value
+
+
+def hook_files():
+    """The app's hook (dcs-hook/dmm_reporter.lua) in this user's Saved Games\\DCS*\\Scripts\\Hooks
+    folders: DCS.server, DCS.openbeta and so on."""
+    if os.name != "nt":
+        return []
+    saved = Path(os.environ.get("USERPROFILE") or Path.home()) / "Saved Games"
+    try:
+        return [str(p) for p in saved.glob("DCS*/Scripts/Hooks/dmm_reporter.lua")]
+    except OSError:
+        return []
 
 
 def allowed(theater_key):

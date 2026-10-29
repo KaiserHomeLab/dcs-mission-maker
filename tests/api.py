@@ -9,6 +9,7 @@ import pathlib
 import sys
 import tempfile
 import threading
+import types
 import zipfile
 
 tmp = tempfile.mkdtemp()
@@ -76,6 +77,7 @@ ok(c.get(f"/missions/{stem}/kneeboard/1.png").data[:4] == b"\x89PNG", "kneeboard
 ok(c.get(f"/missions/{stem}/kneeboard/1_route.png").data[:4] == b"\x89PNG", "route kneeboard image")
 ok(c.get(f"/missions/{stem}/kneeboard/1_x.png").status_code == 404, "bad kneeboard page name")
 
+ok(c.get("/api/options").json["hook"] == "missing", "hook reminder shown before the hook reports")
 # Debrief from the DCS hook: events + objective flags; resending a batch doesn't duplicate it.
 ok(c.get(f"/api/missions/{stem}/debrief").json["debrief"] is None, "no debrief before the hook reports")
 evs = [{"type": "takeoff", "t": 60, "player": "Mitsu", "place": "Senaki"},
@@ -125,6 +127,17 @@ r = c.post("/api/reports", json={"mission": name, "errors": ["SCRIPTING (Main): 
 ok(r.status_code == 200, "report")
 missions = c.get("/api/missions").json
 ok(missions[0]["report"]["errors"] == ["SCRIPTING (Main): boom"], "report listed")
+ok(c.get("/api/options").json["hook"] == "working", "hook reminder hidden once the hook has reported")
+from app import dcs_install  # noqa: E402
+
+with tempfile.TemporaryDirectory() as home:
+    hooks = pathlib.Path(home, "Saved Games", "DCS.server", "Scripts", "Hooks")
+    real_os, dcs_install.os = dcs_install.os, types.SimpleNamespace(name="nt", environ={"USERPROFILE": home})
+    ok(dcs_install.hook_files() == [], "no hook in Saved Games")
+    hooks.mkdir(parents=True)
+    (hooks / "dmm_reporter.lua").write_text("--")
+    ok(dcs_install.hook_files() == [str(hooks / "dmm_reporter.lua")], "hook found in Saved Games\\DCS.server")
+    dcs_install.os = real_os
 hook = c.get("/dcs-hook.lua", environ_base={"REMOTE_ADDR": "10.0.0.5"},
              headers={"Host": "10.0.0.13:8080"}).data.decode()
 ok('local APP_URL = "http://missions.local"' in hook, "hook from another PC reports to the public address")
@@ -180,6 +193,35 @@ ok(c.get(f"/api/missions/{radio_stem}/brief").json["flights"][0]["radios"] == [
                                              {"ch": 2, "name": "PKG", "mhz": 255.0}]},
     {"radio": 2, "band": "VHF", "channels": [{"ch": 1, "name": "FLIGHT", "mhz": 140.0}]}],
    "older missions: radio tables made from the preset lines")
+
+# The comm plan reaches the jets: every player seat's radios, and the Hornet's cartridge
+# (COMM1/2 by name, plus the Push-to-Egress lane as its SA page corridor).
+from dcs.mission import Mission  # noqa: E402
+from dcs.unit import Skill  # noqa: E402
+
+from app import dtc  # noqa: E402
+
+hornet = c.post("/api/generate", json={**cfg, "flights": [
+    {"aircraft": "FA-18C_hornet", "slots": 2, "callsign": "Enfield", "number": 1, "dtc": True}]}).json
+plan = c.get(f"/api/missions/{hornet['filename'][:-4]}/brief").json["flights"][0]["radios"]
+with zipfile.ZipFile(OUTPUT_DIR_PATH / hornet["filename"]) as z:
+    cart = json.loads(z.read(next(n for n in z.namelist() if n.startswith("DTC/"))))["data"]
+loaded = Mission()
+loaded.load_file(str(OUTPUT_DIR_PATH / hornet["filename"]))
+seats = [u for co in loaded.coalition["blue"].countries.values() for g in co.plane_group for u in g.units
+         if u.skill == Skill.Client]
+ok(len(seats) == 2 and all(u.radio and {ch: float(f) for ch, f in u.radio[r["radio"]]["channels"].items()
+                                        if ch <= len(r["channels"])}
+                           == {ch["ch"]: float(ch["mhz"]) for ch in r["channels"]} for u in seats for r in plan),
+   "player seats carry the planned presets")
+for r in plan:
+    got = [(cart["COMM"][f"COMM{r['radio']}"][f"Channel_{ch['ch']}"]["frequency"],
+            cart["COMM"][f"COMM{r['radio']}"][f"Channel_{ch['ch']}"]["name"]) for ch in r["channels"]]
+    ok(got == [(float(ch["mhz"]), dtc.short_label(ch["name"])) for ch in r["channels"]],
+       f"cartridge COMM{r['radio']} matches the plan {got}")
+corr = cart["SA"]["CORRIDORS"]
+ok(len(corr) == 1 and 3 <= len(corr[0]["points"]) <= 14 and corr[0]["points"][0]["id"] == "CORR_1_PT_1",
+   f"cartridge corridor {corr}")
 
 # Temporary vs kept missions
 from app import mission_store  # noqa: E402
@@ -547,7 +589,8 @@ r = c.get(d["url"])
 ok(r.status_code == 200 and r.data[:4] == b"\x89PNG", "own drawing served")
 d = threatdb.card("MiG-29S")["drawing"]
 ok(d["url"].startswith("/drawings/MiG_29A.png") and d.get("shows") == "MiG-29", f"variant borrows it: {d}")
-ok("drawing" not in threatdb.card("ZSU-23-4 Shilka"), "no drawing: generated line drawing")
+undrawn = next(k for k in threatdb.ENTRIES if k not in threatdb.DRAWINGS and k not in threatdb.DRAWING_ALIAS)
+ok("drawing" not in threatdb.card(undrawn), "no drawing: generated line drawing")
 ok(c.get("/drawings/..%2Fthreatdb.py").status_code == 404, "drawing path checked")
 ok(set(os.listdir(threatdb.DRAWINGS_DIR)) <= {threatdb.drawing_name(k) for k in threatdb.ENTRIES},
    "every drawing file belongs to a unit")

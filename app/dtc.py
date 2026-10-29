@@ -25,7 +25,7 @@ def cartridge_name(flight_name, unit_type):
     return re.sub(r"[^\w \-]", "", f"{flight_name} {unit_type}").strip()
 
 
-def _short(label, n=5):
+def short_label(label, n=5):
     return re.sub(r"[^A-Z0-9]", "", label.upper())[:n]
 
 
@@ -34,19 +34,22 @@ def _ascii(label, n=24):
 
 
 # ------------------------------------------------------------------- Hornet
-def _hornet_comm(unit, labels):
-    defaults = [305.0, 264.0, 265.0, 256.0, 254.0, 250.0, 270.0, 257.0, 255.0, 262.0,
-                259.0, 268.0, 269.0, 260.0, 263.0, 261.0, 267.0, 251.0, 253.0, 266.0]
+HORNET_DEFAULTS = [305.0, 264.0, 265.0, 256.0, 254.0, 250.0, 270.0, 257.0, 255.0, 262.0,
+                   259.0, 268.0, 269.0, 260.0, 263.0, 261.0, 267.0, 251.0, 253.0, 266.0]
+MAX_CORRIDOR_POINTS = 14  # the SA page draws one corridor of up to 14 points
+
+
+def _hornet_comm(radios):
+    """COMM1/COMM2 from the comm plan ({radio id: [(channel, MHz, name)]}); channels the plan
+    doesn't use keep the jet's stock presets."""
     comm = {}
     for radio_id in (1, 2):
-        channels = dict(enumerate(defaults, start=1))
-        if unit.radio and radio_id in unit.radio:
-            channels.update(unit.radio[radio_id]["channels"])
+        channels = {n: (freq, f"CH {n}") for n, freq in enumerate(HORNET_DEFAULTS, start=1)}
+        channels.update({n: (freq, short_label(label)) for n, freq, label in radios.get(radio_id, []) if n <= 20})
         table = {"Guard": False}
         for n in range(1, 21):
-            freq = float(channels[n])
-            table[f"Channel_{n}"] = {"frequency": freq, "modulation": 1 if freq < 88 else 0,
-                                     "name": labels.get(round(freq, 3), f"CH {n}")}
+            freq, name = float(channels[n][0]), channels[n][1]
+            table[f"Channel_{n}"] = {"frequency": freq, "modulation": 1 if freq < 88 else 0, "name": name}
         table["Channel_G"] = {"frequency": 243.0, "modulation": 0, "name": "GUARD"}
         table["Channel_M"] = {"frequency": 305.0, "modulation": 0, "name": "MAN"}
         table["Channel_C"] = {"frequency": 30.0, "modulation": 1, "name": "CUE"}
@@ -96,13 +99,24 @@ def _hornet_wypt(route, terrain, carrier):
     }
 
 
-def _hornet_sa(orbits, threats):
+def _hornet_corridors(route):
+    """The flight's lane from Push to Egress (through the IP and target, or the CAP)."""
+    keys = [w.get("key") for w in route]
+    if "ingress" not in keys or "egress" not in keys:
+        return []
+    lane = route[keys.index("ingress"):keys.index("egress") + 1][:MAX_CORRIDOR_POINTS]
+    return [{"id": "CORR_1", "num": 1, "note": "LANE",
+             "points": [{"id": f"CORR_1_PT_{i}", "x": w["pos"].x, "y": w["pos"].y}
+                        for i, w in enumerate(lane, start=1)]}]
+
+
+def _hornet_sa(route, orbits, threats):
     caps = [{"id": f"CAP_PTS_{i}", "num": i, "x": o["center"].x, "y": o["center"].y,
              "course": o["course"], "length": o["length"], "diameter": CAP_ORBIT_DIAMETER_M,
-             "turn_direction": "Left", "note": _short(o["name"])}
+             "turn_direction": "Left", "note": short_label(o["name"])}
             for i, o in enumerate(orbits[:9], start=1)]
     mez = [{"id": f"MEZ_THRTS_{i}", "num": i, "x": t["pos"].x, "y": t["pos"].y,
-            "text": _short(t["name"], 8), "threat_type": "Custom",
+            "text": short_label(t["name"], 8), "threat_type": "Custom",
             "threat_ring_radius": round(t["range"] / 1852.0, 1), "threat_level": 1}
            for i, t in enumerate(threats[:40], start=1)]
     dcltr = dict.fromkeys((
@@ -110,7 +124,7 @@ def _hornet_sa(orbits, threats):
         "CAP", "CORR", "FAOR", "FLOT", "MEZ_Names", "MEZ_Rings"
     ), True)
     return {
-        "CAP_PTS": caps, "CORRIDORS": [], "FAOR_FLOT": {"FAOR": [], "FLOT": []},
+        "CAP_PTS": caps, "CORRIDORS": _hornet_corridors(route), "FAOR_FLOT": {"FAOR": [], "FLOT": []},
         "MEZ_THRTS": mez,
         "SETTINGS": {"SENSORS_SETTINGS": {"RWR_Symbols": 1, "FRIEND_Symbols": 3,
                                           "PPLI_tracks": True, "FF_tracks": True,
@@ -157,10 +171,10 @@ def _viper_mpd(route, orbits, threats, dests, terrain):
         pts.append(_viper_stpt(len(pts) + 1, o["name"], o["center"], o["alt"], 463.0, "ANCHOR"))
     thr = [{"number": i, "id": f"THREAT_PTS{55 + i}", "x": t["pos"].x, "y": t["pos"].y,
             "threatName": "Custom", "radius": t["range"], "alt": 9144, "elev": 0,
-            "text": _short(t["name"], 8), "ring": True, "def_num": 1}
+            "text": short_label(t["name"], 8), "ring": True, "def_num": 1}
            for i, t in enumerate(threats[:15], start=1)]
     dest = [{"number": i, "id": f"DEST{80 + i}", "x": d["pos"].x, "y": d["pos"].y, "alt": 0,
-             "text": _short(d["name"], 3) or "DST", "note": d["name"]}
+             "text": short_label(d["name"], 3) or "DST", "note": d["name"]}
             for i, d in enumerate(dests[:19], start=1)]
     return {"terrain": terrain, "mirror_NAV_PTS": False, "NAV_PTS": pts,
             "mirror_GEO_LINES": False, "GEO_LINES": [],
@@ -169,13 +183,13 @@ def _viper_mpd(route, orbits, threats, dests, terrain):
 
 
 # --------------------------------------------------------------------- API
-def build(unit_type, name, terrain, *, unit, route, labels, orbits, threats, dests, carrier):
+def build(unit_type, name, terrain, *, route, radios, orbits, threats, dests, carrier):
     """Returns the .dtc JSON text for one flight, or None if unsupported."""
     data = {"type": unit_type, "name": name, "terrain": terrain}
     if unit_type == HORNET:
-        data["COMM"] = _hornet_comm(unit, labels)
+        data["COMM"] = _hornet_comm(radios)
         data["WYPT"] = _hornet_wypt(route, terrain, carrier)
-        data["SA"] = _hornet_sa(orbits, threats)
+        data["SA"] = _hornet_sa(route, orbits, threats)
         data["TCN"] = _hornet_tcn(carrier)
     elif unit_type == VIPER:
         data["MPD"] = _viper_mpd(route, orbits, threats, dests, terrain)
